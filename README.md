@@ -70,7 +70,8 @@
 
 ## 📸 Tampilan Aplikasi
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/027f45c2-34da-4f03-b1a0-9450d8300ab3" />
+<img width="1887" height="909" alt="image" src="https://github.com/user-attachments/assets/68fc7951-e476-4345-a018-fd3fb2df0d69" />
+
 
 
 ---
