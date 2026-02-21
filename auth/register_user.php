@@ -22,7 +22,7 @@ if (isset($_POST['register'])) {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
             // 4. Insert ke Database
-            $query = "INSERT INTO users (username, password, full_name, department, role) 
+            $query = "INSERT INTO users (username, password, full_name, department, jabatan) 
                       VALUES ('$username', '$hashed_password', '$fullname', '$dept', 'staff')";
 
             if (mysqli_query($conn, $query)) {
@@ -70,16 +70,26 @@ if (isset($_POST['register'])) {
                     <input type="text" name="fullname" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nama Lengkap">
                 </div>
             </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Departemen</label>
-                <select name="department" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                    <option value="Humas">Humas</option>
-                    <option value="Keuangan">Keuangan</option>
-                    <option value="Teknologi">Teknologi</option>
-                    <option value="SDM">SDM</option>
-                </select>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Jabatan</label>
+        <select name="jabatan" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+            <option value="Staff">Staff</option>
+            <option value="Kepala Seksi">Kepala Seksi</option>
+            <option value="Kepala Bidang">Kepala Bidang</option>
+            <option value="Sekretaris">Sekretaris</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Departemen</label>
+        <select name="department" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+            <option value="Humas">Humas</option>
+            <option value="Keuangan">Keuangan</option>
+            <option value="Teknologi">Teknologi</option>
+            <option value="SDM">SDM</option>
+        </select>
+    </div>
+</div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

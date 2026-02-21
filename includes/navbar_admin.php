@@ -3,6 +3,7 @@
         <nav class="space-y-4">
             <a href="dashboard_admin.php" class="block p-3 hover:bg-slate-800 bg-blue-600 rounded-xl font-bold"><i class="fa-solid fa-gauge mr-2"></i> Dashboard</a>
             <a href="inventory.php" class="block p-3 hover:bg-slate-800 bg-blue-600 rounded-xl font-bold"><i class="fa-solid fa-boxes-stacked mr-2"></i> Inventory</a>
+            <a href="manage_templates.php" class="block p-3 hover:bg-slate-800 bg-blue-600 rounded-xl font-bold"><i class="fa-solid fa-screwdriver-wrench mr-2"></i> Kelola Inventory</a>
             <a href="../auth/logout.php" class="block p-3 text-red-400 hover:bg-red-900/20 rounded-xl transition"><i class="fa-solid fa-power-off mr-2"></i> Logout</a>
         </nav>
     </aside>

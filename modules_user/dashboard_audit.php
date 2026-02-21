@@ -1,6 +1,5 @@
 <?php
 session_start();
-// PERBAIKAN: Hubungkan ke database. Gunakan ../ karena file ini ada di dalam folder modules_user/
 include '../config/database.php'; 
 
 // Proteksi: Pastikan user login
@@ -11,14 +10,13 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// PERBAIKAN: Gunakan kueri SQL nyata untuk mengambil data user yang sedang login
+// Mengambil data seluruh pengajuan milik user yang sedang login
 $query = "SELECT s.*, u.full_name as pic_name 
           FROM submissions s 
           LEFT JOIN users u ON s.pic_id = u.id 
           WHERE s.user_id = '$user_id' 
           ORDER BY s.created_at DESC";
 
-// Variabel $conn berasal dari file ../config/database.php
 $result = mysqli_query($conn, $query); 
 ?>
 
@@ -36,61 +34,92 @@ $result = mysqli_query($conn, $query);
     <?php include '../includes/navbar_user.php'; ?>
 
     <main class="max-w-7xl mx-auto px-4 py-10">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Riwayat Seluruh Pengajuan</h2>
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h2 class="text-3xl font-black text-gray-800 tracking-tighter uppercase italic">Riwayat <span class="text-blue-600">Audit</span></h2>
+                <p class="text-sm text-gray-500 font-medium">Pantau status pemeliharaan dan pengadaan aset Anda secara transparan.</p>
+            </div>
+            <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Pengajuan</p>
+                <p class="text-xl font-black text-blue-600"><?php echo mysqli_num_rows($result); ?></p>
+            </div>
+        </div>
 
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-400 text-xs uppercase tracking-wider border-b">
-                            <th class="px-6 py-4">ID & Tanggal</th>
-                            <th class="px-6 py-4">Jenis & Judul</th>
-                            <th class="px-6 py-4">Status</th>
-                            <th class="px-6 py-4">Petugas (PIC)</th>
-                            <th class="px-6 py-4">Aksi</th>
+                        <tr class="bg-gray-50/50 text-gray-400 text-[10px] font-black uppercase tracking-widest border-b">
+                            <th class="px-8 py-5">ID & Tanggal</th>
+                            <th class="px-8 py-5">Jenis & Item</th>
+                            <th class="px-8 py-5">Status Progress</th>
+                            <th class="px-8 py-5 text-center">Petugas (PIC)</th>
+                            <th class="px-8 py-5 text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-gray-50">
                         <?php if(mysqli_num_rows($result) > 0): ?>
                             <?php while($row = mysqli_fetch_assoc($result)): ?>
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-6 py-4">
-                                    <span class="block font-bold text-gray-700 text-sm"><?php echo $row['ticket_number']; ?></span>
-                                    <span class="text-xs text-gray-400"><?php echo date('d/m/Y', strtotime($row['created_at'])); ?></span>
+                            <tr class="hover:bg-slate-50 transition-all duration-300">
+                                <td class="px-8 py-5">
+                                    <span class="block font-black text-blue-600 text-sm italic">#<?php echo $row['ticket_number']; ?></span>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase"><?php echo date('d M Y', strtotime($row['created_at'])); ?></span>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mb-1 
-                                        <?php echo $row['type'] == 'Publikasi' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700'; ?>">
-                                        <?php echo strtoupper($row['type']); ?>
+                                <td class="px-8 py-5">
+                                    <span class="inline-block px-3 py-1 rounded-lg text-[9px] font-black mb-1 uppercase tracking-tighter
+                                        <?php echo $row['type'] == 'Maintenance' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'; ?>">
+                                        <i class="fa-solid <?php echo $row['type'] == 'Maintenance' ? 'fa-screwdriver-wrench' : 'fa-cart-shopping'; ?> mr-1"></i>
+                                        <?php echo $row['type']; ?>
                                     </span>
-                                    <p class="text-sm text-gray-800 font-medium"><?php echo $row['title']; ?></p>
+                                    <p class="text-sm text-gray-800 font-bold tracking-tight"><?php echo $row['title']; ?></p>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm font-bold 
+                                <td class="px-8 py-5">
+                                    <span class="flex items-center gap-2 text-xs font-black uppercase
                                         <?php 
                                             if($row['status'] == 'Selesai') echo 'text-green-600';
                                             elseif($row['status'] == 'Proses') echo 'text-blue-600';
                                             elseif($row['status'] == 'Ditolak') echo 'text-red-600';
                                             else echo 'text-yellow-600';
                                         ?>">
+                                        <i class="fa-solid fa-circle text-[6px]"></i>
                                         <?php echo $row['status']; ?>
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-600">
-                                    <?php echo $row['pic_name'] ? $row['pic_name'] : '-'; ?>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <?php if($row['type'] == 'Publikasi'): ?>
-                                        <a href="cetak_tiket.php?ticket=<?php echo $row['ticket_number']; ?>" class="text-blue-600 font-bold text-sm hover:underline">Cetak</a>
+                                <td class="px-8 py-5 text-center">
+                                    <?php if($row['pic_name']): ?>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <div class="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                                                <i class="fa-solid fa-user-gear text-[10px]"></i>
+                                            </div>
+                                            <span class="text-xs font-bold text-gray-700"><?php echo $row['pic_name']; ?></span>
+                                        </div>
                                     <?php else: ?>
-                                        <a href="cetak_tiket_pengadaan.php?ticket=<?php echo $row['ticket_number']; ?>" class="text-orange-600 font-bold text-sm hover:underline">Cetak</a>
+                                        <span class="text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">Belum Ada PIC</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="px-8 py-5 text-right">
+                                    <?php if($row['type'] == 'Maintenance'): ?>
+                                        <a href="cetak_tiket_maintenance.php?ticket=<?php echo $row['ticket_number']; ?>" 
+                                           class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-emerald-600 hover:text-white transition-all duration-300 uppercase">
+                                            <i class="fa-solid fa-print"></i> Cetak Bukti
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="cetak_tiket_pengadaan.php?ticket=<?php echo $row['ticket_number']; ?>" 
+                                           class="inline-flex items-center gap-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-orange-600 hover:text-white transition-all duration-300 uppercase">
+                                            <i class="fa-solid fa-print"></i> Cetak Bukti
+                                        </a>
                                     <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-gray-400">Belum ada riwayat pengajuan.</td>
+                                <td colspan="5" class="px-8 py-20 text-center">
+                                    <div class="flex flex-col items-center opacity-20">
+                                        <i class="fa-solid fa-folder-open text-6xl mb-4"></i>
+                                        <p class="text-sm font-black uppercase tracking-widest">Belum ada riwayat pengajuan ditemukan</p>
+                                    </div>
+                                </td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -98,6 +127,10 @@ $result = mysqli_query($conn, $query);
             </div>
         </div>
     </main>
+
+    <footer class="text-center py-10">
+        <p class="text-[10px] font-bold text-gray-300 uppercase tracking-[0.3em]">SIDIK-TI Audit & Monitoring System &copy; 2026</p>
+    </footer>
 
 </body>
 </html>

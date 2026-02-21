@@ -18,7 +18,7 @@
                 <div class="md:w-2/3">
                     <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Sistem Pemeliharaan Adalah Investasi, Bukan Beban.</h1>
                     <p class="text-lg opacity-90 mb-8 leading-relaxed">
-                        Selamat datang di IT Helpdesk. Sebelum melanjutkan pengajuan publikasi atau barang, mari pastikan aset Anda dalam kondisi optimal melalui siklus pemeliharaan yang tepat.
+                        Selamat datang di SIDIK-TI. Sebelum melanjutkan pengajuan publikasi atau barang, mari pastikan aset Anda dalam kondisi optimal melalui siklus pemeliharaan yang tepat.
                     </p>
                     <div class="flex gap-4">
                         <a href="#modul" class="bg-white text-blue-700 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition">Mulai Pengajuan</a>
@@ -30,7 +30,7 @@
             <section id="materi" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
                     <div class="w-12 h-12 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fa-solid fa-shield-halved text-xl"></i>
+                        <i class="fa-solid fa-shield text-xl"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Preventive Maintenance</h3>
                     <p class="text-gray-600 text-sm leading-relaxed">
@@ -63,18 +63,17 @@
     <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Pilih Jenis Layanan</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
         
-        <div class="group relative bg-white p-1 rounded-3xl bg-gradient-to-b from-blue-400 to-indigo-500 shadow-lg transition hover:scale-105">
-            <div class="bg-white rounded-[22px] p-8 h-full flex flex-col justify-between">
-                <div>
-                    <h4 class="text-2xl font-bold text-gray-800 mb-2">Publikasi & Administrasi</h4>
-                    <p class="text-gray-500 mb-6 text-sm">Validasi user diperlukan untuk memulai pengajuan dokumen, konten media, dan administrasi IT lainnya.</p>
-                </div>
-                
-                <a href="auth/login_user.php" class="inline-flex items-center text-blue-600 font-bold group-hover:underline text-lg">
-                    Validasi Diri <i class="fa-solid fa-lock ml-2"></i>
-                </a>
-            </div>
+        <div class="group relative bg-white p-1 rounded-3xl bg-gradient-to-b from-green-400 to-emerald-500 shadow-lg transition hover:scale-105">
+    <div class="bg-white rounded-[22px] p-8 h-full flex flex-col justify-between">
+        <div>
+            <h4 class="text-2xl font-bold text-gray-800 mb-2">Maintenance Perangkat TI</h4>
+            <p class="text-gray-500 mb-6 text-sm">Ajukan pemeliharaan rutin atau perbaikan perangkat keras dan lunak Anda secara terjadwal.</p>
         </div>
+        <a href="auth/login_user.php" class="inline-flex items-center text-emerald-600 font-bold group-hover:underline text-lg">
+            Ajukan Maintenance <i class="fa-solid fa-screwdriver-wrench ml-2"></i>
+        </a>
+    </div>
+</div>
 
         <div class="group relative bg-white p-1 rounded-3xl bg-gradient-to-b from-orange-400 to-red-500 shadow-lg transition hover:scale-105">
             <div class="bg-white rounded-[22px] p-8 h-full flex flex-col justify-between">

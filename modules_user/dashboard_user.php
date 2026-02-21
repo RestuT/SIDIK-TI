@@ -66,18 +66,17 @@ $result = mysqli_query($conn, $query);
                         <i class="fa-solid fa-plus-circle text-blue-600"></i> Buat Pengajuan
                     </h2>
                     
-                    <a href="form_publikasi.php" class="block p-6 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition">
-                                <i class="fa-solid fa-file-export text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-800">Publikasi & Admin</h3>
-                                <p class="text-xs text-gray-500">Ajukan konten atau dokumen</p>
-                            </div>
-                        </div>
-                    </a>
-
+                    <a href="form_maintenance.php" class="block p-6 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
+            <i class="fa-solid fa-screwdriver-wrench text-xl"></i>
+        </div>
+        <div>
+            <h3 class="font-bold text-gray-800">Maintenance & Perbaikan</h3>
+            <p class="text-xs text-gray-500">Ajukan servis atau pengecekan alat</p>
+        </div>
+    </div>
+</a>
                     <a href="form_pengadaan.php" class="block p-6 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition group">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition">
