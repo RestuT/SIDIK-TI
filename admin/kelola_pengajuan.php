@@ -1,8 +1,8 @@
 <?php
 session_start();
-include '../config/database.php'; //
+include '../config/database.php'; 
 
-// Proteksi Admin: Memastikan hanya user dengan role admin yang bisa masuk
+// Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../auth/login_admin.php");
     exit();
@@ -10,8 +10,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 $id = mysqli_real_escape_string($conn, $_GET['id']);
 
-// Ambil data pengajuan, nama pemohon, dan sisa anggaran untuk validasi
-$query = "SELECT s.*, u.full_name, b.total_limit - b.used_amount as sisa_pagu 
+// Ambil data pengajuan, nama pemohon, dan sisa anggaran
+// Pastikan kolom 'estimasi' diambil untuk keperluan update budget
+$query = "SELECT s.*, u.full_name, b.total_limit, b.used_amount, (b.total_limit - b.used_amount) as sisa_pagu 
           FROM submissions s 
           JOIN users u ON s.user_id = u.id 
           LEFT JOIN budget_config b ON b.fiscal_year = 2026
@@ -24,7 +25,7 @@ if (!$data) {
     die("Data tidak ditemukan.");
 }
 
-// Ambil daftar teknisi untuk pilihan PIC
+// Ambil daftar teknisi
 $technicians = mysqli_query($conn, "SELECT id, full_name FROM users WHERE role = 'technician' OR role = 'admin'");
 
 if (isset($_POST['update'])) {
@@ -32,6 +33,20 @@ if (isset($_POST['update'])) {
     $pic = !empty($_POST['pic_id']) ? "'" . mysqli_real_escape_string($conn, $_POST['pic_id']) . "'" : "NULL";
     $reason = mysqli_real_escape_string($conn, $_POST['reasoning']);
 
+    // --- LOGIKA OTOMATIS UPDATE BUDGET ---
+    // Hanya berjalan jika status berubah menjadi 'Selesai' dan tipe-nya 'Pengadaan'
+    // Dan pastikan sebelumnya statusnya BUKAN 'Selesai' (agar tidak double subtract jika di-save 2x)
+    if ($status === 'Selesai' && $data['type'] === 'Pengadaan' && $data['status'] !== 'Selesai') {
+        $biaya_pengadaan = $data['estimasi'];
+        $tahun_fiskal = 2026; // Bisa menggunakan date('Y', strtotime($data['created_at']))
+
+        // Jalankan query update ke budget_config
+        $update_budget = "UPDATE budget_config 
+                          SET used_amount = used_amount + $biaya_pengadaan 
+                          WHERE fiscal_year = $tahun_fiskal";
+        mysqli_query($conn, $update_budget);
+    }
+    // --------------------------------------
 
     $update = "UPDATE submissions SET status = '$status', pic_id = $pic, admin_reasoning = '$reason' WHERE id = $id";
     
@@ -90,6 +105,14 @@ if (isset($_POST['update'])) {
                 </a>
                 <?php endif; ?>
             </div>
+            <?php if($data['is_appealed'] == 1): ?>
+    <div class="bg-red-50 p-6 rounded-3xl border border-red-100 mb-6">
+        <h4 class="text-xs font-black text-red-600 uppercase mb-2 tracking-widest italic">
+            <i class="fa-solid fa-circle-exclamation"></i> Pengajuan ini adalah Aju Banding
+        </h4>
+        <p class="text-sm text-gray-700 font-medium">"<?php echo $data['appeal_reason']; ?>"</p>
+    </div>
+<?php endif; ?>
 
             <form action="" method="POST" class="space-y-6 border-l border-slate-100 pl-0 md:pl-8">
                 <div>
