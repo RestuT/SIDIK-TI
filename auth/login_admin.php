@@ -105,6 +105,7 @@ if (isset($_POST['verify_2fa'])) {
                     Lanjut Ke Verifikasi
                 </button>
                                 <a href="register_admin.php" class="block text-center text-xs text-slate-400 hover:text-slate-600 transition font-bold uppercase">Daftar Admin Baru</a>
+                                <a href="../index.php" class="block text-center text-xs text-slate-400 hover:text-slate-600 transition font-bold uppercase">Kembali ke Menu Utama</a>
             </form>
         <?php else: ?>
             <form action="" method="POST" class="space-y-6">

@@ -29,6 +29,11 @@ if (isset($_GET['from_inv'])) {
 $budget_query = mysqli_query($conn, "SELECT * FROM budget_config WHERE fiscal_year = 2026");
 $budget_data = mysqli_fetch_assoc($budget_query);
 $sisa_anggaran = ($budget_data['total_limit'] ?? 0) - ($budget_data['used_amount'] ?? 0);
+// Ambil sisa budget khusus departemen user yang sedang login
+$my_dept = $user_data['department'];
+$check_budget = mysqli_query($conn, "SELECT total_limit - used_amount as sisa FROM budget_config WHERE department = '$my_dept' AND fiscal_year = 2026");
+$budget_dept = mysqli_fetch_assoc($check_budget);
+$sisa_dept = $budget_dept['sisa'] ?? 0;
 ?>
 
 <!DOCTYPE html>

@@ -34,19 +34,21 @@ if (isset($_POST['update'])) {
     $reason = mysqli_real_escape_string($conn, $_POST['reasoning']);
 
     // --- LOGIKA OTOMATIS UPDATE BUDGET ---
-    // Hanya berjalan jika status berubah menjadi 'Selesai' dan tipe-nya 'Pengadaan'
-    // Dan pastikan sebelumnya statusnya BUKAN 'Selesai' (agar tidak double subtract jika di-save 2x)
-    if ($status === 'Selesai' && $data['type'] === 'Pengadaan' && $data['status'] !== 'Selesai') {
-        $biaya_pengadaan = $data['estimasi'];
-        $tahun_fiskal = 2026; // Bisa menggunakan date('Y', strtotime($data['created_at']))
-
-        // Jalankan query update ke budget_config
-        $update_budget = "UPDATE budget_config 
-                          SET used_amount = used_amount + $biaya_pengadaan 
-                          WHERE fiscal_year = $tahun_fiskal";
-        mysqli_query($conn, $update_budget);
+   // Cari bagian proses update status menjadi 'Selesai'
+if ($status === 'Selesai' && $data['type'] === 'Pengadaan' && $data['status'] !== 'Selesai') {
+    $biaya = $data['estimasi'];
+    $dept_pemohon = $data['department']; // Kolom ini didapat dari JOIN users di awal file
+    
+    // Update budget departemen yang bersangkutan
+    $update_budget = "UPDATE budget_config 
+                      SET used_amount = used_amount + $biaya 
+                      WHERE fiscal_year = 2026 AND department = '$dept_pemohon'";
+    
+    if(!mysqli_query($conn, $update_budget)) {
+        // Logika error jika budget dept belum di-setup oleh admin
+        die("Error: Anggaran untuk departemen $dept_pemohon belum diset-up oleh admin.");
     }
-    // --------------------------------------
+}
 
     $update = "UPDATE submissions SET status = '$status', pic_id = $pic, admin_reasoning = '$reason' WHERE id = $id";
     
