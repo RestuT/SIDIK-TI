@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/database.php';
+include '../config/csrf_helper.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -33,17 +34,16 @@ $technicians = mysqli_query($conn, "SELECT id, full_name FROM users WHERE role =
 
 // Proses Update Status & PIC
 if (isset($_POST['update_maintenance'])) {
+    require_csrf_token();
+    
     $status = $_POST['status'];
-    $pic_id = !empty($_POST['pic_id']) ? "'" . mysqli_real_escape_string($conn, $_POST['pic_id']) . "'" : "NULL";
-    $note   = mysqli_real_escape_string($conn, $_POST['admin_note']);
+    $pic_id = !empty($_POST['pic_id']) ? (int)$_POST['pic_id'] : null;
+    $note   = $_POST['admin_note'];
 
-    $update = "UPDATE submissions SET 
-               status = '$status', 
-               pic_id = $pic_id, 
-               admin_reasoning = '$note' 
-               WHERE id = '$id'";
+    $stmt = mysqli_prepare($conn, "UPDATE submissions SET status = ?, pic_id = ?, admin_reasoning = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "sisi", $status, $pic_id, $note, $id);
 
-    if (mysqli_query($conn, $update)) {
+    if (mysqli_stmt_execute($stmt)) {
         header("Location: dashboard_admin.php?status=success");
         exit();
     }
@@ -115,6 +115,7 @@ if (isset($_POST['update_maintenance'])) {
                         <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 text-center">Tindakan Administrator</h4>
                         
                         <form action="" method="POST" class="space-y-6">
+                            <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Ubah Status</label>
                                 <select name="status" class="w-full p-4 bg-white border border-gray-200 rounded-2xl font-black text-sm outline-none focus:ring-4 focus:ring-emerald-100 transition">

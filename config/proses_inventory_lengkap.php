@@ -1,46 +1,51 @@
 <?php
 session_start();
 include 'database.php';
+include 'csrf_helper.php';
 
 if (isset($_POST['simpan_inventory'])) {
-    $id         = $_POST['item_id'];
-    $name       = mysqli_real_escape_string($conn, $_POST['item_name']);
+    require_csrf_token();
+    
+    $id         = !empty($_POST['item_id']) ? (int)$_POST['item_id'] : null;
+    $name       = $_POST['item_name'];
     $cat        = $_POST['category'];
-    $stock      = $_POST['stock'];
+    $stock      = (int)$_POST['stock'];
     $satuan     = $_POST['satuan'];
-    $min        = $_POST['min_stock'];
-    $price      = $_POST['price'];
+    $min        = (int)$_POST['min_stock'];
+    $price      = (float)$_POST['price'];
 
     if (!empty($id)) {
         // Mode Update
-        $query = "UPDATE inventory SET 
-                  item_name = '$name', category = '$cat', stock = '$stock', 
-                  satuan = '$satuan', min_stock = '$min', price_reference = '$price' 
-                  WHERE id = '$id'";
+        $stmt = mysqli_prepare($conn, "UPDATE inventory SET item_name = ?, category = ?, stock = ?, satuan = ?, min_stock = ?, price_reference = ? WHERE id = ?");
+        mysqli_stmt_bind_param($stmt, "ssisidi", $name, $cat, $stock, $satuan, $min, $price, $id);
     } else {
         // Mode Tambah Baru
-        $query = "INSERT INTO inventory (item_name, category, stock, satuan, min_stock, price_reference) 
-                  VALUES ('$name', '$cat', '$stock', '$satuan', '$min', '$price')";
+        $stmt = mysqli_prepare($conn, "INSERT INTO inventory (item_name, category, stock, satuan, min_stock, price_reference) VALUES (?, ?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt, "ssisid", $name, $cat, $stock, $satuan, $min, $price);
     }
 
-    if (mysqli_query($conn, $query)) {
+    if (mysqli_stmt_execute($stmt)) {
         // LOGIKA SINKRONISASI KE MASTER TEMPLATE
-        // Cek apakah item sudah ada di template pengadaan
-        $check_temp = mysqli_query($conn, "SELECT id FROM procurement_templates WHERE product_name = '$name'");
+        $stmt_check = mysqli_prepare($conn, "SELECT id FROM procurement_templates WHERE product_name = ?");
+        mysqli_stmt_bind_param($stmt_check, "s", $name);
+        mysqli_stmt_execute($stmt_check);
+        $check_temp = mysqli_stmt_get_result($stmt_check);
         
         if (mysqli_num_rows($check_temp) > 0) {
-            // Update harga dasar di template jika nama barang sama
-            mysqli_query($conn, "UPDATE procurement_templates SET base_price = '$price', category = '$cat' WHERE product_name = '$name'");
+            $stmt_update = mysqli_prepare($conn, "UPDATE procurement_templates SET base_price = ?, category = ? WHERE product_name = ?");
+            mysqli_stmt_bind_param($stmt_update, "dss", $price, $cat, $name);
+            mysqli_stmt_execute($stmt_update);
         } else {
-            // Jika belum ada di master template, buat otomatis agar user bisa memilihnya di form pengadaan
-            mysqli_query($conn, "INSERT INTO procurement_templates (category, product_name, specification, base_price) 
-                                 VALUES ('$cat', '$name', 'Restock dari Inventory: $name', '$price')");
+            $spec = "Restock dari Inventory: $name";
+            $stmt_insert = mysqli_prepare($conn, "INSERT INTO procurement_templates (category, product_name, specification, base_price) VALUES (?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt_insert, "sssd", $cat, $name, $spec, $price);
+            mysqli_stmt_execute($stmt_insert);
         }
 
         header("Location: ../admin/inventory.php?status=success");
         exit();
     } else {
-        echo "Error: " . mysqli_error($conn);
+        die("Error 500: Terjadi kesalahan sistem saat menyimpan stok, silakan lapor pada Admin.");
     }
 }
 ?>

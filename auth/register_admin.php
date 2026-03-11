@@ -1,6 +1,9 @@
 <?php
 session_start();
 include '../config/database.php';
+include '../config/csrf_helper.php';
+
+require_csrf_token();
 
 $message = "";
 $error = "";
@@ -19,18 +22,22 @@ if (isset($_POST['register_admin'])) {
         $error = "Kode 2FA harus tepat 6 digit angka!";
     } else {
         // Cek username unik
-        $check = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username'");
+        $stmt_check = mysqli_prepare($conn, "SELECT id FROM users WHERE username = ?");
+        mysqli_stmt_bind_param($stmt_check, "s", $username);
+        mysqli_stmt_execute($stmt_check);
+        $check = mysqli_stmt_get_result($stmt_check);
+        
         if (mysqli_num_rows($check) > 0) {
             $error = "Username admin sudah digunakan!";
         } else {
             // Enkripsi password
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             
-            // Insert ke database
-            $query = "INSERT INTO users (username, password, full_name, role, two_fa_code) 
-                      VALUES ('$username', '$hashed_password', '$fullname', 'admin', '$two_fa')";
+            // Insert ke database menggunakan PREPARED STATEMENTS
+            $stmt_insert = mysqli_prepare($conn, "INSERT INTO users (username, password, full_name, role, two_fa_code) VALUES (?, ?, ?, 'admin', ?)");
+            mysqli_stmt_bind_param($stmt_insert, "ssss", $username, $hashed_password, $fullname, $two_fa);
             
-            if (mysqli_query($conn, $query)) {
+            if (mysqli_stmt_execute($stmt_insert)) {
                 header("Location: login_admin.php?pesan=reg_sukses");
                 exit();
             } else {
@@ -64,6 +71,7 @@ if (isset($_POST['register_admin'])) {
         <?php endif; ?>
 
         <form action="" method="POST" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase mb-1 tracking-wider">Username</label>

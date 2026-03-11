@@ -3,20 +3,21 @@ session_start();
 include 'database.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_SESSION['role'] === 'admin') {
-    $id = mysqli_real_escape_string($conn, $_POST['id']);
+    $id = (int)$_POST['id'];
     $change = (int)$_POST['change'];
     $action = $_POST['action'];
 
     if ($action === 'add') {
-        $query = "UPDATE inventory SET stock = stock + $change WHERE id = '$id'";
+        $stmt = mysqli_prepare($conn, "UPDATE inventory SET stock = stock + ? WHERE id = ?");
     } else {
-        $query = "UPDATE inventory SET stock = GREATEST(0, stock - $change) WHERE id = '$id'";
+        $stmt = mysqli_prepare($conn, "UPDATE inventory SET stock = GREATEST(0, stock - ?) WHERE id = ?");
     }
+    mysqli_stmt_bind_param($stmt, "ii", $change, $id);
 
-    if (mysqli_query($conn, $query)) {
+    if (mysqli_stmt_execute($stmt)) {
         header("Location: ../admin/inventory.php?pesan=update_berhasil");
     } else {
-        echo "Error: " . mysqli_error($conn);
+        die("Error 500: Terjadi kesalahan saat memproses data.");
     }
 } else {
     header("Location: ../auth/login_admin.php");

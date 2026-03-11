@@ -2,26 +2,30 @@
 session_start();
 include 'database.php';
 
-// Proteksi Admin: Hanya role admin yang boleh menghapus
-if (isset($_GET['id']) && $_SESSION['role'] === 'admin') {
+// Proteksi Admin
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    die("Akses tertolak");
+}
+
+if (isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
     
-    $id = mysqli_real_escape_string($conn, $_GET['id']);
-
-    // Query Hapus Permanen
-    $query = "DELETE FROM inventory WHERE id = '$id'";
-
-    if (mysqli_query($conn, $query)) {
-        // Berhasil dihapus, arahkan kembali dengan pesan sukses
-        header("Location: ../admin/inventory.php?pesan=hapus_sukses");
-        exit();
-    } else {
-        // Gagal karena relasi database atau error lainnya
-        echo "Gagal menghapus produk: " . mysqli_error($conn);
+    // Pastikan ID valid
+    if ($id <= 0) {
+        die("ID tidak valid");
     }
 
+    $stmt = mysqli_prepare($conn, "DELETE FROM inventory WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    
+    if (mysqli_stmt_execute($stmt)) {
+        header("Location: ../admin/inventory.php?status=deleted");
+    } else {
+        echo "Error 500: Terjadi kesalahan saat menghapus stok gudang. Hubungi Administrator: " . mysqli_error($conn);
+    }
+    
+    mysqli_stmt_close($stmt);
 } else {
-    // Jika mencoba akses tanpa login admin
-    header("Location: ../auth/login_admin.php");
-    exit();
+    header("Location: ../admin/inventory.php");
 }
 ?>

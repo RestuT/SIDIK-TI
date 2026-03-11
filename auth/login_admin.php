@@ -2,18 +2,23 @@
 session_start();
 // PERBAIKAN: Pastikan file database.php benar-benar terhubung
 include '../config/database.php'; 
+include '../config/csrf_helper.php';
+
+require_csrf_token();
 
 $step = 1; 
 $error = "";
 
 // Tahap 1: Validasi Username & Password
 if (isset($_POST['login_step1'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Hanya mencari user dengan role admin
-    $query = "SELECT * FROM users WHERE username = '$username' AND role = 'admin'";
-    $result = mysqli_query($conn, $query);
+    // Hanya mencari user dengan role admin menggunakan PREPARED STATEMENTS
+    $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE username = ? AND role = 'admin'");
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) === 1) {
         $row = mysqli_fetch_assoc($result);
@@ -39,11 +44,13 @@ if (isset($_POST['verify_2fa'])) {
         exit();
     }
 
-    $code = mysqli_real_escape_string($conn, $_POST['two_fa_code']);
+    $code = $_POST['two_fa_code'];
     $admin_id = $_SESSION['temp_admin_id'];
 
-    $query = "SELECT * FROM users WHERE id = '$admin_id' AND two_fa_code = '$code'";
-    $result = mysqli_query($conn, $query);
+    $stmt2 = mysqli_prepare($conn, "SELECT * FROM users WHERE id = ? AND two_fa_code = ?");
+    mysqli_stmt_bind_param($stmt2, "is", $admin_id, $code);
+    mysqli_stmt_execute($stmt2);
+    $result = mysqli_stmt_get_result($stmt2);
 
     if (mysqli_num_rows($result) === 1) {
         $row = mysqli_fetch_assoc($result);
@@ -93,6 +100,7 @@ if (isset($_POST['verify_2fa'])) {
 
         <?php if($step == 1): ?>
             <form action="" method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <div>
                     <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">ID Administrator</label>
                     <input type="text" name="username" required autocomplete="off" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all outline-none font-bold text-slate-700" placeholder="Username">
@@ -109,6 +117,7 @@ if (isset($_POST['verify_2fa'])) {
             </form>
         <?php else: ?>
             <form action="" method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <div class="text-center mb-4">
                     <p class="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1">Identitas Terverifikasi</p>
                     <p class="text-sm text-slate-800 font-black">Halo, <?php echo $_SESSION['temp_admin_user']; ?>!</p>

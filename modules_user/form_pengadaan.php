@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/database.php';
+include '../config/csrf_helper.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login_user.php");
@@ -26,12 +27,16 @@ if (isset($_GET['from_inv'])) {
     }
 }
 
-$budget_query = mysqli_query($conn, "SELECT * FROM budget_config WHERE fiscal_year = 2026");
-$budget_data = mysqli_fetch_assoc($budget_query);
-$sisa_anggaran = ($budget_data['total_limit'] ?? 0) - ($budget_data['used_amount'] ?? 0);
+$current_year = date('Y');
+
+// (Dihapus kueri lama yang tanpa WHERE department)
+
 // Ambil sisa budget khusus departemen user yang sedang login
 $my_dept = $user_data['department'];
-$check_budget = mysqli_query($conn, "SELECT total_limit - used_amount as sisa FROM budget_config WHERE department = '$my_dept' AND fiscal_year = 2026");
+$stmt_check = mysqli_prepare($conn, "SELECT total_limit - used_amount as sisa FROM budget_config WHERE department = ? AND fiscal_year = ?");
+mysqli_stmt_bind_param($stmt_check, "si", $my_dept, $current_year);
+mysqli_stmt_execute($stmt_check);
+$check_budget = mysqli_stmt_get_result($stmt_check);
 $budget_dept = mysqli_fetch_assoc($check_budget);
 $sisa_dept = $budget_dept['sisa'] ?? 0;
 ?>
@@ -55,9 +60,9 @@ $sisa_dept = $budget_dept['sisa'] ?? 0;
             <div class="space-y-6">
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-wallet text-orange-500"></i> Sisa Anggaran 2026
+                        <i class="fa-solid fa-wallet text-orange-500"></i> Sisa Anggaran <?php echo date('Y'); ?>
                     </h3>
-                    <p class="text-xl font-bold text-gray-800">Rp <?php echo number_format($sisa_anggaran, 0, ',', '.'); ?></p>
+                    <p class="text-xl font-bold text-gray-800">Rp <?php echo number_format($sisa_dept, 0, ',', '.'); ?></p>
                     <p class="text-[10px] text-gray-400 mt-2 italic">*Berdasarkan DPA Dinas Terkini</p>
                 </div>
 
@@ -81,6 +86,7 @@ $sisa_dept = $budget_dept['sisa'] ?? 0;
                     </h2>
                     
                     <form action="../config/proses_pengadaan.php" method="POST" enctype="multipart/form-data" class="space-y-5">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>

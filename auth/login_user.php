@@ -1,14 +1,19 @@
 <?php
 session_start();
-include '../config/database.php'; // Pastikan path ke database.php benar
+include '../config/database.php';
+include '../config/csrf_helper.php';
+
+require_csrf_token();
 
 if (isset($_POST['login'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // 1. Query mencari user berdasarkan username
-    $query = "SELECT * FROM users WHERE username = '$username'";
-    $result = mysqli_query($conn, $query);
+    // 1. Query mencari user berdasarkan username menggunakan PREPARED STATEMENTS
+    $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE username = ?");
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) === 1) {
         $data_user = mysqli_fetch_assoc($result);
@@ -60,6 +65,7 @@ if (isset($_POST['login'])) {
         <?php endif; ?>
 
         <form action="" method="POST" class="space-y-5">
+            <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Username / NIP</label>
                 <div class="relative">

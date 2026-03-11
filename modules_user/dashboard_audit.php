@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/database.php'; 
+include '../config/csrf_helper.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login_user.php");
@@ -143,6 +144,7 @@ $result = mysqli_query($conn, $query);
             </div>
 
             <form action="../config/proses_banding.php" method="POST" class="space-y-4">
+                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <input type="hidden" name="submission_id" id="appeal_id">
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Pembelaan / Alasan Banding</label>

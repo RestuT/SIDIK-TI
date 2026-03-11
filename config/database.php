@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "it_helpdesk_db";
+$db   = "sidik_ti";
 
 $conn = mysqli_connect($host, $user, $pass, $db);
 

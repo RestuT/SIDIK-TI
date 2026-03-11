@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/database.php'; //
+include '../config/csrf_helper.php';
 
 // Proteksi halaman: Memastikan hanya user yang sudah login
 if (!isset($_SESSION['user_id'])) {
@@ -40,6 +41,7 @@ $user_data = mysqli_fetch_assoc($user_query);
             </div>
             
             <form action="../config/proses_maintenance.php" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Nama Pemohon</label>

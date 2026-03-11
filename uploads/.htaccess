@@ -1,0 +1,25 @@
+# Nonaktifkan eksekusi script PHP dan tipe file berbahaya lainnya di dalam folder uploads
+<FilesMatch "\.(php|php[3-7]|phtml|pl|py|jsp|asp|sh|cgi)$">
+    SetHandler None
+    ForceType text/plain
+</FilesMatch>
+
+# Blokir akses langsung ke file konfigurasi atau file tersembunyi
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Matikan PHP engine secara spesifik untuk Apache
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Nonaktifkan eksekusi CGI
+Options -ExecCGI

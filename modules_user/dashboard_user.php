@@ -112,10 +112,10 @@ $result = mysqli_query($conn, $query);
                                 <?php if(mysqli_num_rows($result) > 0): ?>
                                     <?php while($row = mysqli_fetch_assoc($result)): ?>
                                     <tr class="hover:bg-slate-50 transition">
-                                        <td class="px-6 py-4 text-sm font-bold text-gray-700">#<?php echo $row['ticket_number']; ?></td>
+                                        <td class="px-6 py-4 text-sm font-bold text-gray-700">#<?php echo htmlspecialchars($row['ticket_number'], ENT_QUOTES, 'UTF-8'); ?></td>
                                         <td class="px-6 py-4">
-                                            <p class="text-sm font-medium text-gray-800"><?php echo $row['title']; ?></p>
-                                            <span class="text-[10px] text-gray-400"><?php echo $row['type']; ?></span>
+                                            <p class="text-sm font-medium text-gray-800"><?php echo htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8'); ?></p>
+                                            <span class="text-[10px] text-gray-400"><?php echo htmlspecialchars($row['type'], ENT_QUOTES, 'UTF-8'); ?></span>
                                         </td>
                                         <td class="px-6 py-4">
                                             <span class="px-3 py-1 rounded-full text-[10px] font-bold 
@@ -125,11 +125,11 @@ $result = mysqli_query($conn, $query);
                                                     elseif($row['status'] == 'Ditolak') echo 'bg-red-100 text-red-700';
                                                     else echo 'bg-yellow-100 text-yellow-700';
                                                 ?>">
-                                                <?php echo $row['status']; ?>
+                                                <?php echo htmlspecialchars($row['status'], ENT_QUOTES, 'UTF-8'); ?>
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-600 italic">
-                                            <?php echo $row['pic_name'] ? $row['pic_name'] : 'Belum ditentukan'; ?>
+                                            <?php echo htmlspecialchars($row['pic_name'] ? $row['pic_name'] : 'Belum ditentukan', ENT_QUOTES, 'UTF-8'); ?>
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>

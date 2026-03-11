@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/database.php';
+include '../config/csrf_helper.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -55,7 +56,7 @@ while($t = mysqli_fetch_assoc($master_templates)) {
                         <th class="px-8 py-5">Barang & Spesifikasi</th>
                         <th class="px-8 py-5">Kategori</th>
                         <th class="px-8 py-5 text-right">Rincian Biaya (User)</th>
-                        <th class="px-8 py-5 text-center">Stok</th>
+                        <th class="px-8 py-5 text-center">Stok Gudang</th>
                         <th class="px-8 py-5 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -86,8 +87,11 @@ while($t = mysqli_fetch_assoc($master_templates)) {
                             </span>
                         </td>
                         <td class="px-8 py-5 text-right flex justify-end gap-2">
-                            <a href="../modules_user/form_pengadaan.php?from_inv=<?php echo $row['id']; ?>" class="bg-orange-100 text-orange-600 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-orange-600 hover:text-white transition uppercase">
-                                <i class="fa-solid fa-cart-plus mr-1"></i> Pengadaan
+                            <button onclick="bukaModalEdit(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="bg-amber-100 text-amber-600 px-3 py-2 rounded-xl text-xs font-bold hover:bg-amber-500 hover:text-white transition shadow-sm">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <a href="../config/hapus_inventory.php?id=<?php echo $row['id']; ?>" onclick="return confirm(' PERINGATAN! \n\nMenghapus barang ini dari gudang tidak akan menghapus riwayat master template, namun stok fisiknya akan hangus.\n\nLanjutkan penghapusan?')" class="bg-red-100 text-red-600 px-3 py-2 rounded-xl text-xs font-bold hover:bg-red-600 hover:text-white transition shadow-sm">
+                                <i class="fa-solid fa-trash-can"></i>
                             </a>
                         </td>
                     </tr>
@@ -104,6 +108,7 @@ while($t = mysqli_fetch_assoc($master_templates)) {
                 </div>
 
                 <form action="../config/proses_inventory_lengkap.php" method="POST" class="space-y-4">
+                    <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Pilih Produk (Dari Master Template)</label>
                         <select id="selectTemplate" name="item_name" onchange="autoFillTemplate()" required class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-blue-700">
@@ -152,6 +157,57 @@ while($t = mysqli_fetch_assoc($master_templates)) {
                 </form>
             </div>
         </div>
+
+        <!-- MODAL EDIT INVENTORY -->
+        <div id="modalEdit" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-[40px] max-w-lg w-full p-10 shadow-2xl transition-all scale-95 opacity-0" id="modalEditContent">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                    <h3 class="text-2xl font-black text-gray-800 italic uppercase">Revisi <span class="text-amber-500">Stok Barang</span></h3>
+                    <button onclick="tutupModalEdit()" class="text-gray-400 hover:text-red-500 bg-gray-50 h-10 w-10 flex items-center justify-center rounded-xl"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+
+                <form action="../config/proses_inventory_lengkap.php" method="POST" class="space-y-4">
+                    <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                    <input type="hidden" name="item_id" id="edit_id">
+                    
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Nama Barang (Read-Only)</label>
+                        <input type="text" name="item_name" id="edit_name" readonly class="w-full p-3 bg-gray-100 border border-gray-200 rounded-2xl outline-none font-bold text-gray-500 cursor-not-allowed">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Kategori (Read-Only)</label>
+                            <input type="text" name="category" id="edit_category" readonly class="w-full p-3 bg-gray-100 border border-gray-200 rounded-2xl font-bold text-gray-500 cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Satuan</label>
+                            <input type="text" name="satuan" id="edit_satuan" required class="w-full p-3 bg-amber-50 border border-amber-100 rounded-2xl outline-none font-bold text-amber-700">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-amber-500 uppercase mb-1 ml-1">Revisi Sisa Stok Fisik</label>
+                            <input type="number" name="stock" id="edit_stock" required class="w-full p-3 bg-amber-50/50 border border-amber-200 rounded-2xl outline-none font-black text-xl text-amber-600 focus:ring-4 focus:ring-amber-100">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Min. Stok Alert</label>
+                            <input type="number" name="min_stock" id="edit_min" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold text-red-500">
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 mt-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Update Dasar Harga Master (Opsional)</label>
+                        <input type="number" name="price" id="edit_price" class="w-full p-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-700">
+                    </div>
+
+                    <button type="submit" name="simpan_inventory" class="w-full bg-amber-500 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-amber-600 transition uppercase tracking-widest text-xs mt-6">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i> Simpan Perubahan Gudang
+                    </button>
+                </form>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -189,6 +245,33 @@ while($t = mysqli_fetch_assoc($master_templates)) {
                 document.getElementById('disp_price').innerText = "Rp 0";
                 document.getElementById('hidden_price').value = "";
             }
+        }
+
+        // Logika Eksekusi Edit Modal (Auto population)
+        function bukaModalEdit(data) {
+            document.getElementById('edit_id').value = data.id;
+            document.getElementById('edit_name').value = data.item_name;
+            document.getElementById('edit_category').value = data.category;
+            document.getElementById('edit_satuan').value = data.satuan;
+            document.getElementById('edit_stock').value = data.stock;
+            document.getElementById('edit_min').value = data.min_stock;
+            document.getElementById('edit_price').value = data.harga_master ? data.harga_master : (data.price_reference ? data.price_reference : 0);
+            
+            const modal = document.getElementById('modalEdit');
+            const content = document.getElementById('modalEditContent');
+            modal.classList.replace('hidden', 'flex');
+            setTimeout(() => {
+                content.classList.replace('scale-95', 'scale-100');
+                content.classList.replace('opacity-0', 'opacity-100');
+            }, 10);
+        }
+
+        function tutupModalEdit() {
+            const modal = document.getElementById('modalEdit');
+            const content = document.getElementById('modalEditContent');
+            content.classList.replace('scale-100', 'scale-95');
+            content.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => modal.classList.replace('flex', 'hidden'), 200);
         }
     </script>
 </body>

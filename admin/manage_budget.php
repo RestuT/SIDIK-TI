@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/database.php';
+include '../config/csrf_helper.php';
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../auth/login_admin.php");
@@ -9,19 +10,23 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 // Proses Tambah/Update Anggaran Departemen
 if (isset($_POST['save_budget'])) {
-    $year = $_POST['fiscal_year'];
-    $dept = mysqli_real_escape_string($conn, $_POST['department']);
-    $limit = $_POST['total_limit'];
+    require_csrf_token();
     
-    $query = "INSERT INTO budget_config (fiscal_year, department, total_limit, used_amount) 
-              VALUES ('$year', '$dept', '$limit', 0)
-              ON DUPLICATE KEY UPDATE total_limit = '$limit'";
+    $year = (int)$_POST['fiscal_year'];
+    $dept = $_POST['department'];
+    $limit = (float)$_POST['total_limit'];
     
-    mysqli_query($conn, $query);
+    $stmt = mysqli_prepare($conn, "INSERT INTO budget_config (fiscal_year, department, total_limit, used_amount) VALUES (?, ?, ?, 0) ON DUPLICATE KEY UPDATE total_limit = ?");
+    mysqli_stmt_bind_param($stmt, "isdd", $year, $dept, $limit, $limit);
+    mysqli_stmt_execute($stmt);
 }
 
-// Ambil data budget per departemen
-$budgets = mysqli_query($conn, "SELECT * FROM budget_config WHERE fiscal_year = 2026 ORDER BY department ASC");
+// Ambil data budget per departemen secara dinamis
+$current_year = date('Y');
+$stmt_get = mysqli_prepare($conn, "SELECT * FROM budget_config WHERE fiscal_year = ? ORDER BY department ASC");
+mysqli_stmt_bind_param($stmt_get, "i", $current_year);
+mysqli_stmt_execute($stmt_get);
+$budgets = mysqli_stmt_get_result($stmt_get);
 ?>
 
 <!DOCTYPE html>
@@ -38,22 +43,26 @@ $budgets = mysqli_query($conn, "SELECT * FROM budget_config WHERE fiscal_year = 
     <main class="flex-1 p-10">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-3xl font-black text-gray-800 uppercase italic">Alokasi <span class="text-blue-600">Budget Dept</span></h2>
-            <div class="bg-white px-6 py-2 rounded-2xl shadow-sm border font-bold text-blue-600">Tahun 2026</div>
+            <div class="bg-white px-6 py-2 rounded-2xl shadow-sm border font-bold text-blue-600">Tahun <?php echo date('Y'); ?></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 h-fit">
                 <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Input Pagu Departemen</h4>
                 <form action="" method="POST" class="space-y-4">
-                    <input type="hidden" name="fiscal_year" value="2026">
+                    <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                    <input type="hidden" name="fiscal_year" value="<?php echo date('Y'); ?>">
                     <div>
                         <label class="block text-[10px] font-black text-gray-500 uppercase mb-2">Pilih Departemen</label>
-                        <select name="department" required class="w-full p-3 bg-slate-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-                            <option value="IT">IT / Kominfo</option>
-                            <option value="Keuangan">Bagian Keuangan</option>
-                            <option value="Umum">Bagian Umum</option>
-                            <option value="Kepegawaian">BKPSDM</option>
-                        </select>
+                                <select name="department" required class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 outline-none font-medium">
+                                    <option value="">-- Pilih Departemen Tujuan --</option>
+                                    <?php
+                                    $q_dept2 = mysqli_query($conn, "SELECT nama_dept FROM departments ORDER BY nama_dept ASC");
+                                    while ($dept2 = mysqli_fetch_assoc($q_dept2)):
+                                    ?>
+                                    <option value="<?php echo htmlspecialchars($dept2['nama_dept']); ?>"><?php echo htmlspecialchars($dept2['nama_dept']); ?></option>
+                                    <?php endwhile; ?>
+                                </select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-500 uppercase mb-2">Total Pagu (Rp)</label>

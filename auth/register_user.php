@@ -1,11 +1,15 @@
 <?php
 session_start();
 include '../config/database.php';
+include '../config/csrf_helper.php';
+
+require_csrf_token();
 
 if (isset($_POST['register'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
-    $dept     = mysqli_real_escape_string($conn, $_POST['department']);
+    $username = $_POST['username'];
+    $fullname = $_POST['fullname'];
+    $dept     = $_POST['department'];
+    $jabatan  = $_POST['jabatan']; // Ambil dari input dinamis
     $password = $_POST['password'];
     $confirm  = $_POST['confirm_password'];
 
@@ -14,18 +18,22 @@ if (isset($_POST['register'])) {
         $error = "Konfirmasi password tidak sesuai!";
     } else {
         // 2. Cek apakah username sudah ada
-        $check_user = mysqli_query($conn, "SELECT username FROM users WHERE username = '$username'");
+        $stmt_check = mysqli_prepare($conn, "SELECT username FROM users WHERE username = ?");
+        mysqli_stmt_bind_param($stmt_check, "s", $username);
+        mysqli_stmt_execute($stmt_check);
+        $check_user = mysqli_stmt_get_result($stmt_check);
+        
         if (mysqli_num_rows($check_user) > 0) {
             $error = "Username sudah terdaftar!";
         } else {
             // 3. Enkripsi Password (Penting untuk keamanan)
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-            // 4. Insert ke Database
-            $query = "INSERT INTO users (username, password, full_name, department, jabatan) 
-                      VALUES ('$username', '$hashed_password', '$fullname', '$dept', 'staff')";
+            // 4. Insert ke Database menggunakan PREPARED STATEMENTS
+            $stmt_insert = mysqli_prepare($conn, "INSERT INTO users (username, password, full_name, department, jabatan) VALUES (?, ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt_insert, "sssss", $username, $hashed_password, $fullname, $dept, $jabatan);
 
-            if (mysqli_query($conn, $query)) {
+            if (mysqli_stmt_execute($stmt_insert)) {
                 header("Location: login_user.php?pesan=registrasi_berhasil");
                 exit();
             } else {
@@ -60,6 +68,7 @@ if (isset($_POST['register'])) {
         <?php endif; ?>
 
         <form action="" method="POST" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Username / NIP</label>
@@ -83,10 +92,13 @@ if (isset($_POST['register'])) {
     <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Departemen</label>
         <select name="department" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-            <option value="Humas">Humas</option>
-            <option value="Keuangan">Keuangan</option>
-            <option value="Teknologi">Teknologi</option>
-            <option value="SDM">SDM</option>
+            <option value="">-- Pilih Departemen --</option>
+            <?php
+            $q_dept = mysqli_query($conn, "SELECT nama_dept FROM departments ORDER BY nama_dept ASC");
+            while ($dept = mysqli_fetch_assoc($q_dept)):
+            ?>
+            <option value="<?php echo htmlspecialchars($dept['nama_dept']); ?>"><?php echo htmlspecialchars($dept['nama_dept']); ?></option>
+            <?php endwhile; ?>
         </select>
     </div>
 </div>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/database.php'; 
+include '../config/csrf_helper.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -10,12 +11,11 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 $id = mysqli_real_escape_string($conn, $_GET['id']);
 
-// Ambil data pengajuan, nama pemohon, dan sisa anggaran
-// Pastikan kolom 'estimasi' diambil untuk keperluan update budget
+$current_year = date('Y');
 $query = "SELECT s.*, u.full_name, b.total_limit, b.used_amount, (b.total_limit - b.used_amount) as sisa_pagu 
           FROM submissions s 
           JOIN users u ON s.user_id = u.id 
-          LEFT JOIN budget_config b ON b.fiscal_year = 2026
+          LEFT JOIN budget_config b ON b.fiscal_year = $current_year AND b.department = u.department
           WHERE s.id = $id";
 
 $result = mysqli_query($conn, $query);
@@ -29,30 +29,31 @@ if (!$data) {
 $technicians = mysqli_query($conn, "SELECT id, full_name FROM users WHERE role = 'technician' OR role = 'admin'");
 
 if (isset($_POST['update'])) {
+    require_csrf_token();
+    
     $status = $_POST['status'];
-    $pic = !empty($_POST['pic_id']) ? "'" . mysqli_real_escape_string($conn, $_POST['pic_id']) . "'" : "NULL";
-    $reason = mysqli_real_escape_string($conn, $_POST['reasoning']);
+    $pic_id = !empty($_POST['pic_id']) ? (int)$_POST['pic_id'] : null;
+    $reason = $_POST['reasoning'];
+    $current_year = date('Y');
 
-    // --- LOGIKA OTOMATIS UPDATE BUDGET ---
-   // Cari bagian proses update status menjadi 'Selesai'
-if ($status === 'Selesai' && $data['type'] === 'Pengadaan' && $data['status'] !== 'Selesai') {
-    $biaya = $data['estimasi'];
-    $dept_pemohon = $data['department']; // Kolom ini didapat dari JOIN users di awal file
-    
-    // Update budget departemen yang bersangkutan
-    $update_budget = "UPDATE budget_config 
-                      SET used_amount = used_amount + $biaya 
-                      WHERE fiscal_year = 2026 AND department = '$dept_pemohon'";
-    
-    if(!mysqli_query($conn, $update_budget)) {
-        // Logika error jika budget dept belum di-setup oleh admin
-        die("Error: Anggaran untuk departemen $dept_pemohon belum diset-up oleh admin.");
+    // --- LOGIKA OTOMATIS REFUND BUDGET JIKA DITOLAK ---
+    if ($status === 'Ditolak' && $data['type'] === 'Pengadaan' && $data['status'] !== 'Ditolak') {
+        $biaya = $data['estimasi'];
+        $dept_pemohon = $data['department'];
+        
+        // Kembalikan sisa anggaran karena pengajuan ditolak/dibatalkan
+        $stmt_budget = mysqli_prepare($conn, "UPDATE budget_config SET used_amount = used_amount - ? WHERE fiscal_year = ? AND department = ?");
+        mysqli_stmt_bind_param($stmt_budget, "dis", $biaya, $current_year, $dept_pemohon);
+        
+        if(!mysqli_stmt_execute($stmt_budget)) {
+            die("Error 500: Gagal melakukan pengembalian pagi untuk departemen $dept_pemohon.");
+        }
     }
-}
 
-    $update = "UPDATE submissions SET status = '$status', pic_id = $pic, admin_reasoning = '$reason' WHERE id = $id";
+    $stmt_update = mysqli_prepare($conn, "UPDATE submissions SET status = ?, pic_id = ?, admin_reasoning = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt_update, "sisi", $status, $pic_id, $reason, $id);
     
-    if (mysqli_query($conn, $update)) {
+    if (mysqli_stmt_execute($stmt_update)) {
         header("Location: dashboard_admin.php?status=updated");
         exit();
     }
@@ -96,8 +97,8 @@ if ($status === 'Selesai' && $data['type'] === 'Pengadaan' && $data['status'] !=
                         <p class="font-bold text-orange-700"><?php echo $data['urgency']; ?></p>
                     </div>
                     <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                        <p class="text-[10px] font-black text-blue-400 uppercase mb-1">Sisa Pagu 2026</p>
-                        <p class="font-bold text-blue-700 text-sm">Rp <?php echo number_format($data['sisa_pagu'], 0, ',', '.'); ?></p>
+                        <p class="text-[10px] font-black text-blue-400 uppercase mb-1">Sisa Pagu <?php echo date('Y'); ?></p>
+                        <p class="font-bold text-blue-700 text-sm">Rp <?php echo number_format((float)$data['sisa_pagu'], 0, ',', '.'); ?></p>
                     </div>
                 </div>
 
@@ -117,6 +118,7 @@ if ($status === 'Selesai' && $data['type'] === 'Pengadaan' && $data['status'] !=
 <?php endif; ?>
 
             <form action="" method="POST" class="space-y-6 border-l border-slate-100 pl-0 md:pl-8">
+                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Tentukan Status</label>
                     <select name="status" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold outline-none focus:ring-4 focus:ring-blue-100">

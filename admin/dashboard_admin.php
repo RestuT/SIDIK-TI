@@ -10,15 +10,19 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 // --- LOGIKA PENGHAPUSAN (BARU) ---
 if (isset($_GET['delete_id'])) {
-    $id_to_delete = mysqli_real_escape_string($conn, $_GET['delete_id']);
+    $id_to_delete = (int)$_GET['delete_id'];
     
-    // Pastikan hanya menghapus yang statusnya 'Selesai' untuk keamanan data
-    $check_status = mysqli_query($conn, "SELECT status FROM submissions WHERE id = '$id_to_delete'");
-    $status_data = mysqli_fetch_assoc($check_status);
+    // Pastikan hanya menghapus yang statusnya 'Selesai' untuk keamanan data menggunakan Prepared Statements
+    $stmt_check = mysqli_prepare($conn, "SELECT status FROM submissions WHERE id = ?");
+    mysqli_stmt_bind_param($stmt_check, "i", $id_to_delete);
+    mysqli_stmt_execute($stmt_check);
+    $result_check = mysqli_stmt_get_result($stmt_check);
+    $status_data = mysqli_fetch_assoc($result_check);
 
     if ($status_data && $status_data['status'] === 'Selesai') {
-        $delete_query = "DELETE FROM submissions WHERE id = '$id_to_delete'";
-        if (mysqli_query($conn, $delete_query)) {
+        $stmt_delete = mysqli_prepare($conn, "DELETE FROM submissions WHERE id = ?");
+        mysqli_stmt_bind_param($stmt_delete, "i", $id_to_delete);
+        if (mysqli_stmt_execute($stmt_delete)) {
             header("Location: dashboard_admin.php?msg=deleted");
             exit();
         }
@@ -84,14 +88,14 @@ $result = mysqli_query($conn, $query);
                     <?php while($row = mysqli_fetch_assoc($result)): ?>
                     <tr class="hover:bg-slate-50 transition duration-300">
                         <td class="px-8 py-5">
-                            <span class="font-black text-blue-600 italic">#<?php echo $row['ticket_number']; ?></span>
-                            <p class="text-xs font-bold text-gray-400 uppercase mt-1"><?php echo $row['pemohon']; ?></p>
+                            <span class="font-black text-blue-600 italic">#<?php echo htmlspecialchars($row['ticket_number'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            <p class="text-xs font-bold text-gray-400 uppercase mt-1"><?php echo htmlspecialchars($row['pemohon'], ENT_QUOTES, 'UTF-8'); ?></p>
                         </td>
                         <td class="px-8 py-5">
                             <span class="text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-tighter <?php echo $row['type'] == 'Maintenance' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'; ?>">
-                                <?php echo $row['type']; ?>
+                                <?php echo htmlspecialchars($row['type'], ENT_QUOTES, 'UTF-8'); ?>
                             </span>
-                            <p class="text-sm font-bold text-gray-800 mt-1"><?php echo $row['title']; ?></p>
+                            <p class="text-sm font-bold text-gray-800 mt-1"><?php echo htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8'); ?></p>
                         </td>
                         <td class="px-8 py-5 text-center">
                             <span class="text-xs font-black uppercase <?php 
@@ -99,7 +103,7 @@ $result = mysqli_query($conn, $query);
                                 elseif($row['status'] == 'Ditolak') echo 'text-red-600';
                                 else echo 'text-yellow-600'; 
                             ?>">
-                                <?php echo $row['status']; ?>
+                                <?php echo htmlspecialchars($row['status'], ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         </td>
                         <td class="px-6 py-4 flex gap-2">
