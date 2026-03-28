@@ -23,6 +23,10 @@
 ### ⚖️ Fitur Aju Banding
 * User dapat mengajukan banding atas pengajuan yang **Ditolak** dengan memberikan alasan perbaikan atau data tambahan.
 
+### 🏢 Modul Administrator (Baru)
+* **Manajemen Pengguna**: Kelola akses akun untuk admin, user, dan teknisi secara dinamis.
+* **Manajemen Departemen**: Pengaturan divisi/departemen di lingkungan organisasi untuk pemetaan permintaan.
+
 ---
 
 ## 🛠️ Teknologi yang Digunakan
@@ -48,11 +52,11 @@
 1.  **Clone atau Download** repository ini ke folder `htdocs` Anda.
 2.  **Import Database**:
     * Buka `phpMyAdmin`.
-    * Buat database baru dengan nama `it_helpdesk_db`.
-    * Import file `it_helpdesk_db.sql` (jika ada) atau jalankan query struktur tabel yang tersedia.
+    * Buat database baru dengan nama `sidik_ti`.
+    * Import file `sidik_ti.sql` (atau `schema_dump.sql` jika ada).
 3.  **Konfigurasi Koneksi**:
     * Buka file `config/database.php`.
-    * Sesuaikan `host`, `user`, `password`, dan `database_name`.
+    * Sesuaikan variabel `$host`, `$user`, `$pass`, dan `$db` sesuai sistem Anda.
 4.  **Akses Aplikasi**:
     * Buka browser dan akses `http://localhost/SIDIK-TI`.
 
@@ -61,6 +65,7 @@
 ## 🗄️ Struktur Tabel Penting
 
 * `users`: Menyimpan data user, admin, dan staff.
+* `departments`: Menyimpan master data departemen atau divisi organisasi.
 * `submissions`: Tabel utama untuk pengadaan, maintenance, dan aju banding.
 * `inventory`: Stok barang gudang.
 * `procurement_templates`: Master data harga dan spesifikasi produk.
