@@ -1,0 +1,324 @@
+﻿diff --git a/modules_user/dashboard_user.php b/modules_user/dashboard_user.php
+index d7bf779..c114965 100644
+--- a/modules_user/dashboard_user.php
++++ b/modules_user/dashboard_user.php
+@@ -1,153 +1,224 @@
+ <?php
+ session_start();
+ include '../config/database.php';
++include '../config/csrf_helper.php';
+ 
+ // Proteksi halaman
+-if (!isset($_SESSION['user'])) {
++if (!isset($_SESSION['user_id'])) {
+     header("Location: ../auth/login_user.php");
+     exit();
+ }
+ 
+ $user_id = $_SESSION['user_id'];
+-$username = $_SESSION['user'];
+ 
+-// Ambil data audit terbaru dari database
++// 1. Ambil Statistik Dashboard User
++$stat_pending = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM submissions WHERE user_id = '$user_id' AND status = 'Menunggu'"))['total'];
++$stat_process = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM submissions WHERE user_id = '$user_id' AND status = 'Proses'"))['total'];
++$stat_done = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM submissions WHERE user_id = '$user_id' AND status = 'Selesai'"))['total'];
++
++// 2. Ambil data pengajuan terbaru (Limit 5)
+ $query = "SELECT s.*, u.full_name as pic_name 
+           FROM submissions s 
+           LEFT JOIN users u ON s.pic_id = u.id 
+           WHERE s.user_id = '$user_id' 
+           ORDER BY s.created_at DESC LIMIT 5";
+ $result = mysqli_query($conn, $query);
++
++// 3. User Detail
++$user_meta = mysqli_fetch_assoc(mysqli_query($conn, "SELECT full_name, department, jabatan FROM users WHERE id = '$user_id'"));
++$display_name = $user_meta['full_name'];
+ ?>
+ 
+ <!DOCTYPE html>
+-<html lang="id">
++<html class="light" lang="id">
+ <head>
+-    <meta charset="UTF-8">
+-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-    <title>User Dashboard - IT Helpdesk</title>
+-    <script src="https://cdn.tailwindcss.com"></script>
+-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
++    <meta charset="utf-8"/>
++    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
++    <title>SIDIK-TI | Dashboard User</title>
++    <!-- Fonts -->
++    <link href="https://fonts.googleapis.com" rel="preconnect"/>
++    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
++    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
++    <!-- Material Symbols -->
++    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
++    <!-- Tailwind CSS -->
++    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
++    <script id="tailwind-config">
++        tailwind.config = {
++            darkMode: "class",
++            theme: {
++                extend: {
++                    colors: {
++                        "primary": "#4f46e5", // Indigo 600
++                        "primary-container": "#eef2ff",
++                        "procurement": "#f59e0b", // Amber 500
++                        "maintenance": "#10b981", // Emerald 500
++                        "surface": "#f8fafc",
++                        "on-surface": "#0f172a",
++                        "on-surface-variant": "#64748b",
++                        "outline-variant": "#e2e8f0",
++                    },
++                    fontFamily: {
++                        "headline": ["Plus Jakarta Sans"],
++                        "body": ["Inter"],
++                    },
++                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
++                },
++            },
++        }
++    </script>
++    <style>
++        .material-symbols-outlined {
++            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
++            vertical-align: middle;
++        }
++        .fill-1 { font-variation-settings: 'FILL' 1; }
++        ::-webkit-scrollbar { width: 8px; }
++        ::-webkit-scrollbar-track { background: #f8fafc; }
++        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
++    </style>
+ </head>
+-<body class="bg-slate-50 font-sans">
++<body class="bg-surface font-body text-on-surface antialiased flex min-h-screen">
++
++    <?php include '../includes/navbar_user.php'; ?>
+ 
+-<navbar class="bg-white shadow-sm sticky top-0 z-50">
+-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+-            <a href="../modules_user/dashboard_user.php" class="flex items-center text-blue-600 font-bold text-xl">
+-                <i></i> Dashboard User
+-            </a> 
++    <main class="flex-1 flex flex-col min-w-0">
++        <!-- Header / Navigation Bar -->
++        <header class="flex items-center justify-between px-10 py-8 border-b border-outline-variant/30 sticky top-0 bg-white/80 backdrop-blur-xl z-20">
++            <div>
++                <h1 class="font-headline text-3xl font-black text-on-surface tracking-tight leading-none">Selamat Datang, <span class="text-primary"><?php echo explode(' ', $display_name)[0]; ?></span></h1>
++                <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.2em] mt-2">Unit: <?php echo $user_meta['department']; ?> ΓÇó <?php echo $user_meta['jabatan']; ?></p>
++            </div>
+             <div class="flex items-center gap-4">
+-                <span class="text-sm text-gray-500">User: <strong class="text-gray-800"><?php echo ucfirst($username); ?></strong></span>
+-                <i class="fa-solid fa-circle-check text-green-500"></i>
++                <button class="w-12 h-12 rounded-2xl bg-slate-50 border border-outline-variant/50 flex items-center justify-center text-on-surface hover:bg-white hover:shadow-lg transition-all">
++                    <span class="material-symbols-outlined">notifications</span>
++                </button>
+             </div>
++        </header>
+ 
+-             <a href="../auth/logout.php" 
+-               onclick="return confirm('Apakah Anda yakin ingin keluar?')"
+-               class="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-600 hover:text-white transition-all duration-300">
+-                <i class="fa-solid fa-right-from-bracket"></i>
+-                <span>Keluar</span>
+-            </a>
+-        </div>
+-        <hr>
+-    </navbar>
++        <div class="space-y-12">
++            <!-- Stats Bento Grid -->
++            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
++                <!-- Pending Card -->
++                <div class="bg-white p-6 rounded-[2rem] border border-outline-variant shadow-sm relative overflow-hidden group hover:shadow-indigo-500/5 transition-all">
++                    <div class="absolute top-0 right-0 p-6 opacity-5 text-slate-400">
++                        <span class="material-symbols-outlined text-5xl">hourglass_empty</span>
++                    </div>
++                    <p class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest leading-none mb-1">Request Menunggu</p>
++                    <h2 class="text-4xl font-black font-headline text-on-surface"><?php echo $stat_pending; ?></h2>
++                </div>
+ 
+-    <main class="pt-24 pb-12">
+-        <div class="max-w-7xl mx-auto px-4">
+-            
+-            <header class="mb-10">
+-                <h1 class="text-3xl font-bold text-gray-800">Halo, <?php echo ucfirst($username); ?>! ≡ƒæï</h1>
+-                <p class="text-gray-500">Pantau pengajuan Anda atau buat permintaan layanan baru di bawah ini.</p>
+-            </header>
++                <!-- Process Card -->
++                <div class="bg-primary p-6 rounded-[2rem] text-white relative overflow-hidden shadow-xl shadow-primary/20 transition-all">
++                    <div class="absolute top-0 right-0 p-6 opacity-20">
++                        <span class="material-symbols-outlined text-5xl animate-spin-slow">engineering</span>
++                    </div>
++                    <p class="text-[9px] font-black text-white/60 uppercase tracking-widest leading-none mb-1">Request Diproses</p>
++                    <h2 class="text-4xl font-black font-headline text-white"><?php echo $stat_process; ?></h2>
++                </div>
++
++                <!-- Done Card -->
++                <div class="bg-maintenance p-6 rounded-[2rem] text-white relative overflow-hidden shadow-xl shadow-maintenance/20 transition-all">
++                    <div class="absolute top-0 right-0 p-6 opacity-20">
++                        <span class="material-symbols-outlined text-5xl">task_alt</span>
++                    </div>
++                    <p class="text-[9px] font-black text-white/60 uppercase tracking-widest leading-none mb-1">Total Selesai</p>
++                    <h2 class="text-4xl font-black font-headline text-white"><?php echo $stat_done; ?></h2>
++                </div>
++            </div>
+ 
+-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+-                
+-                <div class="space-y-6">
+-                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+-                        <i class="fa-solid fa-plus-circle text-blue-600"></i> Buat Pengajuan
+-                    </h2>
++            <!-- Main Actions -->
++            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
++                <!-- Quick Actions -->
++                <div class="lg:col-span-4 space-y-6">
++                    <h3 class="font-headline text-[10px] font-black text-on-surface uppercase tracking-widest border-l-4 border-primary pl-4">Layanan Cepat</h3>
+                     
+-                    <a href="form_maintenance.php" class="block p-6 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+-    <div class="flex items-center gap-4">
+-        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition">
+-            <i class="fa-solid fa-screwdriver-wrench text-xl"></i>
+-        </div>
+-        <div>
+-            <h3 class="font-bold text-gray-800">Maintenance & Perbaikan</h3>
+-            <p class="text-xs text-gray-500">Ajukan servis atau pengecekan alat</p>
+-        </div>
+-    </div>
+-</a>
+-                    <a href="form_pengadaan.php" class="block p-6 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+-                        <div class="flex items-center gap-4">
+-                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition">
+-                                <i class="fa-solid fa-cart-shopping text-xl"></i>
+-                            </div>
+-                            <div>
+-                                <h3 class="font-bold text-gray-800">Pengadaan Barang</h3>
+-                                <p class="text-xs text-gray-500">Minta hardware/software baru</p>
+-                            </div>
++                    <a href="form_pengadaan.php" class="block bg-procurement p-8 rounded-[2.5rem] text-white group relative overflow-hidden shadow-xl shadow-procurement/20 hover:-translate-y-1 transition-all">
++                        <div class="absolute -bottom-4 -right-4 opacity-20 group-hover:scale-110 transition-transform">
++                            <span class="material-symbols-outlined text-[100px]">shopping_bag</span>
++                        </div>
++                        <h4 class="text-xl font-black font-headline tracking-tighter uppercase italic">Pengadaan <span class="text-black/20 italic">Aset TI</span></h4>
++                        <p class="text-[9px] font-bold text-white/70 mt-2 leading-relaxed italic">Laptop, Printer, Lisensi.</p>
++                    </a>
++
++                    <a href="form_maintenance.php" class="block bg-maintenance p-8 rounded-[2.5rem] text-white group relative overflow-hidden shadow-xl shadow-maintenance/20 hover:-translate-y-1 transition-all">
++                        <div class="absolute -bottom-4 -right-4 opacity-20 group-hover:scale-110 transition-transform">
++                            <span class="material-symbols-outlined text-[100px]">build</span>
+                         </div>
+-</a>            
++                        <h4 class="text-xl font-black font-headline tracking-tighter uppercase italic">Lapor <span class="text-black/20 italic">Kerusakan</span></h4>
++                        <p class="text-[9px] font-bold text-white/70 mt-2 leading-relaxed italic">Hardware & Jaringan.</p>
++                    </a>
+                 </div>
+ 
+-                <div class="lg:col-span-2 space-y-6">
+-                    <div class="flex justify-between items-center">
+-                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+-                            <i class="fa-solid fa-list-check text-green-600"></i> Status Pengajuan Terbaru
+-                        </h2>
+-                        <a href="dashboard_audit.php" class="text-sm text-blue-600 font-semibold hover:underline">Lihat Semua</a>
++                <!-- Recent Activity Table -->
++                <div class="lg:col-span-8 bg-white p-8 rounded-[2.5rem] border border-outline-variant shadow-sm space-y-6">
++                    <div class="flex items-center justify-between border-b border-slate-50 pb-4">
++                        <h3 class="font-headline text-base font-black text-on-surface uppercase tracking-tight italic">Aktivitas <span class="text-primary">Terakhir</span></h3>
++                        <a href="dashboard_audit.php" class="text-[9px] font-black text-primary uppercase tracking-widest hover:underline italic">Lihat History ΓåÆ</a>
+                     </div>
+ 
+-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+-                        <table class="w-full text-left border-collapse">
+-                            <thead>
+-                                <tr class="bg-gray-50 text-gray-400 text-[10px] uppercase tracking-widest border-b">
+-                                    <th class="px-6 py-4">Tiket</th>
+-                                    <th class="px-6 py-4">Layanan</th>
+-                                    <th class="px-6 py-4">Status</th>
+-                                    <th class="px-6 py-4">PIC</th>
++                    <div class="overflow-hidden">
++                        <table class="w-full">
++                            <thead class="bg-slate-50/50">
++                                <tr>
++                                    <th class="px-5 py-3 text-left text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Tiket</th>
++                                    <th class="px-5 py-3 text-left text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Layanan</th>
++                                    <th class="px-5 py-3 text-left text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Status</th>
++                                    <th class="px-5 py-3 text-center text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Aksi</th>
+                                 </tr>
+                             </thead>
+-                            <tbody class="divide-y divide-gray-50">
++                            <tbody class="divide-y divide-slate-50">
+                                 <?php if(mysqli_num_rows($result) > 0): ?>
+                                     <?php while($row = mysqli_fetch_assoc($result)): ?>
+-                                    <tr class="hover:bg-slate-50 transition">
+-                                        <td class="px-6 py-4 text-sm font-bold text-gray-700">#<?php echo htmlspecialchars($row['ticket_number'], ENT_QUOTES, 'UTF-8'); ?></td>
+-                                        <td class="px-6 py-4">
+-                                            <p class="text-sm font-medium text-gray-800"><?php echo htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8'); ?></p>
+-                                            <span class="text-[10px] text-gray-400"><?php echo htmlspecialchars($row['type'], ENT_QUOTES, 'UTF-8'); ?></span>
++                                    <tr class="group hover:bg-slate-50/50 transition-colors">
++                                        <td class="px-6 py-6">
++                                            <span class="text-sm font-black text-primary italic">#<?php echo $row['ticket_number']; ?></span>
++                                            <p class="text-[9px] font-medium text-slate-400 mt-1"><?php echo date('d M Y', strtotime($row['created_at'])); ?></p>
+                                         </td>
+-                                        <td class="px-6 py-4">
+-                                            <span class="px-3 py-1 rounded-full text-[10px] font-bold 
++                                        <td class="px-6 py-6">
++                                            <div class="flex items-center gap-2 mb-1.5">
++                                                <span class="material-symbols-outlined text-sm <?php echo $row['type'] == 'Maintenance' ? 'text-maintenance' : 'text-procurement'; ?>">
++                                                    <?php echo $row['type'] == 'Maintenance' ? 'build' : 'shopping_bag'; ?>
++                                                </span>
++                                                <span class="text-[10px] font-black uppercase tracking-tight <?php echo $row['type'] == 'Maintenance' ? 'text-emerald-700' : 'text-amber-700'; ?>">
++                                                    <?php echo $row['type']; ?>
++                                                </span>
++                                            </div>
++                                            <p class="text-xs font-bold text-on-surface truncate max-w-[200px]"><?php echo htmlspecialchars($row['title']); ?></p>
++                                        </td>
++                                        <td class="px-6 py-6">
++                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border
+                                                 <?php 
+-                                                    if($row['status'] == 'Selesai') echo 'bg-green-100 text-green-700';
+-                                                    elseif($row['status'] == 'Proses') echo 'bg-blue-100 text-blue-700';
+-                                                    elseif($row['status'] == 'Ditolak') echo 'bg-red-100 text-red-700';
+-                                                    else echo 'bg-yellow-100 text-yellow-700';
++                                                    if($row['status'] == 'Selesai') echo 'bg-emerald-50 text-emerald-700 border-emerald-100';
++                                                    elseif($row['status'] == 'Proses') echo 'bg-indigo-50 text-indigo-700 border-indigo-100';
++                                                    elseif($row['status'] == 'Ditolak') echo 'bg-error/5 text-error border-error/10';
++                                                    else echo 'bg-amber-50 text-amber-700 border-amber-100';
+                                                 ?>">
+-                                                <?php echo htmlspecialchars($row['status'], ENT_QUOTES, 'UTF-8'); ?>
++                                                <?php echo $row['status']; ?>
+                                             </span>
+                                         </td>
+-                                        <td class="px-6 py-4 text-sm text-gray-600 italic">
+-                                            <?php echo htmlspecialchars($row['pic_name'] ? $row['pic_name'] : 'Belum ditentukan', ENT_QUOTES, 'UTF-8'); ?>
++                                        <td class="px-6 py-6 text-center">
++                                            <a href="<?php echo $row['type'] == 'Maintenance' ? 'cetak_tiket_maintenance.php' : 'cetak_tiket_pengadaan.php'; ?>?id=<?php echo $row['id']; ?>" target="_blank"
++                                                class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all">
++                                                <span class="material-symbols-outlined text-lg">print</span>
++                                            </a>
+                                         </td>
+                                     </tr>
+                                     <?php endwhile; ?>
+                                 <?php else: ?>
+                                     <tr>
+-                                        <td colspan="4" class="px-6 py-10 text-center text-gray-400 text-sm">Belum ada riwayat pengajuan.</td>
++                                        <td colspan="4" class="px-6 py-20 text-center">
++                                            <span class="material-symbols-outlined text-5xl text-slate-200">folder_open</span>
++                                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-4">Belum ada aktivitas request</p>
++                                        </td>
+                                     </tr>
+                                 <?php endif; ?>
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+-
+             </div>
+         </div>
+     </main>
+-
+-
+-    <?php include '../includes/footer.php'; ?>
+ </body>
+ </html>
+\ No newline at end of file

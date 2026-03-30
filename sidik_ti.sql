@@ -144,6 +144,26 @@ CREATE TABLE `submissions` (
   CONSTRAINT `fk_submissions_pic` FOREIGN KEY (`pic_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `asset_assignments`
+--
+
+CREATE TABLE `asset_assignments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `item_name` varchar(255) NOT NULL,
+  `serial_number` varchar(100) DEFAULT NULL,
+  `category` varchar(50) NOT NULL,
+  `assigned_at` date NOT NULL,
+  `status` varchar(50) DEFAULT 'Active',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `serial_number` (`serial_number`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `fk_assets_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

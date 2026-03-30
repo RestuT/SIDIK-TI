@@ -29,8 +29,6 @@ if (isset($_GET['from_inv'])) {
 
 $current_year = date('Y');
 
-// (Dihapus kueri lama yang tanpa WHERE department)
-
 // Ambil sisa budget khusus departemen user yang sedang login
 $my_dept = $user_data['department'];
 $stmt_check = mysqli_prepare($conn, "SELECT total_limit - used_amount as sisa FROM budget_config WHERE department = ? AND fiscal_year = ?");
@@ -42,185 +40,308 @@ $sisa_dept = $budget_dept['sisa'] ?? 0;
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html class="light" lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengadaan Barang IT - SIDIK-TI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SIDIK-TI | Procurement Request</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f59e0b", // Amber/Orange 500
+                        "primary-container": "#fff7ed",
+                        "primary-fixed": "#ffed65",
+                        "surface": "#f8fafc",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#64748b",
+                        "outline-variant": "#e2e8f0",
+                        "error": "#ef4444",
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .fill-1 { font-variation-settings: 'FILL' 1; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f8fafc; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
 </head>
-<body class="bg-slate-50 font-sans">
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
 
-<?php include '../includes/navbar_user.php'; ?>
+    <?php include '../includes/navbar_user.php'; ?>
 
-    <main class="max-w-6xl mx-auto px-4 py-10">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <main class="max-w-[1240px] mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
             
-            <div class="space-y-6">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-wallet text-orange-500"></i> Sisa Anggaran <?php echo date('Y'); ?>
-                    </h3>
-                    <p class="text-xl font-bold text-gray-800">Rp <?php echo number_format($sisa_dept, 0, ',', '.'); ?></p>
-                    <p class="text-[10px] text-gray-400 mt-2 italic">*Berdasarkan DPA Dinas Terkini</p>
+            <!-- Left Panel: Context & Guidelines -->
+            <div class="lg:col-span-5 space-y-8">
+                <div>
+                    <h2 class="font-headline text-4xl font-extrabold text-on-surface tracking-tight leading-tight uppercase italic underline decoration-primary/30 underline-offset-8">Procurement <span class="text-primary italic">Request</span></h2>
+                    <p class="text-on-surface-variant font-medium mt-6 leading-relaxed italic">Ajukan kebutuhan aset dan infrastruktur TI unit Anda melalui E-Catalog terintegrasi untuk proses budgeting yang lebih transparan dan efisien.</p>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-user-tie text-blue-500"></i> Profil Pemohon
+                <!-- Step Card -->
+                <div class="bg-white p-8 rounded-[2.5rem] border border-outline-variant/5 shadow-2xl shadow-slate-200/50 space-y-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 text-primary">
+                        <span class="material-symbols-outlined text-[120px]">shopping_cart</span>
+                    </div>
+                    
+                    <h3 class="font-headline font-bold text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">analytics</span>
+                        Panduan Pengadaan
                     </h3>
-                    <div class="space-y-2 text-sm">
-                        <p class="text-gray-500 italic">Nama: <span class="text-gray-800 font-bold"><?php echo $user_data['full_name']; ?></span></p>
-                        <p class="text-gray-500 italic">Jabatan: <span class="text-gray-800 font-bold"><?php echo $user_data['jabatan']; ?></span></p>
-                        <p class="text-gray-500 italic">Dept: <span class="text-gray-800 font-bold"><?php echo $user_data['department']; ?></span></p>
+
+                    <div class="space-y-4">
+                        <div class="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                            <span class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs shrink-0">1</span>
+                            <div>
+                                <p class="text-sm font-bold text-on-surface">Pilih Katalog / Template</p>
+                                <p class="text-[11px] text-on-surface-variant leading-tight italic">Gunakan template untuk memuat spek standar dan harga e-catalog.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                            <span class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs shrink-0">2</span>
+                            <div>
+                                <p class="text-sm font-bold text-on-surface">Validasi Budgeting</p>
+                                <p class="text-[11px] text-on-surface-variant leading-tight italic">Sistem akan menghitung PPN 11% dan membandingkannya dengan limit Anda.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                            <span class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs shrink-0">3</span>
+                            <div>
+                                <p class="text-sm font-bold text-on-surface">Lampirkan Dasar Kebutuhan</p>
+                                <p class="text-[11px] text-on-surface-variant leading-tight italic">Wajib melampirkan foto barang atau dokumen KAK (Kerangka Acuan Kerja).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Info Card -->
+                <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white flex items-center justify-between group cursor-default transition-all shadow-xl shadow-slate-200 border border-slate-800">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+                            <span class="material-symbols-outlined fill-1">account_balance_wallet</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Fiscal Limit Available</p>
+                            <p class="text-lg font-black font-headline text-primary tracking-tight">Rp <?php echo number_format($sisa_dept, 0, ',', '.'); ?></p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-2">
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-cart-plus text-orange-600"></i> 
-                        <?php echo isset($_GET['from_inv']) ? "Restock Barang Inventory" : "Form Pengajuan Baru"; ?>
-                    </h2>
+            <!-- Right Panel: Form Area -->
+            <div class="lg:col-span-7">
+                <form action="../config/proses_pengadaan.php" method="POST" enctype="multipart/form-data" class="bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-2xl shadow-slate-200/50 space-y-8 relative overflow-hidden">
+                    <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     
-                    <form action="../config/proses_pengadaan.php" method="POST" enctype="multipart/form-data" class="space-y-5">
-                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1 tracking-wider">Kategori Barang</label>
-                                <select id="kategoriBarang" name="kategori" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none font-bold">
-                                    <option value="">-- Pilih Kategori --</option>
-                                    <option value="hardware">Hardware (Perangkat Keras)</option>
-                                    <option value="software">Software & Lisensi</option>
-                                    <option value="jaringan">Infrastruktur Jaringan</option>
-                                </select>
-                            </div>
+                    <!-- Form Accent Line -->
+                    <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-primary to-primary-dark"></div>
 
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1 tracking-wider">Tipe Produk (Template)</label>
-                                <select id="productTemplate" disabled class="w-full p-3 bg-blue-50 border border-blue-200 rounded-xl outline-none font-bold text-blue-700">
-                                    <option value="">-- Pilih Kategori Dahulu --</option>
-                                    <?php
-                                    $get_all_temp = mysqli_query($conn, "SELECT * FROM procurement_templates");
-                                    while($row_t = mysqli_fetch_assoc($get_all_temp)):
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none">Identitas Pemohon</label>
+                            <div class="relative group">
+                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors text-lg">person</span>
+                                <input class="block w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-slate-500 italic cursor-not-allowed text-sm" 
+                                    value="<?php echo $user_data['full_name']; ?>" disabled type="text"/>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none">Divisi / Dept Unit</label>
+                            <div class="relative group">
+                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors text-lg">apartment</span>
+                                <input class="block w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-slate-500 italic cursor-not-allowed text-sm" 
+                                    value="<?php echo $user_data['department']; ?>" disabled type="text"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none font-bold">Pilih Katalog / Template</label>
+                            <div class="relative group">
+                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-xl">category</span>
+                                <select id="template_id" name="template_id" onchange="applyTemplate()" 
+                                    class="block w-full pl-12 pr-10 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface outline-none focus:ring-4 focus:ring-primary/10 appearance-none transition-all text-sm">
+                                    <option value="">-- Layanan Manual / Kostum --</option>
+                                    <?php 
+                                    $templates = mysqli_query($conn, "SELECT * FROM procurement_templates ORDER BY category ASC, product_name ASC");
+                                    while($t = mysqli_fetch_assoc($templates)) {
+                                        echo "<option value='".$t['id']."' data-desc='".$t['specification']."' data-price='".$t['base_price']."'>[".strtoupper($t['category'])."] ".$t['product_name']."</option>";
+                                    }
                                     ?>
-                                        <optgroup label="<?php echo ucfirst($row_t['category']); ?>" data-category="<?php echo $row_t['category']; ?>">
-                                            <option value="<?php echo $row_t['id']; ?>" 
-                                                    data-spec="<?php echo $row_t['specification']; ?>" 
-                                                    data-price="<?php echo $row_t['base_price']; ?>">
-                                                <?php echo $row_t['product_name']; ?>
-                                            </option>
-                                        </optgroup>
-                                    <?php endwhile; ?>
+                                </select>
+                                <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none">expand_more</span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none">Nama Perangkat / Item</label>
+                            <div class="relative group">
+                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-xl">label</span>
+                                <input name="title" id="title" required placeholder="Contoh: Dell Latitude 5420" value="<?php echo $pre_item_name; ?>"
+                                    class="block w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm" type="text"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none">Volume / Jumlah</label>
+                            <div class="relative group">
+                                <input type="number" name="qty" id="qty" value="1" min="1" oninput="calculateEstimasi()"
+                                    class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm"/>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none">Harga Satuan (HPS)</label>
+                            <div class="relative group">
+                                <input type="number" name="base_price" id="base_price" required oninput="calculateEstimasi()"
+                                    class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm" placeholder="RP 0"/>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none">Urgensi</label>
+                            <div class="relative group">
+                                <select name="urgency" class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-primary appearance-none outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm">
+                                    <option value="Normal">NORMAL</option>
+                                    <option value="Penting">URGENT</option>
                                 </select>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100">
-                            <label class="block text-xs font-bold text-blue-500 uppercase mb-2">Deskripsi Produk & Rincian Biaya</label>
-                            <textarea id="deskripsiOtomatis" name="deskripsi" rows="5" readonly required 
-                                class="w-full bg-transparent border-none text-sm text-gray-700 font-medium focus:ring-0 resize-none" 
-                                placeholder="Detail biaya akan muncul otomatis..."></textarea>
-                            <input type="hidden" name="judul" id="judulHidden">
-                            <input type="hidden" name="estimasi" id="estimasiHidden">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none">Spesifikasi Detail & Justifikasi</label>
+                        <div class="relative group">
+                            <span class="material-symbols-outlined absolute left-4 top-6 text-primary text-xl">description</span>
+                            <textarea name="description" id="description" required rows="4" placeholder="Jelaskan spesifikasi detail barang (Merk, Tipe, Warna) dan alasan kebutuhan operasional..." 
+                                class="block w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface-variant leading-relaxed outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm min-h-[140px]"></textarea>
                         </div>
+                    </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1 tracking-wider">Dokumen KAK/Nota</label>
-                                <input type="file" name="lampiran" accept=".pdf, .jpg, .png" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700">
+                    <!-- Modern File Upload (Matches Maintenance) -->
+                    <div class="space-y-4">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 leading-none text-primary">Lampiran Bukti / KAK (Wajib)</label>
+                        <div class="relative group">
+                            <input type="file" name="attachment" id="file-upload" accept=".jpg, .jpeg, .png, .pdf" required 
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="updateFileName()">
+                            <div id="dropzone" class="border-2 border-dashed border-primary/20 rounded-3xl p-10 text-center bg-primary/5 group-hover:border-primary/50 group-hover:bg-primary-container transition-all duration-300 flex flex-col items-center justify-center gap-3">
+                                <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-primary shadow-sm border border-primary/10 group-hover:scale-110 transition-transform">
+                                    <span class="material-symbols-outlined text-3xl">add_photo_alternate</span>
+                                </div>
+                                <div>
+                                    <p id="file-label" class="text-sm font-bold text-on-surface leading-tight">Klik atau Seret Berkas Di Sini</p>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-1 uppercase tracking-tighter italic">PDF, PNG Berwarna atau JPG (Maks 2MB)</p>
+                                </div>
+                                <div id="file-name-info" class="hidden animate-in fade-in slide-in-from-top-2 duration-300 mt-2">
+                                    <div class="px-4 py-2 bg-primary/20 rounded-full border border-primary/30 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-sm text-primary">check_circle</span>
+                                        <span id="file-name-display" class="text-[10px] font-bold text-primary truncate max-w-[200px]">document.pdf</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1 tracking-wider">Urgensi</label>
-                                <select name="urgensi" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none">
-                                    <option value="Biasa">Biasa</option>
-                                    <option value="Penting" <?php echo isset($_GET['from_inv']) ? 'selected' : ''; ?>>Penting (Restock)</option>
-                                </select>
-                            </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1 tracking-wider">Justifikasi Kebutuhan</label>
-                            <textarea name="justifikasi" rows="3" required class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none"><?php echo isset($_GET['from_inv']) ? "Restock otomatis untuk item: " . $pre_item_name . " karena sisa stok gudang menipis." : ""; ?></textarea>
+                    <!-- Total Estimasi Bento -->
+                    <div class="bg-primary p-10 rounded-[2.5rem] text-white flex flex-col justify-center relative overflow-hidden shadow-2xl shadow-primary/30">
+                        <div class="absolute top-0 right-0 p-10 opacity-20 pointer-events-none -rotate-12 group-hover:rotate-0 transition-transform">
+                            <span class="material-symbols-outlined text-8xl">shopping_cart_checkout</span>
                         </div>
+                        <p class="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1 leading-none">Total Pengajuan Akumulatif (Net)</p>
+                        <h2 id="display_estimasi" class="text-3xl font-black font-headline tracking-tighter shrink-0 italic">Rp 0</h2>
+                        <p class="text-[9px] text-white/40 mt-3 font-bold uppercase italic leading-tight">*Kalkulasi otomatis (Nilai Satuan * Volume) + PPN 11% + ME 5%</p>
+                        <input type="hidden" name="estimasi" id="estimasi" value="0">
+                    </div>
 
-                        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-black py-4 rounded-xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest">
-                            <i class="fa-solid fa-paper-plane"></i> Kirim Pengajuan
+                    <div class="pt-4">
+                        <button type="submit" name="submit_pengadaan" class="w-full bg-secondary text-white font-headline font-black py-5 rounded-2xl shadow-xl shadow-slate-200 hover:bg-primary hover:-translate-y-1 transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3">
+                            <span class="material-symbols-outlined text-lg fill-1">send</span>
+                            Kirim Pengajuan Pengadaan
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </main>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const kat = document.getElementById('kategoriBarang');
-        const temp = document.getElementById('productTemplate');
-        const desk = document.getElementById('deskripsiOtomatis');
-        const judulHidden = document.getElementById('judulHidden');
-        const estimasiHidden = document.getElementById('estimasiHidden');
-        const masterGroups = Array.from(temp.getElementsByTagName('optgroup'));
-
-        kat.addEventListener('change', function() {
-            temp.innerHTML = '<option value="">-- Pilih Tipe Produk --</option>';
-            desk.value = "";
-            if (this.value !== "") {
-                temp.disabled = false;
-                masterGroups.forEach(group => {
-                    if (group.getAttribute('data-category') === this.value) {
-                        temp.appendChild(group.cloneNode(true));
-                    }
-                });
-            } else {
-                temp.disabled = true;
-            }
-        });
-
-        temp.addEventListener('change', function() {
-            const sel = this.options[this.selectedIndex];
-            if (sel && sel.value !== "") {
-                const base = parseFloat(sel.getAttribute('data-price'));
-                const spec = sel.getAttribute('data-spec');
-                const tax = base * 0.10;
-                const elevation = base * 0.05;
-                const total = base + tax + elevation;
-
-                judulHidden.value = sel.text.trim();
-                estimasiHidden.value = total;
-
-                desk.value = `NAMA BARANG: ${sel.text.trim()}\n` +
-                             `SPEK: ${spec}\n` +
-                             `-------------------------------------------\n` +
-                             `Harga Dasar: Rp ${base.toLocaleString('id-ID')}\n` +
-                             `Pajak PPN (10%): Rp ${tax.toLocaleString('id-ID')}\n` +
-                             `Elevasi Pasar (5%): Rp ${elevation.toLocaleString('id-ID')}\n` +
-                             `TOTAL ESTIMASI: Rp ${total.toLocaleString('id-ID')}`;
-            }
-        });
-
-        // --- AUTO-FILL DARI INVENTORY ---
-        const preCat = "<?php echo $pre_category; ?>";
-        const preItem = "<?php echo $pre_item_name; ?>";
-
-        if (preCat !== "") {
-            kat.value = preCat;
-            kat.dispatchEvent(new Event('change'));
-
-            setTimeout(() => {
-                for (let i = 0; i < temp.options.length; i++) {
-                    if (temp.options[i].text.toLowerCase().includes(preItem.toLowerCase())) {
-                        temp.selectedIndex = i;
-                        temp.dispatchEvent(new Event('change'));
-                        break;
-                    }
-                }
-            }, 150);
+    function applyTemplate() {
+        const select = document.getElementById('template_id');
+        const option = select.options[select.selectedIndex];
+        
+        if (option.value !== "") {
+            document.getElementById('description').value = option.getAttribute('data-desc');
+            document.getElementById('base_price').value = option.getAttribute('data-price');
+            document.getElementById('title').value = option.text.substring(option.text.indexOf(']') + 2);
+            calculateEstimasi();
         }
-    });
+    }
+
+    function calculateEstimasi() {
+        const qty = parseInt(document.getElementById('qty').value) || 0;
+        const basePrice = parseFloat(document.getElementById('base_price').value) || 0;
+        
+        // Total = Dasar * 1.16
+        const subtotal = qty * basePrice;
+        const total = subtotal * 1.16;
+        
+        document.getElementById('estimasi').value = Math.round(total);
+        document.getElementById('display_estimasi').innerText = "Rp " + Math.round(total).toLocaleString('id-ID');
+        
+        const sisaBudget = <?php echo $sisa_dept; ?>;
+        const display = document.getElementById('display_estimasi');
+        if (total > sisaBudget && sisaBudget > 0) {
+            display.classList.add('text-black');
+            display.parentElement.classList.replace('bg-primary', 'bg-error');
+        } else {
+            display.classList.remove('text-black');
+            display.parentElement.classList.replace('bg-error', 'bg-primary');
+        }
+    }
+
+    function updateFileName() {
+        const input = document.getElementById('file-upload');
+        const displayInfo = document.getElementById('file-name-info');
+        const displayText = document.getElementById('file-name-display');
+        const label = document.getElementById('file-label');
+        const dropzone = document.getElementById('dropzone');
+
+        if (input.files.length > 0) {
+            displayText.innerText = input.files[0].name;
+            displayInfo.classList.remove('hidden');
+            label.innerText = "Berkas Dipilih";
+            dropzone.classList.replace('bg-primary/5', 'bg-primary-container');
+        }
+    }
+
+    window.onload = function() {
+        if(document.getElementById('base_price').value > 0) calculateEstimasi();
+    };
     </script>
 </body>
 </html>

@@ -9,124 +9,215 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Mengambil daftar pengguna biasa (bukan super admin)
-$query = mysqli_query($conn, "SELECT * FROM users WHERE role = 'user' ORDER BY full_name ASC");
+// Mengambil daftar pengguna biasa (bukan super admin) dengan filter pencarian
+$search_q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
+$where_sql = "WHERE role = 'user'";
+if (!empty($search_q)) {
+    $where_sql .= " AND (full_name LIKE '%$search_q%' OR department LIKE '%$search_q%' OR jabatan LIKE '%$search_q%')";
+}
+
+$query = mysqli_query($conn, "SELECT * FROM users $where_sql ORDER BY full_name ASC");
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Pengguna - SIDIK-TI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SIDIK-TI | User Directory Management</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#fefcff",
+                        "on-tertiary-container": "#67f4b7",
+                        "inverse-surface": "#2d3133",
+                        "surface-variant": "#e0e3e5",
+                        "primary-fixed": "#e2dfff",
+                        "tertiary": "#005338",
+                        "secondary": "#0051d5",
+                        "on-surface": "#191c1e",
+                        "background": "#f7f9fb",
+                        "on-primary-container": "#dad7ff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "surface-tint": "#4d44e3",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#b4c5ff",
+                        "secondary-fixed": "#dbe1ff",
+                        "surface-container-low": "#f2f4f6",
+                        "on-surface-variant": "#464555",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#4f46e5",
+                        "outline-variant": "#c7c4d8",
+                        "on-primary-fixed": "#0f0069",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-secondary-fixed-variant": "#003ea8",
+                        "primary": "#3525cd",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-container": "#316bf3",
+                        "on-background": "#191c1e",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#006e4b",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-fixed": "#00174b",
+                        "surface-container": "#eceef0",
+                        "inverse-primary": "#c3c0ff",
+                        "outline": "#777587",
+                        "on-tertiary-fixed": "#002113"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .fill-1 { font-variation-settings: 'FILL' 1; }
+    </style>
 </head>
-<body class="bg-gray-50 flex h-screen overflow-hidden">
-    
+<body class="bg-surface font-body text-on-surface antialiased flex min-h-screen">
+
     <?php include '../includes/navbar_admin.php'; ?>
-    
-    <div class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="bg-white shadow-sm px-8 py-5 flex justify-between items-center z-10 shrink-0 border-b border-gray-100">
+
+    <main class="flex-1 flex flex-col min-w-0">
+        <!-- Header Bar -->
+        <header class="flex items-center justify-between px-8 py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-20">
             <div>
-                <h1 class="text-2xl font-black text-gray-800 tracking-tight">Manajemen <span class="text-blue-600">Pengguna</span></h1>
-                <p class="text-sm text-gray-500 font-medium mt-1">Kelola direktori pendaftaran pegawai/klien Anda</p>
+                <h1 class="font-headline text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">User <span class="text-primary italic">Directory</span></h1>
+                <p class="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Manajemen Akses & Personalia Karyawan</p>
             </div>
             <div class="flex items-center gap-4">
-                <div class="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold border-2 border-white shadow-md">
-                    <i class="fa-solid fa-users-gear"></i>
+                <div class="bg-primary-fixed/20 px-4 py-2 rounded-2xl border border-primary-fixed/30 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm fill-1">verified_user</span>
+                    <span class="text-[10px] font-black text-primary uppercase tracking-widest"><?php echo mysqli_num_rows($query); ?> Account Active</span>
                 </div>
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-8">
-            <div class="max-w-6xl mx-auto space-y-8">
-                
-                <?php if(isset($_GET['status']) && $_GET['status'] == 'deleted'): ?>
-                <div class="bg-blue-50 text-blue-600 p-4 rounded-xl font-bold flex items-center gap-3 border border-blue-200">
-                    <i class="fa-solid fa-info-circle text-xl"></i> Akun pengguna telah berhasil dihapus dari sistem!
+        <div class="p-8 space-y-8">
+            <!-- Alert Messages -->
+            <?php if(isset($_GET['status']) && $_GET['status'] == 'deleted'): ?>
+                <div class="bg-primary-fixed/10 text-primary p-4 rounded-2xl flex items-center gap-3 border border-primary-fixed/30 animate-in fade-in slide-in-from-top-2 duration-300 font-bold uppercase tracking-widest text-xs">
+                    <span class="material-symbols-outlined fill-1">info</span>
+                    Data personil telah berhasil dieliminasi dari database sistem.
                 </div>
-                <?php endif; ?>
+            <?php endif; ?>
 
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-gray-100 pb-4">
-                        <h3 class="text-lg font-black text-gray-800">
-                            Direktori Pegawai Terdaftar
-                        </h3>
-                        <div class="bg-blue-50 text-blue-700 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2">
-                            <i class="fa-solid fa-user-check"></i> 
-                            <?php echo mysqli_num_rows($query); ?> Akun Terverifikasi
-                        </div>
-                    </div>
+            <!-- Directory Table Panel -->
+            <section class="bg-white rounded-[2.5rem] border border-outline-variant/10 shadow-2xl shadow-indigo-900/5 overflow-hidden">
+                <div class="p-8 border-b border-outline-variant/5 flex items-center justify-between">
+                    <h2 class="font-headline text-xl font-black text-on-surface italic uppercase tracking-tighter">Registered <span class="text-primary italic">Personalities</span></h2>
                     
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-widest border-b border-gray-200">
-                                    <th class="p-4 font-black w-16 text-center rounded-tl-2xl">No</th>
-                                    <th class="p-4 font-black">Informasi Pegawai</th>
-                                    <th class="p-4 font-black">Identitas Jabatan</th>
-                                    <th class="p-4 font-black">Kredensial</th>
-                                    <th class="p-4 font-black w-32 text-center rounded-tr-2xl">Tindakan</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                <?php if(mysqli_num_rows($query) > 0): $no = 1; ?>
-                                    <?php while($row = mysqli_fetch_assoc($query)): ?>
-                                        <tr class="hover:bg-blue-50/50 transition duration-150 group">
-                                            <td class="p-4 text-center font-bold text-gray-400 group-hover:text-blue-500"><?php echo $no++; ?></td>
-                                            
-                                            <!-- Data Pegawai -->
-                                            <td class="p-4 space-y-1">
-                                                <div class="font-black text-gray-800 text-sm"><?php echo htmlspecialchars($row['full_name'] ?? $row['fullname'] ?? '-', ENT_QUOTES); ?></div>
-                                                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest bg-gray-100 w-max px-2 py-0.5 rounded-md">ID: #<?php echo $row['id']; ?></div>
-                                            </td>
-                                            
-                                            <!-- Karir / Departemen -->
-                                            <td class="p-4">
-                                                <div class="font-bold text-blue-700 text-sm flex items-center gap-1.5">
-                                                    <i class="fa-regular fa-building text-blue-400"></i> <?php echo htmlspecialchars($row['department'] ?? '-'); ?>
-                                                </div>
-                                                <div class="text-[11px] font-bold text-gray-500 mt-0.5 uppercase tracking-wide">
-                                                    <?php echo htmlspecialchars($row['jabatan'] ?? '-'); ?>
-                                                </div>
-                                            </td>
-
-                                            <!-- Login Data -->
-                                            <td class="p-4 space-y-1">
-                                                <div class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded w-max border border-emerald-100 flex items-center gap-1">
-                                                    <i class="fa-solid fa-fingerprint text-[10px]"></i> <?php echo htmlspecialchars($row['username']); ?>
-                                                </div>
-                                                <div class="text-[10px] text-gray-400 italic">Posisi: Akses User</div>
-                                            </td>
-                                            
-                                            <!-- Action Delete -->
-                                            <td class="p-4 text-center">
-                                                <a href="../config/hapus_user.php?id=<?php echo $row['id']; ?>" 
-                                                    onclick="return confirm('PERINGATAN!\n\nMenghapus akun <?php echo htmlspecialchars(addslashes($row['username'])); ?> akan mempengaruhi tiket history miliknya (jika ada).\n\nYakin ingin menghapus permanen karyawan ini?');" 
-                                                    class="inline-flex h-9 w-9 bg-red-50 text-red-500 rounded-xl hover:bg-red-600 hover:text-white items-center justify-center transition shadow-sm border border-red-100 hover:border-red-600 group-hover:scale-110">
-                                                    <i class="fa-solid fa-user-minus text-sm"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                <?php else: ?>
-                                    <tr>
-                                        <td colspan="5" class="p-12 text-center">
-                                            <div class="inline-flex items-center justify-center p-4 bg-gray-50 rounded-full mb-3 text-gray-400">
-                                                <i class="fa-solid fa-user-slash text-2xl"></i>
-                                            </div>
-                                            <p class="text-gray-500 font-bold">Belum Ada Pegawai Yang Mendaftar</p>
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                    <form action="" method="GET" class="relative group">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
+                        <input name="q" value="<?php echo htmlspecialchars($search_q); ?>" type="text" placeholder="Temukan nama..." class="pl-10 pr-10 py-2 bg-surface-container-low dark:bg-slate-800 border-0 rounded-xl text-xs font-bold text-on-surface dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all w-64">
+                        <?php if(!empty($search_q)): ?>
+                            <a href="manage_users.php" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-rose-500 transition-colors">
+                                <span class="material-symbols-outlined text-sm">close</span>
+                            </a>
+                        <?php endif; ?>
+                    </form>
                 </div>
 
-            </div>
-        </main>
-    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container-low/30 border-b border-outline-variant/10">
+                                <th class="px-8 py-5 w-20 text-center">Rank</th>
+                                <th class="px-8 py-5">Profile Information</th>
+                                <th class="px-8 py-5">Position & Office</th>
+                                <th class="px-8 py-5">Authentication Identity</th>
+                                <th class="px-8 py-5 text-center">Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant/5">
+                            <?php if(mysqli_num_rows($query) > 0): $no = 1; ?>
+                                <?php while($row = mysqli_fetch_assoc($query)): ?>
+                                <tr class="group hover:bg-surface-variant/5 transition-all">
+                                    <td class="px-8 py-6 text-center">
+                                        <span class="text-xs font-black text-outline group-hover:text-primary transition-colors italic">#<?php echo sprintf("%02d", $no++); ?></span>
+                                    </td>
+                                    <td class="px-8 py-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary font-black uppercase text-sm border border-outline-variant/20 group-hover:bg-primary-container group-hover:text-white transition-all">
+                                                <?php echo substr($row['full_name'] ?? 'U', 0, 1); ?>
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="font-headline font-bold text-on-surface group-hover:text-primary transition-colors leading-none"><?php echo htmlspecialchars($row['full_name'] ?? '-'); ?></span>
+                                                <span class="text-[9px] text-outline font-black uppercase tracking-widest mt-1">ID: P-<?php echo str_pad($row['id'], 3, '0', STR_PAD_LEFT); ?></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6">
+                                        <div class="flex flex-col">
+                                            <div class="flex items-center gap-1.5 mb-1">
+                                                <span class="material-symbols-outlined text-sm text-primary">apartment</span>
+                                                <span class="text-[11px] font-black text-on-surface uppercase italic"><?php echo htmlspecialchars($row['department'] ?? 'UNSET'); ?></span>
+                                            </div>
+                                            <span class="text-[10px] text-outline font-bold leading-none ml-5"><?php echo htmlspecialchars($row['jabatan'] ?? 'Position Not Set'); ?></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6">
+                                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/10 group-hover:border-primary/20 transition-all">
+                                            <span class="material-symbols-outlined text-primary text-sm">key</span>
+                                            <span class="text-[10px] font-black text-on-surface-variant font-mono"><?php echo htmlspecialchars($row['username']); ?></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6 text-center">
+                                        <a href="../config/hapus_user.php?id=<?php echo $row['id']; ?>" 
+                                            onclick="return confirm('PERINGATAN!\n\nMenghapus akun <?php echo htmlspecialchars(addslashes($row['username'])); ?> akan mempengaruhi tiket history miliknya (jika ada).\n\nYakin ingin menghapus permanen karyawan ini?');" 
+                                            class="w-10 h-10 inline-flex items-center justify-center bg-error/5 text-error rounded-xl hover:bg-error hover:text-white transition-all shadow-sm border border-error/10 hover:shadow-error/20 active:scale-90 group/del">
+                                            <span class="material-symbols-outlined text-xl group-hover/del:fill-1">person_remove</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5" class="px-8 py-20 text-center">
+                                        <div class="flex flex-col items-center justify-center opacity-40 grayscale group hover:grayscale-0 transition-all">
+                                            <span class="material-symbols-outlined text-[64px] mb-4 text-outline">no_accounts</span>
+                                            <p class="font-headline font-black text-on-surface uppercase tracking-widest text-xs">Zero Personalities Detected</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
 </body>
 </html>
