@@ -93,7 +93,7 @@ try {
     <title>Daftar Akun - IT Helpdesk</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <?php include_once '../includes/firebase_js.php'; ?>
+    <?php include_once __DIR__ . '/../includes/firebase_js.php'; ?>
 </head>
 <body class="bg-slate-100 min-h-screen flex items-center justify-center font-sans p-6">
 

@@ -131,7 +131,7 @@ if (isset($_POST['login'])) {
         }
     </script>
     </style>
-    <?php include_once '../includes/firebase_js.php'; ?>
+    <?php include_once __DIR__ . '/../includes/firebase_js.php'; ?>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden">
     <main class="min-h-screen flex flex-col md:flex-row items-stretch">
