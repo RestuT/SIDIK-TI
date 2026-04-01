@@ -96,4 +96,19 @@ function get_storage_type() {
     global $isVercel;
     return $isVercel ? 'cloud' : 'local';
 }
+
+/**
+ * 3. CUSTOM SESSION MANAGEMENT
+ * Uses Firestore for sessions to ensure persistence on Vercel.
+ */
+if ($db) {
+    require_once __DIR__ . '/session_handler.php';
+    $handler = new FirestoreSessionHandler($db);
+    session_set_save_handler($handler, true);
+}
+
+// Start session centrally if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
