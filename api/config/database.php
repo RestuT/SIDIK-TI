@@ -61,6 +61,13 @@ try {
         $db = $firestore->database();
     }
 } catch (\Exception $e) {
+    if ($isVercel) {
+        echo "<!-- Firebase Initialization Error: " . $e->getMessage() . " -->\n";
+        // Also echo for test_firebase.php
+        if (basename($_SERVER['PHP_SELF']) == 'test_firebase.php') {
+            echo "DATABASE_PHP_ERROR: " . $e->getMessage() . "\n";
+        }
+    }
     error_log("Firebase Initialization Warning: " . $e->getMessage());
 }
 
