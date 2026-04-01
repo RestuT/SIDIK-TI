@@ -57,7 +57,8 @@ class FirestoreSessionHandler implements SessionHandlerInterface {
         }
     }
 
-    public function gc($maxlifetime): int|bool {
+    #[\ReturnTypeWillChange]
+    public function gc($maxlifetime): int|false {
         try {
             // Simple GC: Delete sessions older than $maxlifetime seconds
             $expirationTime = time() - $maxlifetime;
