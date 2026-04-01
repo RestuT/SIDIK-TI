@@ -41,7 +41,7 @@
             body { font-family: 'Inter', sans-serif; min-height: 100dvh; }
             h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
         </style>
-    <?php include_once 'includes/firebase_js.php'; ?>
+    <?php include_once __DIR__ . '/includes/firebase_js.php'; ?>
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-container/30">
     <!-- TopAppBar -->

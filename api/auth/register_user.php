@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config/database.php';
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 if (isset($_POST['register'])) {
     require_csrf_token();
@@ -18,25 +18,44 @@ if (isset($_POST['register'])) {
         $error = "Konfirmasi password tidak sesuai!";
     } else {
         try {
-            // 2. Cek apakah username sudah ada di Firestore
-            $userRef = $db->collection('users')->where('username', '=', $username)->limit(1)->documents();
+            // 2. Cek apakah username sudah ada
+            $userExists = false;
+            if ($db) {
+                $userRef = $db->collection('users')->where('username', '=', $username)->limit(1)->documents();
+                $userExists = !$userRef->isEmpty();
+            } else if ($conn) {
+                $username_esc = mysqli_real_escape_string($conn, $username);
+                $res = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username_esc' LIMIT 1");
+                $userExists = (mysqli_num_rows($res) > 0);
+            }
             
-            if (!$userRef->isEmpty()) {
+            if ($userExists) {
                 $error = "Username sudah terdaftar!";
             } else {
                 // 3. Enkripsi Password
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                // 4. Insert ke Firestore
-                $db->collection('users')->add([
-                    'username' => $username,
-                    'password' => $hashed_password,
-                    'full_name' => $fullname,
-                    'department' => $dept,
-                    'jabatan' => $jabatan,
-                    'role' => 'user', // Default role
-                    'created_at' => date('Y-m-d H:i:s')
-                ]);
+                // 4. Insert data
+                if ($db) { // Firestore
+                    $db->collection('users')->add([
+                        'username' => $username,
+                        'password' => $hashed_password,
+                        'full_name' => $fullname,
+                        'department' => $dept,
+                        'jabatan' => $jabatan,
+                        'role' => 'user', 
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                } else if ($conn) { // MySQL
+                    $username = mysqli_real_escape_string($conn, $username);
+                    $fullname = mysqli_real_escape_string($conn, $fullname);
+                    $dept = mysqli_real_escape_string($conn, $dept);
+                    $jabatan = mysqli_real_escape_string($conn, $jabatan);
+                    
+                    $sql = "INSERT INTO users (username, password, full_name, department, jabatan, role, created_at) 
+                            VALUES ('$username', '$hashed_password', '$fullname', '$dept', '$jabatan', 'user', NOW())";
+                    mysqli_query($conn, $sql);
+                }
 
                 header("Location: login_user.php?pesan=registrasi_berhasil");
                 exit();
@@ -47,12 +66,19 @@ if (isset($_POST['register'])) {
     }
 }
 
-// Ambil Departemen dari Firestore untuk dropdown
+// Ambil Departemen untuk dropdown
+$departments = [];
 try {
-    $departments_docs = $db->collection('departments')->documents();
-    $departments = [];
-    foreach ($departments_docs as $doc) {
-        $departments[] = $doc->data();
+    if ($db) {
+        $departments_docs = $db->collection('departments')->documents();
+        foreach ($departments_docs as $doc) {
+            $departments[] = $doc->data();
+        }
+    } else if ($conn) {
+        $res = mysqli_query($conn, "SELECT * FROM departments");
+        while ($row = mysqli_fetch_assoc($res)) {
+            $departments[] = $row;
+        }
     }
 } catch (Exception $e) {
     $departments = [];

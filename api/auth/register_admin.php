@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config/database.php';
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 $message = "";
 $error = "";
@@ -22,24 +22,42 @@ if (isset($_POST['register_admin'])) {
         $error = "Kode 2FA harus tepat 6 digit angka!";
     } else {
         try {
-            // Cek username unik di Firestore
-            $userRef = $db->collection('users')->where('username', '=', $username)->limit(1)->documents();
+            // Cek username unik
+            $userExists = false;
+            if ($db) {
+                $userRef = $db->collection('users')->where('username', '=', $username)->limit(1)->documents();
+                $userExists = !$userRef->isEmpty();
+            } else if ($conn) {
+                $username_esc = mysqli_real_escape_string($conn, $username);
+                $res = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username_esc' LIMIT 1");
+                $userExists = (mysqli_num_rows($res) > 0);
+            }
             
-            if (!$userRef->isEmpty()) {
+            if ($userExists) {
                 $error = "Username admin sudah digunakan!";
             } else {
                 // Enkripsi password
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 
-                // Insert ke Firestore
-                $db->collection('users')->add([
-                    'username' => $username,
-                    'password' => $hashed_password,
-                    'full_name' => $fullname,
-                    'role' => 'admin',
-                    'two_fa_code' => $two_fa,
-                    'created_at' => date('Y-m-d H:i:s')
-                ]);
+                // Insert data
+                if ($db) { // Firestore
+                    $db->collection('users')->add([
+                        'username' => $username,
+                        'password' => $hashed_password,
+                        'full_name' => $fullname,
+                        'role' => 'admin',
+                        'two_fa_code' => $two_fa,
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                } else if ($conn) { // MySQL
+                    $username = mysqli_real_escape_string($conn, $username);
+                    $fullname = mysqli_real_escape_string($conn, $fullname);
+                    $two_fa = mysqli_real_escape_string($conn, $two_fa);
+                    
+                    $sql = "INSERT INTO users (username, password, full_name, role, two_fa_code, created_at) 
+                            VALUES ('$username', '$hashed_password', '$fullname', 'admin', '$two_fa', NOW())";
+                    mysqli_query($conn, $sql);
+                }
                 
                 header("Location: login_admin.php?pesan=reg_sukses");
                 exit();

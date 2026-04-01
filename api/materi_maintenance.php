@@ -36,7 +36,7 @@
           }
         </script>
         </style>
-    <?php include_once 'includes/firebase_js.php'; ?>
+    <?php include_once __DIR__ . '/includes/firebase_js.php'; ?>
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-container/30">
     <!-- TopAppBar -->

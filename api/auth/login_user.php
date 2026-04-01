@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config/database.php';
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 require_csrf_token();
 
@@ -9,16 +9,26 @@ if (isset($_POST['login'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // 1. Query mencari user berdasarkan username menggunakan Firestore
-    $usersRef = $db->collection('users');
-    $query = $usersRef->where('username', '=', $username);
-    $documents = $query->documents();
-
+    // 1. Query mencari user berdasarkan username
     $userData = null;
-    foreach ($documents as $document) {
-        if ($document->exists()) {
-            $userData = $document->data();
-            $userData['id'] = $document->id();
+
+    if ($db) { // Use Firestore (Verel/Cloud)
+        $usersRef = $db->collection('users');
+        $query = $usersRef->where('username', '=', $username);
+        $documents = $query->documents();
+
+        foreach ($documents as $document) {
+            if ($document->exists()) {
+                $userData = $document->data();
+                $userData['id'] = $document->id();
+            }
+        }
+    } else if ($conn) { // Use MySQL (Local)
+        $username = mysqli_real_escape_string($conn, $username);
+        $sql = "SELECT * FROM users WHERE username = '$username'";
+        $result = mysqli_query($conn, $sql);
+        if ($result && mysqli_num_rows($result) > 0) {
+            $userData = mysqli_fetch_assoc($result);
         }
     }
 

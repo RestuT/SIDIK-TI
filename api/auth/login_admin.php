@@ -1,8 +1,8 @@
 <?php
 session_start();
 // PERBAIKAN: Pastikan file database.php benar-benar terhubung
-include '../config/database.php'; 
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php'; 
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 require_csrf_token();
 
@@ -14,16 +14,26 @@ if (isset($_POST['login_step1'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Hanya mencari user dengan role admin menggunakan Firestore
-    $usersRef = $db->collection('users');
-    $query = $usersRef->where('username', '=', $username)->where('role', '=', 'admin');
-    $documents = $query->documents();
-
+    // Hanya mencari user dengan role admin
     $admin = null;
-    foreach ($documents as $document) {
-        if ($document->exists()) {
-            $admin = $document->data();
-            $admin['id'] = $document->id(); // Firestore Doc ID
+
+    if ($db) { // Use Firestore (Cloud)
+        $usersRef = $db->collection('users');
+        $query = $usersRef->where('username', '=', $username)->where('role', '=', 'admin');
+        $documents = $query->documents();
+
+        foreach ($documents as $document) {
+            if ($document->exists()) {
+                $admin = $document->data();
+                $admin['id'] = $document->id(); // Firestore Doc ID
+            }
+        }
+    } else if ($conn) { // Use MySQL (Local)
+        $username = mysqli_real_escape_string($conn, $username);
+        $sql = "SELECT * FROM users WHERE username = '$username' AND role = 'admin'";
+        $result = mysqli_query($conn, $sql);
+        if ($result && mysqli_num_rows($result) > 0) {
+            $admin = mysqli_fetch_assoc($result);
         }
     }
 
@@ -51,11 +61,25 @@ if (isset($_POST['verify_2fa'])) {
 
     $code = $_POST['two_fa_code'];
     $admin_id = $_SESSION['temp_admin_id'];
+    $is_valid = false;
 
-    $userDoc = $db->collection('users')->document($admin_id)->snapshot();
+    if ($db) { // Firestore
+        $userDoc = $db->collection('users')->document($admin_id)->snapshot();
+        if ($userDoc->exists() && $userDoc->get('two_fa_code') == $code) {
+            $userData = $userDoc->data();
+            $is_valid = true;
+        }
+    } else if ($conn) { // MySQL
+        $admin_id = mysqli_real_escape_string($conn, $admin_id);
+        $sql = "SELECT * FROM users WHERE id = '$admin_id' AND two_fa_code = '$code'";
+        $result = mysqli_query($conn, $sql);
+        if ($result && mysqli_num_rows($result) > 0) {
+            $userData = mysqli_fetch_assoc($result);
+            $is_valid = true;
+        }
+    }
 
-    if ($userDoc->exists() && $userDoc->get('two_fa_code') == $code) {
-        $userData = $userDoc->data();
+    if ($is_valid) {
         
         // Login Berhasil - Set Session Utama
         $_SESSION['user_id'] = $admin_id;
