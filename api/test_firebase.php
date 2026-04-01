@@ -13,6 +13,8 @@ echo "Active Storage: " . get_storage_type() . "\n";
 
 // Check Library
 echo "Searching for Kreait\\Firebase\\Factory: " . (class_exists('Kreait\Firebase\Factory') ? 'FOUND' : 'MISSING') . "\n";
+echo "Extension GRPC: " . (extension_loaded('grpc') ? 'LOADED' : 'MISSING') . "\n";
+echo "Extension Protobuf: " . (extension_loaded('protobuf') ? 'LOADED' : 'MISSING') . "\n";
 
 // Check Env Vars (Silent check)
 $jsonStr = getenv('FIREBASE_SERVICE_ACCOUNT_JSON');
