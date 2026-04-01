@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -123,7 +123,7 @@ try {
 </head>
 <body class="bg-surface-container-low font-body text-on-surface antialiased flex min-h-screen">
     
-    <?php include '../includes/navbar_admin.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col min-w-0">

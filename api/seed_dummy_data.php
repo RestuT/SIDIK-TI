@@ -5,7 +5,7 @@
  * Usage: Run once via browser or CLI.
  */
 
-include 'config/database.php';
+require_once __DIR__ . '/config/database.php';
 
 echo "<h1>SIDIK-TI Seeder (Firestore)</h1>";
 echo "<p>Starting data population to Cloud Firestore...</p>";

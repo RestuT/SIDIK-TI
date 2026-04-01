@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'database.php';
+require_once __DIR__ . '/database.php';
 use Google\Cloud\Firestore\FieldValue;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {

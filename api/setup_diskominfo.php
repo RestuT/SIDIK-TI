@@ -4,7 +4,7 @@
  * Adjusts departments and budget to match typical DISKOMINFO structure.
  */
 
-include 'config/database.php';
+require_once __DIR__ . '/config/database.php';
 
 echo "<h1>DISKOMINFO Structure Setup</h1>";
 

@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config/database.php';
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -135,7 +135,7 @@ foreach ($master_templates as $doc) {
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden flex min-h-screen">
     
-    <?php include '../includes/navbar_admin.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <main class="flex-1 flex flex-col min-w-0">
         <!-- Header Bar -->

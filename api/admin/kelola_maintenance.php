@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config/database.php';
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -89,7 +89,7 @@ if (isset($_POST['update_maintenance'])) {
 </head>
 <body class="bg-slate-100 flex font-sans">
 
-    <?php include '../includes/navbar_admin.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <main class="flex-1 p-10">
         <div class="max-w-4xl mx-auto">

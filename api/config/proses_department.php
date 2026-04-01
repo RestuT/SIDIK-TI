@@ -1,7 +1,7 @@
 <?php
 session_start();
-include 'database.php';
-include 'csrf_helper.php';
+require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/csrf_helper.php';
 
 // Proteksi: Hanya Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {

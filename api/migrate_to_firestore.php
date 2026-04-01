@@ -5,7 +5,7 @@
  */
 
 define('MIGRATION_MODE', true);
-require_once 'config/database.php';
+require_once __DIR__ . '/config/database.php';
 
 echo "<h1>🚀 SIDIK-TI Firestore Migration Tool</h1>";
 

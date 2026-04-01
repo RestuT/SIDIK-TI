@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config/database.php';
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 // Proteksi halaman
 if (!isset($_SESSION['user_id'])) {
@@ -78,7 +78,7 @@ foreach ($assets_docs as $doc) {
         </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen selection:bg-primary/20">
-    <?php include '../includes/navbar_user.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 
     <main class="max-w-7xl mx-auto px-6 md:px-10 py-10 space-y-10">
         <section class="flex flex-col md:flex-row md:items-end justify-between gap-6">

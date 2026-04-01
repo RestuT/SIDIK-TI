@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config/database.php'; 
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php'; 
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 // Proteksi halaman: Memastikan hanya user yang sudah login
 if (!isset($_SESSION['user_id'])) {
@@ -107,7 +107,7 @@ try {
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
     
-    <?php include '../includes/navbar_user.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 
     <!-- Main Content -->
     <main class="max-w-[1240px] mx-auto px-6 py-12">

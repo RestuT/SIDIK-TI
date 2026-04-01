@@ -147,7 +147,7 @@ $budget_summary = $db->collection('budget_config')
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden flex min-h-screen">
     
-    <?php include '../includes/navbar_admin.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col min-w-0">

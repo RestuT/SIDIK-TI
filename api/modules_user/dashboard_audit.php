@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../config/database.php'; 
-include '../config/csrf_helper.php';
+require_once __DIR__ . '/../config/database.php'; 
+require_once __DIR__ . '/../config/csrf_helper.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login_user.php");
@@ -88,7 +88,7 @@ $total_records = count($submission_list);
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
 
-    <?php include '../includes/navbar_user.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 
     <main class="max-w-[1240px] mx-auto px-6 py-12">
         <!-- Modern Header Section -->

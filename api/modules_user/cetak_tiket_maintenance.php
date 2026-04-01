@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Proteksi: Pastikan user login dan ada parameter id
 if (!isset($_SESSION['user_id']) || !isset($_GET['id'])) {

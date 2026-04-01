@@ -4,7 +4,7 @@
  * Updates user departments to match the new DISKOMINFO structure.
  */
 
-include 'config/database.php';
+require_once __DIR__ . '/config/database.php';
 
 echo "<h1>Syncing Users to DISKOMINFO</h1>";
 

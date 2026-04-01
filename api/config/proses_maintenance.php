@@ -1,7 +1,7 @@
 <?php
 session_start();
-include 'database.php'; // Mengambil koneksi database
-include 'csrf_helper.php';
+require_once __DIR__ . '/database.php'; // Mengambil koneksi database
+require_once __DIR__ . '/csrf_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     

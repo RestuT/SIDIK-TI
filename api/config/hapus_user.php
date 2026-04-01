@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'database.php';
+require_once __DIR__ . '/database.php';
 
 // Pastikan yang menghapus adalah seorang admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
