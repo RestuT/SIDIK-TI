@@ -30,21 +30,26 @@ $projectId = getenv('FIREBASE_PROJECT_ID');
 $privateKey = str_replace('\\n', "\n", getenv('FIREBASE_PRIVATE_KEY') ?: '');
 $clientEmail = getenv('FIREBASE_CLIENT_EMAIL');
 $serviceAccountJson = getenv('FIREBASE_SERVICE_ACCOUNT_JSON');
+$databaseId = getenv('FIREBASE_DATABASE_ID') ?: '(default)';
 
 try {
     $factory = (new Factory);
     $firebaseAvailable = false;
 
-    if ($projectId && $privateKey && $clientEmail) {
+    if ($serviceAccountJson) {
+        $serviceAccountData = json_decode($serviceAccountJson, true);
+        if ($serviceAccountData === null) {
+             throw new Exception("FIREBASE_SERVICE_ACCOUNT_JSON is not a valid JSON string.");
+        }
+        $factory = $factory->withServiceAccount($serviceAccountData);
+        $firebaseAvailable = true;
+    } else if ($projectId && $privateKey && $clientEmail) {
         $factory = $factory->withServiceAccount([
+            'type' => 'service_account',
             'project_id' => $projectId,
             'private_key' => $privateKey,
             'client_email' => $clientEmail,
         ]);
-        $firebaseAvailable = true;
-    } else if ($serviceAccountJson) {
-        $serviceAccountData = json_decode($serviceAccountJson, true);
-        $factory = $factory->withServiceAccount($serviceAccountData);
         $firebaseAvailable = true;
     } else if (file_exists(__DIR__ . '/../../firebase-auth.json')) {
         $factory = $factory->withServiceAccount(__DIR__ . '/../../firebase-auth.json');

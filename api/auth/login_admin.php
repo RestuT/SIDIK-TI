@@ -19,13 +19,16 @@ if (isset($_POST['login_step1'])) {
 
     if ($db) { // Use Firestore (Cloud)
         $usersRef = $db->collection('users');
-        $query = $usersRef->where('username', '=', $username)->where('role', '=', 'admin');
+        $query = $usersRef->where('username', '=', $username);
         $documents = $query->documents();
 
         foreach ($documents as $document) {
             if ($document->exists()) {
-                $admin = $document->data();
-                $admin['id'] = $document->id(); // Firestore Doc ID
+                $data = $document->data();
+                if (isset($data['role']) && $data['role'] === 'admin') {
+                    $admin = $data;
+                    $admin['id'] = $document->id(); 
+                }
             }
         }
     } else if ($conn) { // Use MySQL (Local)
@@ -35,6 +38,8 @@ if (isset($_POST['login_step1'])) {
         if ($result && mysqli_num_rows($result) > 0) {
             $admin = mysqli_fetch_assoc($result);
         }
+    } else {
+        $error = "Terjadi kesalahan: Tidak dapat terhubung ke database Firestore maupun MySQL.";
     }
 
     if ($admin) {
@@ -46,7 +51,7 @@ if (isset($_POST['login_step1'])) {
         } else {
             $error = "Kata sandi salah!";
         }
-    } else {
+    } else if (!$error) {
         $error = "Akun admin tidak ditemukan!";
     }
 }

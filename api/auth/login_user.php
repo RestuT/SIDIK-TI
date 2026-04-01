@@ -30,6 +30,8 @@ if (isset($_POST['login'])) {
         if ($result && mysqli_num_rows($result) > 0) {
             $userData = mysqli_fetch_assoc($result);
         }
+    } else {
+        $error = "Terjadi kesalahan: Tidak dapat terhubung ke database Firestore maupun MySQL.";
     }
 
     if ($userData) {

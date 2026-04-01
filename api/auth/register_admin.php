@@ -40,6 +40,7 @@ if (isset($_POST['register_admin'])) {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 
                 // Insert data
+                $saved = false;
                 if ($db) { // Firestore
                     $db->collection('users')->add([
                         'username' => $username,
@@ -49,6 +50,7 @@ if (isset($_POST['register_admin'])) {
                         'two_fa_code' => $two_fa,
                         'created_at' => date('Y-m-d H:i:s')
                     ]);
+                    $saved = true;
                 } else if ($conn) { // MySQL
                     $username = mysqli_real_escape_string($conn, $username);
                     $fullname = mysqli_real_escape_string($conn, $fullname);
@@ -56,11 +58,17 @@ if (isset($_POST['register_admin'])) {
                     
                     $sql = "INSERT INTO users (username, password, full_name, role, two_fa_code, created_at) 
                             VALUES ('$username', '$hashed_password', '$fullname', 'admin', '$two_fa', NOW())";
-                    mysqli_query($conn, $sql);
+                    if (mysqli_query($conn, $sql)) {
+                        $saved = true;
+                    }
                 }
                 
-                header("Location: login_admin.php?pesan=reg_sukses");
-                exit();
+                if ($saved) {
+                    header("Location: login_admin.php?pesan=reg_sukses");
+                    exit();
+                } else {
+                    $error = "Gagal menyimpan data: Tidak ada koneksi ke database Firestore maupun MySQL.";
+                }
             }
         } catch (Exception $e) {
             $error = "Gagal mendaftar: " . $e->getMessage();
