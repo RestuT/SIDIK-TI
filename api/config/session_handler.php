@@ -38,7 +38,7 @@ class FirestoreSessionHandler implements SessionHandlerInterface {
             $docRef = $this->db->collection($this->collection)->document($id);
             $docRef->set([
                 'data' => $data,
-                'timestamp' => new \Google\Cloud\Firestore\FieldValue(\Google\Cloud\Firestore\FieldValue::SERVER_TIMESTAMP)
+                'timestamp' => \Google\Cloud\Firestore\FieldValue::serverTimestamp()
             ]);
             return true;
         } catch (Exception $e) {
