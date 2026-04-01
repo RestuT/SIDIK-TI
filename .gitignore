@@ -1,0 +1,22 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Vercel
+.vercel/
+
+# Environment
+.env
+.env.*
+
+# Firebase Secrets
+# Hidding all JSON files except the ones we need
+*.json
+!vercel.json
+!composer.json
+!package.json
+!package-lock.json
+
+# System Files
+.DS_Store
+Thumbs.db

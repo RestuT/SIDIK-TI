@@ -1,0 +1,19 @@
+{
+  "name": "restut/sidik-ti",
+  "description": "Asset Management & Procurement Tracking System",
+  "type": "project",
+  "require": {
+    "kreait/firebase-php": "^7.0",
+    "vlucas/phpdotenv": "^5.5"
+  },
+  "config": {
+    "allow-plugins": {
+      "ext-json": true
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}
