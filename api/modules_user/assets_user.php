@@ -25,6 +25,55 @@ $userRef = $db->collection('users')->document($user_id);
 $userSnap = $userRef->snapshot();
 $display_name = $userSnap->exists() ? ($userSnap->get('full_name') ?? 'User') : 'User';
 
+// 4. FETCH SYSTEM SETTINGS (Depresiasi & Margin)
+$margin_pengadaan = 10;
+$nilai_sisa_pct = 10;
+$settings_docs = $db->collection('system_settings')->documents();
+foreach ($settings_docs as $doc) {
+    if ($doc->id() == 'margin_pengadaan') $margin_pengadaan = (float)($doc->data()['setting_value'] ?? 10);
+    if ($doc->id() == 'nilai_sisa') $nilai_sisa_pct = (float)($doc->data()['setting_value'] ?? 10);
+}
+
+// 5. FETCH INVENTORY BASE PRICES
+$inventory_prices = [];
+$inv_docs = $db->collection('inventory')->documents();
+foreach ($inv_docs as $doc) {
+    $item = $doc->data();
+    $inventory_prices[$item['item_name']] = (float)($item['price_reference'] ?? 0);
+}
+
+// HELPER: Calculate Depreciation
+function calculateDepreciation($item_name, $category, $assigned_date, $inv_prices, $margin_pct, $salvage_pct) {
+    $base_price = $inv_prices[$item_name] ?? 0;
+    if ($base_price == 0 || !$assigned_date) return null;
+    
+    // Purchase Price = Base Price + Margin
+    $purchase_price = $base_price + ($base_price * ($margin_pct / 100));
+    $salvage_value = $purchase_price * ($salvage_pct / 100);
+    
+    // Useful life in months
+    $useful_life_months = 48; // Default 4 years (Hardware)
+    if (in_array($category, ['Software'])) $useful_life_months = 36;
+    if (in_array($category, ['Server', 'Networking', 'Router'])) $useful_life_months = 60;
+    
+    // Calculate Age in Months
+    $assigned_time = strtotime($assigned_date);
+    $now = time();
+    $months_used = ($now - $assigned_time) / (30 * 24 * 60 * 60); // approximate months
+    
+    if ($months_used <= 0) return ['current' => $purchase_price, 'purchase' => $purchase_price, 'salvage' => false];
+    
+    // Depreciation per month
+    $depreciation_per_month = ($purchase_price - $salvage_value) / $useful_life_months;
+    $current_value = $purchase_price - ($depreciation_per_month * $months_used);
+    
+    if ($current_value <= $salvage_value || $months_used >= $useful_life_months) {
+        return ['current' => $salvage_value, 'purchase' => $purchase_price, 'salvage' => true];
+    }
+    
+    return ['current' => $current_value, 'purchase' => $purchase_price, 'salvage' => false];
+}
+
 $asset_list = [];
 foreach ($assets_docs as $doc) {
     $a = $doc->data();
@@ -143,15 +192,17 @@ foreach ($assets_docs as $doc) {
                     <thead>
                         <tr class="text-on-surface-variant text-xs uppercase tracking-[0.15em] border-b border-slate-100">
                             <th class="px-6 py-5 font-bold">Perangkat</th>
-                            <th class="px-6 py-5 font-bold">Serial Number</th>
-                            <th class="px-6 py-5 font-bold">Kategori</th>
-                            <th class="px-6 py-5 font-bold">Tanggal Terima</th>
-                            <th class="px-6 py-5 font-bold">Status</th>
+                            <th class="px-6 py-5 font-bold">Deskripsi</th>
+                            <th class="px-6 py-5 font-bold">Penugasan</th>
+                            <th class="px-6 py-5 font-bold text-right">Harga Beli</th>
+                            <th class="px-6 py-5 font-bold text-right">Nilai Saat Ini</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <?php if($stat_total > 0): ?>
-                            <?php foreach($asset_list as $row): ?>
+                            <?php foreach($asset_list as $row): 
+                                $dep_info = calculateDepreciation($row['item_name'] ?? '', $row['category'] ?? '', $row['assigned_at'] ?? '', $inventory_prices, $margin_pengadaan, $nilai_sisa_pct);
+                            ?>
                             <tr class="group hover:bg-slate-50/50 transition-colors">
                                 <td class="px-6 py-6 transition-all duration-300">
                                     <div class="flex items-center gap-3">
@@ -166,22 +217,55 @@ foreach ($assets_docs as $doc) {
                                                 ?>
                                             </span>
                                         </div>
-                                        <span class="font-bold text-on-surface"><?php echo htmlspecialchars($row['item_name'] ?? ''); ?></span>
+                                        <span class="font-bold text-on-surface w-40 truncate" title="<?php echo htmlspecialchars($row['item_name'] ?? ''); ?>">
+                                            <?php echo htmlspecialchars($row['item_name'] ?? ''); ?>
+                                        </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-6 text-on-surface-variant font-mono text-sm"><?php echo htmlspecialchars($row['serial_number'] ?? ''); ?></td>
-                                <td class="px-6 py-6 text-on-surface-variant"><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
-                                <td class="px-6 py-6 text-on-surface-variant"><?php echo isset($row['assigned_at']) ? date('d M Y', strtotime($row['assigned_at'])) : '-'; ?></td>
                                 <td class="px-6 py-6">
-                                    <?php 
-                                        $rowStatus = $row['status'] ?? '';
-                                        $statusClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                                        if($rowStatus == 'Maintenance') $statusClass = "bg-orange-50 text-orange-700 border-orange-100";
-                                        elseif($rowStatus == 'Returned') $statusClass = "bg-slate-50 text-slate-700 border-slate-100";
-                                    ?>
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border <?php echo $statusClass; ?>">
-                                        <?php echo $rowStatus; ?>
-                                    </span>
+                                    <div class="flex flex-col">
+                                        <span class="text-on-surface-variant font-medium text-sm"><?php echo htmlspecialchars($row['category'] ?? ''); ?></span>
+                                        <span class="text-on-surface-variant opacity-60 font-mono text-[10px] mt-1 uppercase tracking-wider">SN: <?php echo htmlspecialchars($row['serial_number'] ?? '-'); ?></span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-6 border-r border-slate-50">
+                                    <div class="flex flex-col items-start gap-2">
+                                        <?php 
+                                            $rowStatus = $row['status'] ?? '';
+                                            $statusClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
+                                            if($rowStatus == 'Maintenance') $statusClass = "bg-orange-50 text-orange-700 border-orange-100";
+                                            elseif($rowStatus == 'Returned') $statusClass = "bg-slate-50 text-slate-700 border-slate-100";
+                                        ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider <?php echo $statusClass; ?>">
+                                            <?php echo $rowStatus; ?>
+                                        </span>
+                                        <span class="text-on-surface-variant text-xs opacity-70">
+                                            <span class="material-symbols-outlined text-[10px] align-middle">calendar_month</span> 
+                                            <?php echo isset($row['assigned_at']) ? date('d M Y', strtotime($row['assigned_at'])) : '-'; ?>
+                                        </span>
+                                    </div>
+                                </td>
+                                
+                                <td class="px-6 py-6 text-right">
+                                    <?php if($dep_info): ?>
+                                        <span class="font-bold text-on-surface text-sm">Rp <?php echo number_format($dep_info['purchase'], 0, ',', '.'); ?></span>
+                                    <?php else: ?>
+                                        <span class="text-slate-300 italic text-sm">N/A</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="px-6 py-6 text-right">
+                                    <?php if($dep_info): ?>
+                                        <?php if($dep_info['salvage']): ?>
+                                            <div class="flex flex-col items-end">
+                                                <span class="font-black text-rose-600 text-sm">Rp <?php echo number_format($dep_info['current'], 0, ',', '.'); ?></span>
+                                                <span class="text-[9px] font-bold uppercase tracking-widest text-rose-400 bg-rose-50 px-2 rounded-full mt-1">Nilai Residu</span>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="font-bold text-primary text-sm">Rp <?php echo number_format($dep_info['current'], 0, ',', '.'); ?></span>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <span class="text-slate-300 italic text-sm">N/A</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

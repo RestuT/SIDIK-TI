@@ -47,6 +47,20 @@ if (isset($_POST['save_profile'])) {
     }
 }
 
+// --- LOGIKA SIMPAN SYSTEM SETTINGS ---
+if (isset($_POST['save_system_settings'])) {
+    $margin_pengadaan = (float)$_POST['margin_pengadaan'] ?? 10;
+    $nilai_sisa = (float)$_POST['nilai_sisa'] ?? 10;
+
+    try {
+        $db->collection('system_settings')->document('margin_pengadaan')->set(['setting_value' => $margin_pengadaan]);
+        $db->collection('system_settings')->document('nilai_sisa')->set(['setting_value' => $nilai_sisa]);
+        $msg = "success_system";
+    } catch (Exception $e) {
+        $msg = "error_db";
+    }
+}
+
 // --- AMBIL DATA PROFIL TERBARU ---
 $userSnap = $db->collection('users')->document($user_id)->snapshot();
 $current_admin = $userSnap->exists() ? $userSnap->data() : [];
@@ -122,12 +136,16 @@ foreach ($settings_docs as $doc) {
 
         <div class="p-8 max-w-5xl mx-auto w-full space-y-10">
             <!-- Alert Success -->
-            <?php if($msg == 'success' || $msg == 'success_pw'): ?>
+            <?php if($msg == 'success' || $msg == 'success_pw' || $msg == 'success_system'): ?>
                 <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-8 py-5 rounded-3xl flex items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-500 shadow-sm">
                     <span class="material-symbols-outlined text-2xl fill-1">check_circle</span>
                     <div class="flex flex-col">
-                        <p class="font-headline font-bold text-sm tracking-tight leading-none uppercase">Profil Berhasil Disimpan!</p>
-                        <p class="text-[10px] font-medium opacity-70 mt-1"><?php echo ($msg == 'success_pw' ? 'Sesi Anda telah diperbarui dengan kata sandi baru.' : 'Informasi profil Anda telah diperbarui secara real-time.'); ?></p>
+                        <p class="font-headline font-bold text-sm tracking-tight leading-none uppercase">Berhasil Disimpan!</p>
+                        <p class="text-[10px] font-medium opacity-70 mt-1"><?php 
+                            if($msg == 'success_pw') echo 'Sesi Anda telah diperbarui dengan kata sandi baru.'; 
+                            elseif($msg == 'success_system') echo 'Konfigurasi sistem berhasil diperbarui.';
+                            else echo 'Informasi profil Anda telah diperbarui secara real-time.';
+                        ?></p>
                     </div>
                 </div>
             <?php endif; ?>
@@ -223,6 +241,35 @@ foreach ($settings_docs as $doc) {
                     <div class="pt-6 border-t border-outline-variant/10 flex justify-end">
                         <button type="submit" name="save_profile" class="px-8 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition active:scale-95">
                             Update Profil Saya
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- System Settings Section -->
+            <section class="space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-2xl">settings_applications</span>
+                    <h2 class="font-headline text-xl font-bold">Konfigurasi Depresiasi & Harga</h2>
+                </div>
+
+                <form action="" method="POST" class="bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-outline-variant/10 shadow-sm space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant dark:text-slate-400 ml-1">Margin Harga Pengadaan (%)</label>
+                            <input type="number" step="0.1" name="margin_pengadaan" value="<?php echo htmlspecialchars($settings['margin_pengadaan'] ?? '10'); ?>" required class="w-full bg-surface-container-low dark:bg-slate-800 border-0 rounded-2xl p-4 font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition">
+                            <p class="text-[10px] text-on-surface-variant dark:text-slate-500 ml-2 mt-1">Persentase markup pada harga barang asli untuk biaya pengadaan / pajak.</p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant dark:text-slate-400 ml-1">Nilai Sisa Depresiasi (%)</label>
+                            <input type="number" step="0.1" name="nilai_sisa" value="<?php echo htmlspecialchars($settings['nilai_sisa'] ?? '10'); ?>" required class="w-full bg-surface-container-low dark:bg-slate-800 border-0 rounded-2xl p-4 font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition">
+                            <p class="text-[10px] text-on-surface-variant dark:text-slate-500 ml-2 mt-1">Persentase minimal harga aset (salvage value) di akhir umur ekonomisnya.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-outline-variant/10 flex justify-end">
+                        <button type="submit" name="save_system_settings" class="px-8 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition active:scale-95">
+                            Simpan Konfigurasi
                         </button>
                     </div>
                 </form>
