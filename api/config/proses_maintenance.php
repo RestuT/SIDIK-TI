@@ -28,10 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
     // 2. Generasi Nomor Tiket (Prefix MNT untuk Maintenance)
     $ticket_no  = "MNT-" . date('Ymd') . "-" . strtoupper(substr(uniqid(), -3));
-    $target_dir = "../uploads/";
+    
+    // Fallback: Gunakan /tmp di Vercel, atau folder lokal
+    $is_vercel  = getenv('VERCEL') === '1';
+    $target_dir = $is_vercel ? sys_get_temp_dir() . "/" : "../uploads/";
 
     // Cek apakah folder uploads ada, jika tidak buat otomatis
-    if (!is_dir($target_dir)) {
+    if (!$is_vercel && !is_dir($target_dir)) {
         mkdir($target_dir, 0777, true);
     }
 
@@ -58,6 +61,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
         if (move_uploaded_file($_FILES["lampiran"]["tmp_name"], $target_path)) {
             
+            // --- Integrasi Firebase Storage untuk Serverless ---
+            $final_attachment_url = $target_path; // Default ke local
+            if ($is_vercel) {
+                try {
+                    global $factory;
+                    $storage = $factory->createStorage();
+                    $bucket = $storage->getBucket();
+                    $fileSource = fopen($target_path, 'r');
+                    $object = $bucket->upload($fileSource, ['name' => 'maintenance/' . $new_name]);
+                    
+                    $final_attachment_url = $object->signedUrl(new \DateTime('+10 years'));
+                    unlink($target_path); // Hapus sampah /tmp
+                } catch (Exception $e) {
+                    if (stripos($e->getMessage(), 'does not exist') !== false) {
+                        die("Gagal Upload: Mohon aktifkan layanan 'Firebase Storage' di Google Firebase Console aplikasi Anda terlebih dahulu!");
+                    }
+                    die("Gagal upload Firebase Storage: " . $e->getMessage());
+                }
+            }
+
             // 4. Query Insert ke tabel submissions di Firestore
             $db->collection('submissions')->add([
                 'ticket_number' => $ticket_no,
@@ -67,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
                 'type' => $type,
                 'title' => $judul,
                 'description' => $deskripsi,
-                'attachment_path' => $target_path,
+                'attachment_path' => $final_attachment_url,
                 'status' => 'Menunggu',
                 'created_at' => date('Y-m-d H:i:s')
             ]);

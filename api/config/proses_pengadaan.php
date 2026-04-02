@@ -48,9 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
     // 3. Generasi Nomor Tiket dan Setup Folder Upload
     $ticket_no  = "PRO-" . date('Ymd') . "-" . strtoupper(substr(uniqid(), -3));
-    $target_dir = "../uploads/";
+    
+    // Fallback: Gunakan /tmp di Vercel, atau folder lokal
+    $is_vercel  = getenv('VERCEL') === '1';
+    $target_dir = $is_vercel ? sys_get_temp_dir() . "/" : "../uploads/";
 
-    if (!is_dir($target_dir)) {
+    if (!$is_vercel && !is_dir($target_dir)) {
         mkdir($target_dir, 0777, true);
     }
 
@@ -80,9 +83,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
     if (move_uploaded_file($_FILES["attachment"]["tmp_name"], $target_path)) {
         
+        // --- Integrasi Firebase Storage untuk Serverless ---
+        $final_attachment_url = $target_path; // Default ke local
+        if ($is_vercel) {
+            try {
+                // Di Vercel, kita perlu push file dari /tmp ke Firebase Storage agar permanen,
+                // karena /tmp akan musnah setelah response selesai.
+                global $factory;
+                $storage = $factory->createStorage();
+                $bucket = $storage->getBucket();
+                $fileSource = fopen($target_path, 'r');
+                $object = $bucket->upload($fileSource, ['name' => 'pengadaan/' . $new_name]);
+                
+                // Gunakan URL yang bisa diakses publik secara permanen
+                $final_attachment_url = $object->signedUrl(new \DateTime('+10 years'));
+                unlink($target_path); // Hapus sampah /tmp
+            } catch (Exception $e) {
+                if (stripos($e->getMessage(), 'does not exist') !== false) {
+                    die("Gagal Upload: Mohon aktifkan layanan 'Firebase Storage' di Google Firebase Console aplikasi Anda terlebih dahulu!");
+                }
+                die("Gagal upload Firebase Storage: " . $e->getMessage());
+            }
+        }
+
         try {
             // Executing in a Firestore transaction to ensure budget consistency
-            $db->runTransaction(function ($transaction) use ($db, $budget_doc, $estimasi, $ticket_no, $user_id, $judul, $deskripsi, $urgensi, $target_path, $user_name, $my_dept) {
+            $db->runTransaction(function ($transaction) use ($db, $budget_doc, $estimasi, $ticket_no, $user_id, $judul, $deskripsi, $urgensi, $final_attachment_url, $user_name, $my_dept) {
                 // A. Update pemakaian anggaran
                 $transaction->update($budget_doc->reference(), [
                     ['path' => 'used_amount', 'value' => \Google\Cloud\Firestore\FieldValue::increment($estimasi)]
@@ -99,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
                     'title' => $judul,
                     'description' => $deskripsi,
                     'urgency' => $urgensi,
-                    'attachment_path' => $target_path,
+                    'attachment_path' => $final_attachment_url,
                     'status' => 'Menunggu',
                     'estimasi' => $estimasi,
                     'created_at' => date('Y-m-d H:i:s')
