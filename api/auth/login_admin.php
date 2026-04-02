@@ -305,4 +305,4 @@ if (isset($_POST['verify_2fa'])) {
         </section>
     </main>
 </body>
-</html>
+</html>

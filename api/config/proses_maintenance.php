@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 require_once __DIR__ . '/database.php'; // Mengambil koneksi database
 require_once __DIR__ . '/csrf_helper.php';
 

@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 require_once __DIR__ . '/database.php';
 
 // Pastikan yang menghapus adalah seorang admin

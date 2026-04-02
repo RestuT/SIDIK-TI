@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 require_once __DIR__ . '/../config/database.php';
 
 // Proteksi: Pastikan user login dan ada parameter id
