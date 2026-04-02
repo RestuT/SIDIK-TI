@@ -80,7 +80,7 @@ if (isset($_POST['update'])) {
         $assigned_at = date('Y-m-d H:i:s');
 
         // Check if already assigned
-        $checkAsset = $db->collection('inventory')
+        $checkAsset = $db->collection('asset_assignments')
             ->where('user_id', '=', $user_id_target)
             ->where('item_name', '=', $item_name)
             ->where('serial_number', '=', $serial_number)
@@ -88,7 +88,7 @@ if (isset($_POST['update'])) {
             ->documents();
             
         if ($checkAsset->isEmpty()) {
-            $db->collection('inventory')->add([
+            $db->collection('asset_assignments')->add([
                 'user_id' => $user_id_target,
                 'item_name' => $item_name,
                 'serial_number' => $serial_number,
@@ -154,18 +154,18 @@ if (isset($_POST['update'])) {
                     </div>
                 </div>
 
-                <?php if($data['attachment_path']): ?>
+                <?php if(!empty($data['attachment_path'])): ?>
                 <a href="<?php echo $data['attachment_path']; ?>" target="_blank" class="block text-center p-4 bg-slate-800 text-white rounded-2xl font-bold hover:bg-blue-600 transition">
                     <i class="fa-solid fa-file-pdf mr-2"></i> Lihat Dokumen KAK / Justifikasi
                 </a>
                 <?php endif; ?>
             </div>
-            <?php if($data['is_appealed'] == 1): ?>
+            <?php if(($data['is_appealed'] ?? 0) == 1): ?>
     <div class="bg-red-50 p-6 rounded-3xl border border-red-100 mb-6">
         <h4 class="text-xs font-black text-red-600 uppercase mb-2 tracking-widest italic">
             <i class="fa-solid fa-circle-exclamation"></i> Pengajuan ini adalah Aju Banding
         </h4>
-        <p class="text-sm text-gray-700 font-medium">"<?php echo $data['appeal_reason']; ?>"</p>
+        <p class="text-sm text-gray-700 font-medium">"<?php echo htmlspecialchars($data['appeal_reason'] ?? ''); ?>"</p>
     </div>
 <?php endif; ?>
 
@@ -213,7 +213,7 @@ if (isset($_POST['update'])) {
 
                 <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Catatan Verifikasi (Reasoning)</label>
-                    <textarea name="reasoning" rows="4" placeholder="Berikan alasan atau instruksi tambahan..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-medium outline-none focus:ring-4 focus:ring-blue-100"><?php echo $data['admin_reasoning']; ?></textarea>
+                    <textarea name="reasoning" rows="4" placeholder="Berikan alasan atau instruksi tambahan..." class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-medium outline-none focus:ring-4 focus:ring-blue-100"><?php echo htmlspecialchars($data['admin_reasoning'] ?? ''); ?></textarea>
                 </div>
 
                 <div class="flex gap-4 pt-4">
