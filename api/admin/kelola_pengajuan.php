@@ -72,7 +72,7 @@ if (isset($_POST['update'])) {
     }
 
     // --- LOGIKA OTOMATIS CREATE ASSET JIKA SELESAI ---
-    if ($status === 'Selesai' && $data['type'] === 'Pengadaan' && $data['status'] !== 'Selesai') {
+    if ($status === 'Selesai' && $data['type'] === 'Pengadaan') {
         $user_id_target = $data['user_id'];
         $item_name = $data['title'];
         $category = $_POST['category'] ?? 'Devices';
