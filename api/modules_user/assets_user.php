@@ -43,8 +43,12 @@ foreach ($inv_docs as $doc) {
 }
 
 // HELPER: Calculate Depreciation
-function calculateDepreciation($item_name, $category, $assigned_date, $inv_prices, $margin_pct, $salvage_pct) {
-    $base_price = $inv_prices[$item_name] ?? 0;
+function calculateDepreciation($item_name, $category, $assigned_date, $inv_prices, $margin_pct, $salvage_pct, $custom_price = null) {
+    if ($custom_price && $custom_price > 0) {
+        $base_price = $custom_price;
+    } else {
+        $base_price = $inv_prices[$item_name] ?? 0;
+    }
     if ($base_price == 0 || !$assigned_date) return null;
     
     // Purchase Price = Base Price + Margin
@@ -201,7 +205,8 @@ foreach ($assets_docs as $doc) {
                     <tbody class="divide-y divide-slate-100">
                         <?php if($stat_total > 0): ?>
                             <?php foreach($asset_list as $row): 
-                                $dep_info = calculateDepreciation($row['item_name'] ?? '', $row['category'] ?? '', $row['assigned_at'] ?? '', $inventory_prices, $margin_pengadaan, $nilai_sisa_pct);
+                                $specific_price = isset($row['price_reference']) ? (float)$row['price_reference'] : null;
+                                $dep_info = calculateDepreciation($row['item_name'] ?? '', $row['category'] ?? '', $row['assigned_at'] ?? '', $inventory_prices, $margin_pengadaan, $nilai_sisa_pct, $specific_price);
                             ?>
                             <tr class="group hover:bg-slate-50/50 transition-colors">
                                 <td class="px-6 py-6 transition-all duration-300">

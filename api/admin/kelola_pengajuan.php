@@ -96,8 +96,15 @@ if (isset($_POST['update'])) {
                 'assigned_at' => $assigned_at,
                 'status' => 'Active',
                 'user_name' => $data['full_name'], // Denormalization for easier listing
-                'department' => $data['department']
+                'department' => $data['department'],
+                'price_reference' => (float)($data['estimasi'] ?? 0)
             ]);
+        } else {
+            foreach ($checkAsset as $existingDoc) {
+                $existingDoc->reference()->update([
+                    ['path' => 'price_reference', 'value' => (float)($data['estimasi'] ?? 0)]
+                ]);
+            }
         }
     }
 
