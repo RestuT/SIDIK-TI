@@ -9,10 +9,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
     // 1. Ambil Data dan Sanitasi Input
     $user_id    = $_SESSION['user_id']; 
-    $judul      = $_POST['judul'];
-    $estimasi   = (float)$_POST['estimasi'];
-    $deskripsi  = $_POST['deskripsi'];
-    $urgensi    = $_POST['urgensi'];
+    $judul      = $_POST['title'] ?? '';
+    $estimasi   = (float)($_POST['estimasi'] ?? 0);
+    $deskripsi  = $_POST['description'] ?? '';
+    $urgensi    = $_POST['urgency'] ?? '';
     
     $current_year = date('Y');
     
@@ -22,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
         die("User tidak ditemukan.");
     }
     $userData = $userSnap->data();
-    $my_dept = $userData['department'];
-    $user_name = $userData['full_name'];
+    $my_dept = $userData['department'] ?? '';
+    $user_name = $userData['full_name'] ?? '';
 
     // 2. Validasi Anggaran Spesifik Departemen
     $budgetQuery = $db->collection('budget_config')
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     }
 
     if ($estimasi > $sisa_anggaran) {
-        die("Gagal: Estimasi harga melebihi sisa anggaran tersedia (Rp " . number_format($sisa_anggaran, 0, ',', '.') . ").");
+        die("Gagal: Estimasi harga melebihi sisa anggaran tersedia (Rp " . number_format($sisa_anggaran, 0, ',', '.') . ") untuk departemen " . htmlspecialchars($my_dept) . ".");
     }
 
     // 3. Generasi Nomor Tiket dan Setup Folder Upload
@@ -52,7 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
         mkdir($target_dir, 0777, true);
     }
 
-    $file_name   = basename($_FILES["lampiran"]["name"]);
+    if (!isset($_FILES["attachment"]) || $_FILES["attachment"]["error"] !== UPLOAD_ERR_OK) {
+         die("Gagal mengunggah lampiran. Pastikan file valid.");
+    }
+
+    $file_name   = basename($_FILES["attachment"]["name"]);
     $file_ext    = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
     $new_name    = $ticket_no . "." . $file_ext;
     $target_path = $target_dir . $new_name;
@@ -64,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     }
     
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime = finfo_file($finfo, $_FILES["lampiran"]["tmp_name"]);
+    $mime = finfo_file($finfo, $_FILES["attachment"]["tmp_name"]);
     finfo_close($finfo);
     
     $allowed_mime_types = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -72,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
         die("Gagal: Tipe file tidak valid (MIME Type).");
     }
 
-    if (move_uploaded_file($_FILES["lampiran"]["tmp_name"], $target_path)) {
+    if (move_uploaded_file($_FILES["attachment"]["tmp_name"], $target_path)) {
         
         try {
             // Executing in a Firestore transaction to ensure budget consistency
@@ -107,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
             echo "Gagal menyimpan data: " . $e->getMessage();
         }
     } else {
-        echo "Gagal mengunggah lampiran. Pastikan file valid.";
+        echo "Gagal memindahkan file yang diunggah.";
     }
 } else {
     echo "Sesi tidak valid. Silakan login kembali.";
