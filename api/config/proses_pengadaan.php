@@ -83,26 +83,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
     if (move_uploaded_file($_FILES["attachment"]["tmp_name"], $target_path)) {
         
-        // --- Integrasi Firebase Storage untuk Serverless ---
+        // --- Integrasi Database-Encoded Storage untuk Vercel ---
         $final_attachment_url = $target_path; // Default ke local
         if ($is_vercel) {
             try {
-                // Di Vercel, kita perlu push file dari /tmp ke Firebase Storage agar permanen,
-                // karena /tmp akan musnah setelah response selesai.
-                global $factory;
-                $storage = $factory->createStorage();
-                $bucket = $storage->getBucket();
-                $fileSource = fopen($target_path, 'r');
-                $object = $bucket->upload($fileSource, ['name' => 'pengadaan/' . $new_name]);
+                // Baca file sementara dan encod ke Base64
+                $fileContent = file_get_contents($target_path);
+                $base64 = base64_encode($fileContent);
                 
-                // Gunakan URL yang bisa diakses publik secara permanen
-                $final_attachment_url = $object->signedUrl(new \DateTime('+10 years'));
+                // Simpan ke Firestore (Batas aman < 1MB)
+                $db->collection('attachments')->document($ticket_no)->set([
+                    'data' => $base64,
+                    'mime_type' => $mime,
+                    'file_name' => $file_name,
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+                
+                // Set path sebagai URL lokal bridge script viewer
+                $final_attachment_url = "../config/view_attachment.php?id=" . $ticket_no;
                 unlink($target_path); // Hapus sampah /tmp
             } catch (Exception $e) {
-                if (stripos($e->getMessage(), 'does not exist') !== false) {
-                    die("Gagal Upload: Mohon aktifkan layanan 'Firebase Storage' di Google Firebase Console aplikasi Anda terlebih dahulu!");
+                if (stripos($e->getMessage(), 'Document size') !== false) {
+                    die("Gagal Upload: Berkas terlalu besar, harap gunakan fitur kompres gambar terlebih dahulu!");
                 }
-                die("Gagal upload Firebase Storage: " . $e->getMessage());
+                die("Gagal upload file ke database storage: " . $e->getMessage());
             }
         }
 

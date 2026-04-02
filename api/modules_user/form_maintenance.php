@@ -242,7 +242,7 @@ try {
                                 </div>
                                 <div>
                                     <p id="file-label" class="text-sm font-bold text-on-surface leading-tight">Klik atau Seret Lampiran</p>
-                                    <p class="text-[10px] text-outline font-medium mt-1 uppercase tracking-tighter">JPG, PNG atau PDF (Maks 2MB)</p>
+                                    <p class="text-[10px] text-outline font-medium mt-1 uppercase tracking-tighter">JPG, PNG atau PDF (Maks 700KB)</p>
                                 </div>
                                 <div id="file-name-info" class="hidden animate-in fade-in slide-in-from-top-2 duration-300 mt-2">
                                     <div class="px-4 py-2 bg-primary/10 rounded-full border border-primary/20 flex items-center gap-2">
@@ -274,7 +274,18 @@ try {
             const dropzone = document.getElementById('dropzone');
 
             if (input.files.length > 0) {
-                displayText.innerText = input.files[0].name;
+                const file = input.files[0];
+                if (file.size > 716800) { // 700 KB = 700 * 1024
+                    alert("Maksimal ukuran file adalah 700KB. Harap kompres file Anda.");
+                    input.value = ""; // Reset file input
+                    displayInfo.classList.add('hidden');
+                    label.innerText = "Klik atau Seret Lampiran";
+                    dropzone.classList.remove('border-primary/50', 'bg-primary-fixed/5');
+                    dropzone.classList.add('border-outline-variant/30', 'bg-surface-container-low/30');
+                    return;
+                }
+
+                displayText.innerText = file.name;
                 displayInfo.classList.remove('hidden');
                 label.innerText = "File Berhasil Dipilih";
                 dropzone.classList.add('border-primary/50', 'bg-primary-fixed/5');

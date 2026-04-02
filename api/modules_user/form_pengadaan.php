@@ -264,7 +264,7 @@ if (!empty($my_dept)) {
                                 </div>
                                 <div>
                                     <p id="file-label" class="text-sm font-bold text-on-surface leading-tight">Klik atau Seret Berkas Di Sini</p>
-                                    <p class="text-[10px] text-slate-400 font-medium mt-1 uppercase tracking-tighter italic">PDF, PNG Berwarna atau JPG (Maks 2MB)</p>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-1 uppercase tracking-tighter italic">PDF, PNG Berwarna atau JPG (Maks 700KB)</p>
                                 </div>
                                 <div id="file-name-info" class="hidden animate-in fade-in slide-in-from-top-2 duration-300 mt-2">
                                     <div class="px-4 py-2 bg-primary/20 rounded-full border border-primary/30 flex items-center gap-2">
@@ -341,7 +341,17 @@ if (!empty($my_dept)) {
         const dropzone = document.getElementById('dropzone');
 
         if (input.files.length > 0) {
-            displayText.innerText = input.files[0].name;
+            const file = input.files[0];
+            if (file.size > 716800) { // 700 KB = 700 * 1024
+                alert("Maksimal ukuran file adalah 700KB. Harap kompres file Anda.");
+                input.value = ""; // Reset file input
+                displayInfo.classList.add('hidden');
+                label.innerText = "Klik atau Seret Berkas Di Sini";
+                dropzone.classList.replace('bg-primary-container', 'bg-primary/5');
+                return;
+            }
+
+            displayText.innerText = file.name;
             displayInfo.classList.remove('hidden');
             label.innerText = "Berkas Dipilih";
             dropzone.classList.replace('bg-primary/5', 'bg-primary-container');
