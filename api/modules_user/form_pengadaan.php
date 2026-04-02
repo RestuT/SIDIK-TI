@@ -35,13 +35,14 @@ $sisa_dept = 0;
 if (!empty($my_dept)) {
     $budget_docs = $db->collection('budget_config')
         ->where('department', '=', $my_dept)
-        ->where('fiscal_year', '=', (int)$current_year)
-        ->limit(1)
         ->documents();
     
     foreach ($budget_docs as $doc) {
         $b = $doc->data();
-        $sisa_dept = ($b['total_limit'] ?? 0) - ($b['used_amount'] ?? 0);
+        if ((string)($b['fiscal_year'] ?? '') === (string)$current_year) {
+            $sisa_dept = ((float)($b['total_limit'] ?? 0)) - ((float)($b['used_amount'] ?? 0));
+            break;
+        }
     }
 }
 ?>

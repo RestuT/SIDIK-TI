@@ -27,17 +27,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
     // 2. Validasi Anggaran Spesifik Departemen
     $budgetQuery = $db->collection('budget_config')
-        ->where('fiscal_year', '=', (int)$current_year)
         ->where('department', '=', $my_dept)
-        ->limit(1)
         ->documents();
 
     $budget_doc = null;
     $sisa_anggaran = 0;
     foreach ($budgetQuery as $doc) {
-        $budget_doc = $doc;
         $b = $doc->data();
-        $sisa_anggaran = ($b['total_limit'] ?? 0) - ($b['used_amount'] ?? 0);
+        // Cek secara string maupun integer
+        if ((string)($b['fiscal_year'] ?? '') === (string)$current_year) {
+            $budget_doc = $doc;
+            $sisa_anggaran = ((float)($b['total_limit'] ?? 0)) - ((float)($b['used_amount'] ?? 0));
+            break;
+        }
     }
 
     if ($estimasi > $sisa_anggaran) {
