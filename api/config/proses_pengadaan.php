@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
                 ]);
 
                 // B. Create submission
-                $subRef = $db->collection('submissions')->document();
+                $subRef = $db->collection('submissions')->newDocument();
                 $transaction->create($subRef, [
                     'ticket_number' => $ticket_no,
                     'user_id' => $user_id,
