@@ -280,5 +280,6 @@ $total_records = count($submission_list);
         if (e.target === this) closeModal();
     });
     </script>
+    <?php include __DIR__ . '/../includes/bottom_nav_user.php'; ?>
 </body>
 </html>

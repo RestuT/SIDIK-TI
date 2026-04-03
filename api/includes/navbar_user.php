@@ -36,6 +36,7 @@ try {
                 $current_page = basename($_SERVER['PHP_SELF']); 
             ?>
             <a class="<?php echo $current_page == 'dashboard_user.php' ? 'text-indigo-700 font-bold' : 'text-slate-500 hover:text-indigo-600 font-medium'; ?> transition-all text-sm uppercase tracking-widest" href="dashboard_user.php">Beranda</a>
+            <a class="<?php echo $current_page == 'knowledge_base.php' ? 'text-indigo-700 font-bold' : 'text-slate-500 hover:text-indigo-600 font-medium'; ?> transition-all text-sm uppercase tracking-widest" href="knowledge_base.php">Panduan</a>
             <a class="<?php echo $current_page == 'dashboard_audit.php' ? 'text-indigo-700 font-bold' : 'text-slate-500 hover:text-indigo-600 font-medium'; ?> transition-all text-sm uppercase tracking-widest" href="dashboard_audit.php">Requests</a>
             <a class="<?php echo $current_page == 'assets_user.php' ? 'text-indigo-700 font-bold' : 'text-slate-500 hover:text-indigo-600 font-medium'; ?> transition-all text-sm uppercase tracking-widest" href="assets_user.php">Assets</a>
         </nav>
@@ -55,6 +56,10 @@ try {
             </button>
             <!-- Dropdown -->
             <div class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-outline-variant/10 p-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-300 z-50">
+                <a href="profile_user.php" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-indigo-50 text-indigo-700 transition-all font-bold text-[10px] uppercase tracking-widest border-b border-slate-100 mb-1">
+                    <span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+                    Edit Profil
+                </a>
                 <a href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-rose-50 text-rose-600 transition-all font-bold text-[10px] uppercase tracking-widest">
                     <span class="material-symbols-outlined text-lg">logout</span>
                     Keluar Sesi

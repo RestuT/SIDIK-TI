@@ -76,6 +76,11 @@ try {
             <span class="font-headline text-sm font-medium">Analytics</span>
         </a>
 
+        <a class="group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 active:scale-98 <?php echo get_nav_style('kelola_pengumuman.php', $current_page); ?>" href="kelola_pengumuman.php">
+            <span class="material-symbols-outlined <?php if($current_page == 'kelola_pengumuman.php') echo 'fill-1'; ?>">campaign</span>
+            <span class="font-headline text-sm font-medium">Pengumuman</span>
+        </a>
+
         <div class="mt-4 pt-4 border-t border-outline-variant/20">
             <p class="px-4 text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-2">Master Configuration</p>
             <a class="group flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 <?php echo get_nav_style('manage_departments.php', $current_page); ?>" href="manage_departments.php">

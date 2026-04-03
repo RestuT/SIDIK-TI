@@ -14,20 +14,29 @@ $user_id = $_SESSION['user_id'];
 $submissionsRef = $db->collection('submissions')->where('user_id', '=', $user_id);
 
 $stat_pending = $submissionsRef->where('status', '=', 'Menunggu')->count();
+// Ambil Data Profil
+$userRef = $db->collection('users')->document($user_id);
+$userSnap = $userRef->snapshot();
+$display_name = $userSnap->exists() ? ($userSnap->get('full_name') ?? 'User') : 'User';
+
+$submissionsRef = $db->collection('submissions')->where('user_id', '=', $user_id);
+
+$stat_pending = $submissionsRef->where('status', '=', 'Menunggu')->count();
 $stat_process = $submissionsRef->where('status', '=', 'Proses')->count();
 $stat_done = $submissionsRef->where('status', '=', 'Selesai')->count();
 
 // 2. Ambil data pengajuan terbaru (Limit 5)
 $all_submissions = $submissionsRef->orderBy('created_at', 'DESC')->limit(5)->documents();
 
-// 3. User Detail
-$userRef = $db->collection('users')->document($user_id);
-$userSnap = $userRef->snapshot();
-if ($userSnap->exists()) {
-    $user_meta = $userSnap->data();
-    $display_name = $user_meta['full_name'] ?? 'User';
-} else {
-    $display_name = 'User';
+// Fetch Daftar Pengumuman IT Terkini
+$announcementQuery = $db->collection('announcements')
+                        ->where('is_active', '=', true)
+                        ->orderBy('created_at', 'DESC')
+                        ->limit(3)
+                        ->documents();
+$announcements = [];
+foreach ($announcementQuery as $doc) {
+    $announcements[] = $doc->data();
 }
 ?>
 
@@ -265,7 +274,7 @@ if ($userSnap->exists()) {
                 <div class="relative z-10 space-y-4">
                     <h3 class="text-3xl font-bold leading-tight">Butuh bantuan cepat?<br/>Cek Basis Pengetahuan.</h3>
                     <p class="text-indigo-200/80 max-w-sm">Temukan tutorial mandiri untuk masalah umum seperti printer, VPN, dan instalasi software.</p>
-                    <button class="w-fit px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 font-bold transition-all duration-300">Buka Panduan</button>
+                    <a href="knowledge_base.php" class="inline-block w-fit px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 font-bold transition-all duration-300">Buka Panduan</a>
                 </div>
             </div>
             <div class="bg-surface-container-high rounded-3xl p-10 space-y-6">
@@ -276,43 +285,28 @@ if ($userSnap->exists()) {
                     <h3 class="text-xl font-bold text-on-surface">Pengumuman IT</h3>
                 </div>
                 <ul class="space-y-4">
-                    <li class="flex gap-4 items-start">
-                        <div class="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                        <div class="space-y-1">
-                            <p class="font-bold text-on-surface text-sm">Maintenance Server Email</p>
-                            <p class="text-on-surface-variant text-xs">Sabtu, 14 Okt | 22.00 - 04.00 WIB</p>
-                        </div>
-                    </li>
-                    <li class="flex gap-4 items-start">
-                        <div class="w-2 h-2 rounded-full bg-slate-300 mt-2 flex-shrink-0"></div>
-                        <div class="space-y-1">
-                            <p class="font-bold text-on-surface text-sm">Update Kebijakan Password</p>
-                            <p class="text-on-surface-variant text-xs">Mulai berlaku per 1 Nov 2023</p>
-                        </div>
-                    </li>
+                    <?php if(!empty($announcements)): ?>
+                        <?php foreach($announcements as $ann): ?>
+                            <li class="flex gap-4 items-start w-full">
+                                <div class="w-2 h-2 rounded-full <?php echo isset($ann['urgency']) && $ann['urgency'] === 'Tinggi' ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-primary'; ?> mt-2 flex-shrink-0"></div>
+                                <div class="space-y-1 w-full relative">
+                                    <p class="font-bold text-on-surface text-sm break-words"><?php echo htmlspecialchars($ann['title']); ?></p>
+                                    <p class="text-on-surface-variant text-[11px] leading-snug break-words pr-2"><?php echo htmlspecialchars($ann['content']); ?></p>
+                                    <p class="text-slate-400 text-[9px] font-bold uppercase tracking-wider mt-1"><?php echo date('d M Y | H:i', strtotime($ann['created_at'])); ?></p>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="text-center text-slate-400 text-xs font-bold uppercase tracking-widest py-8 opacity-50">
+                            <span class="material-symbols-outlined block text-3xl mb-2 mx-auto">check_circle</span>
+                            Belum Ada Pengumuman
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </section>
     </main>
 
-    <!-- BottomNavBar for Mobile -->
-    <nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-6 py-3 pb-safe bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-xl rounded-t-3xl">
-        <a class="flex flex-col items-center justify-center bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-200 rounded-2xl px-5 py-2 transition-all active:scale-90 duration-200" href="dashboard_user.php">
-            <span class="material-symbols-outlined">grid_view</span>
-            <span class="font-plus-jakarta-sans text-[10px] font-bold uppercase tracking-wider mt-1">Home</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-indigo-500 transition-colors" href="dashboard_audit.php">
-            <span class="material-symbols-outlined">handyman</span>
-            <span class="font-plus-jakarta-sans text-[10px] font-bold uppercase tracking-wider mt-1">Requests</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-indigo-500 transition-colors" href="assets_user.php">
-            <span class="material-symbols-outlined">list_alt</span>
-            <span class="font-plus-jakarta-sans text-[10px] font-bold uppercase tracking-wider mt-1">Assets</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-rose-500 px-5 py-2 hover:bg-rose-50 rounded-2xl transition-all" href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
-            <span class="material-symbols-outlined">logout</span>
-            <span class="font-plus-jakarta-sans text-[10px] font-bold uppercase tracking-wider mt-1">Logout</span>
-        </a>
-    </nav>
+    <?php include __DIR__ . '/../includes/bottom_nav_user.php'; ?>
 </body>
 </html>

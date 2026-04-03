@@ -290,24 +290,6 @@ foreach ($assets_docs as $doc) {
         </section>
     </main>
 
-    <!-- BottomNavBar for Mobile -->
-    <nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-6 py-3 pb-safe bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg shadow-xl rounded-t-3xl border-t border-indigo-50">
-        <a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2" href="dashboard_user.php">
-            <span class="material-symbols-outlined">grid_view</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Home</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2" href="dashboard_audit.php">
-            <span class="material-symbols-outlined">handyman</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Requests</span>
-        </a>
-        <a class="flex flex-col items-center justify-center bg-indigo-50 text-indigo-700 rounded-2xl px-5 py-2" href="assets_user.php">
-            <span class="material-symbols-outlined">list_alt</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Assets</span>
-        </a>
-        <a class="flex flex-col items-center justify-center text-rose-500 px-5 py-2 hover:bg-rose-50 rounded-2xl transition-all" href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
-            <span class="material-symbols-outlined">logout</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Logout</span>
-        </a>
-    </nav>
+    <?php include __DIR__ . '/../includes/bottom_nav_user.php'; ?>
 </body>
 </html>
