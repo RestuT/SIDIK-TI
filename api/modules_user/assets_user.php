@@ -304,9 +304,9 @@ foreach ($assets_docs as $doc) {
             <span class="material-symbols-outlined">list_alt</span>
             <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Assets</span>
         </a>
-        <a class="flex flex-col items-center justify-center text-slate-400 px-5 py-2" href="#">
-            <span class="material-symbols-outlined">person</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Profile</span>
+        <a class="flex flex-col items-center justify-center text-rose-500 px-5 py-2 hover:bg-rose-50 rounded-2xl transition-all" href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider mt-1">Logout</span>
         </a>
     </nav>
 </body>

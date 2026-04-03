@@ -45,8 +45,8 @@ try {
     <div class="flex items-center gap-4">
         <div class="hidden md:flex flex-col items-end mr-2">
             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-tight">Pegawai</span>
-            <span class="text-xs font-headline font-bold text-on-surface leading-tight">
-                <?php echo isset($_SESSION['full_name']) ? $_SESSION['full_name'] : (isset($display_name) ? $display_name : 'User'); ?>
+            <span class="text-xs font-headline font-bold text-on-surface leading-tight max-w-[150px] truncate" title="<?php echo htmlspecialchars($_SESSION['full_name'] ?? ($display_name ?? 'User')); ?>">
+                <?php echo htmlspecialchars($_SESSION['full_name'] ?? ($display_name ?? 'User')); ?>
             </span>
         </div>
         <div class="relative group">

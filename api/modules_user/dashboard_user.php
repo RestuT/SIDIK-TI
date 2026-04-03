@@ -118,28 +118,7 @@ if ($userSnap->exists()) {
         </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen selection:bg-primary/20">
-    <!-- TopAppBar -->
-    <header class="flex justify-between items-center px-8 py-4 w-full sticky top-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl z-40 shadow-sm shadow-indigo-500/5">
-        <div class="flex items-center gap-2">
-            <span class="text-xl font-extrabold tracking-tight text-indigo-700 dark:text-indigo-300">SIDIK-TI</span>
-        </div>
-        <div class="hidden md:flex items-center gap-8">
-            <nav class="flex gap-6">
-                <a class="text-indigo-700 dark:text-indigo-300 font-semibold transition-all duration-300" href="dashboard_user.php">Dashboard</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all duration-300" href="dashboard_audit.php">Requests</a>
-                <a class="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all duration-300" href="assets_user.php">Assets</a>
-            </nav>
-        </div>
-        <div class="flex items-center gap-4">
-            <!-- Notifikasi Dihapus -->
-            <div class="h-10 w-10 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm flex items-center justify-center bg-indigo-50">
-                <span class="material-symbols-outlined text-indigo-600">person</span>
-            </div>
-            <a href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-full transition-colors">
-                <span class="material-symbols-outlined">logout</span>
-            </a>
-        </div>
-    </header>
+    <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 
     <main class="max-w-7xl mx-auto px-6 md:px-10 py-10 space-y-10">
         <!-- Welcome Header -->
@@ -330,9 +309,9 @@ if ($userSnap->exists()) {
             <span class="material-symbols-outlined">list_alt</span>
             <span class="font-plus-jakarta-sans text-[10px] font-bold uppercase tracking-wider mt-1">Assets</span>
         </a>
-        <a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-indigo-500 transition-colors" href="#">
-            <span class="material-symbols-outlined">person</span>
-            <span class="font-plus-jakarta-sans text-[10px] font-bold uppercase tracking-wider mt-1">Profile</span>
+        <a class="flex flex-col items-center justify-center text-rose-500 px-5 py-2 hover:bg-rose-50 rounded-2xl transition-all" href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="font-plus-jakarta-sans text-[10px] font-bold uppercase tracking-wider mt-1">Logout</span>
         </a>
     </nav>
 </body>

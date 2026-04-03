@@ -41,6 +41,7 @@ if (isset($_POST['login'])) {
             $_SESSION['user'] = $userData['username'];
             $_SESSION['user_id'] = $userData['id']; 
             $_SESSION['role'] = $userData['role'];
+            $_SESSION['full_name'] = $userData['full_name'] ?? 'Pegawai TI';
 
             header("Location: ../modules_user/dashboard_user.php");
             exit();
