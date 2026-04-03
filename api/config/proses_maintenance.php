@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
             }
 
             // 4. Query Insert ke tabel submissions di Firestore
-            $db->collection('submissions')->add([
+            $addedDocRef = $db->collection('submissions')->add([
                 'ticket_number' => $ticket_no,
                 'user_id' => $user_id,
                 'user_name' => $user_name,
@@ -98,8 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
                 'status' => 'Menunggu',
                 'created_at' => date('Y-m-d H:i:s')
             ]);
+            
+            $auto_id = $addedDocRef->id();
 
-            header("Location: ../modules_user/cetak_tiket_maintenance.php?ticket=" . $ticket_no);
+            header("Location: ../modules_user/cetak_tiket_maintenance.php?id=" . $auto_id);
             exit();
         } else {
             echo "Gagal mengunggah dokumentasi barang.";

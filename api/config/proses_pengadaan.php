@@ -111,8 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
         }
 
         try {
+            $auto_id = null;
             // Executing in a Firestore transaction to ensure budget consistency
-            $db->runTransaction(function ($transaction) use ($db, $budget_doc, $estimasi, $ticket_no, $user_id, $judul, $deskripsi, $urgensi, $final_attachment_url, $user_name, $my_dept) {
+            $db->runTransaction(function ($transaction) use ($db, $budget_doc, $estimasi, $ticket_no, $user_id, $judul, $deskripsi, $urgensi, $final_attachment_url, $user_name, $my_dept, &$auto_id) {
                 // A. Update pemakaian anggaran
                 $transaction->update($budget_doc->reference(), [
                     ['path' => 'used_amount', 'value' => \Google\Cloud\Firestore\FieldValue::increment($estimasi)]
@@ -120,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
                 // B. Create submission
                 $subRef = $db->collection('submissions')->newDocument();
+                $auto_id = $subRef->id();
                 $transaction->create($subRef, [
                     'ticket_number' => $ticket_no,
                     'user_id' => $user_id,
@@ -136,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
                 ]);
             });
 
-            header("Location: ../modules_user/cetak_tiket_pengadaan.php?ticket=" . $ticket_no);
+            header("Location: ../modules_user/cetak_tiket_pengadaan.php?id=" . $auto_id);
             exit();
 
         } catch (Exception $e) {
