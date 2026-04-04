@@ -21,8 +21,26 @@ try {
 }
 ?>
 
+<!-- Mobile Top Navbar -->
+<div class="lg:hidden w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-outline-variant/10 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+        <button id="mobile-menu-btn" class="p-2 bg-surface-container-low text-primary rounded-xl flex items-center justify-center">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+        <span class="text-lg font-black text-indigo-600 tracking-tight"><?php echo htmlspecialchars($brand_name); ?></span>
+    </div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
+
 <!-- Sidebar (NavigationDrawer) -->
-<aside class="fixed left-0 top-0 h-full z-50 p-6 flex flex-col gap-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl w-72 rounded-r-3xl shadow-2xl shadow-indigo-900/5 transition-all duration-300 border-r border-outline-variant/10">
+<aside id="admin-sidebar" class="fixed left-0 top-0 h-full z-50 p-6 flex flex-col gap-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl w-72 rounded-r-3xl shadow-2xl shadow-indigo-900/5 transition-transform duration-300 border-r border-outline-variant/10 -translate-x-full lg:translate-x-0">
+    <div class="lg:hidden absolute top-4 right-4">
+        <button id="close-sidebar-btn" class="p-2 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center">
+            <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+    </div>
     <!-- Brand Header -->
     <div class="flex items-center gap-3 px-4 py-6">
         <div class="w-10 h-10 bg-gradient-to-br from-primary to-primary-container rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
@@ -113,6 +131,26 @@ try {
 
 <!-- Spacer for fixed sidebar -->
 <div class="hidden lg:block w-72 shrink-0"></div>
+
+<script>
+    const sidebar = document.getElementById('admin-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const closeBtn = document.getElementById('close-sidebar-btn');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('-translate-x-full');
+        if (sidebar.classList.contains('-translate-x-full')) {
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+        } else {
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+    }
+
+    if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+    if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
+    if (overlay) overlay.addEventListener('click', toggleSidebar);
+</script>
 
 <style>
     .fill-1 { font-variation-settings: 'FILL' 1; }

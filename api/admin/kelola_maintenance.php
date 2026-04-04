@@ -91,7 +91,7 @@ if (isset($_POST['update_maintenance'])) {
 
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
-    <main class="flex-1 p-10">
+    <main class="flex-1 flex flex-col min-w-0 p-6 md:p-10">
         <div class="max-w-4xl mx-auto">
             <a href="dashboard_admin.php" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-blue-600 mb-6 transition">
                 <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Dashboard

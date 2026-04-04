@@ -86,7 +86,7 @@ $total_records = count($submission_list);
         input:focus { outline: none; border: none; ring: 0; }
     </style>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0">
 
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 

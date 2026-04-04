@@ -105,7 +105,7 @@ try {
         .fill-1 { font-variation-settings: 'FILL' 1; }
     </style>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0">
     
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 

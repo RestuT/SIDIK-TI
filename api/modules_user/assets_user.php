@@ -130,7 +130,7 @@ foreach ($assets_docs as $doc) {
             h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
         </style>
 </head>
-<body class="bg-background text-on-surface min-h-screen selection:bg-primary/20">
+<body class="bg-background text-on-surface min-h-screen selection:bg-primary/20 pb-24 md:pb-0">
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 
     <main class="max-w-7xl mx-auto px-6 md:px-10 py-10 space-y-10">

@@ -44,7 +44,7 @@
             @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         </style>
 </head>
-<body class="bg-surface text-on-surface selection:bg-primary/20">
+<body class="bg-surface text-on-surface selection:bg-primary/20 pb-24 md:pb-0">
     <!-- TopAppBar -->
     <header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50">
         <div class="flex items-center gap-4">
