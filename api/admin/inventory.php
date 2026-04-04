@@ -134,11 +134,11 @@ foreach ($master_templates as $doc) {
         }
     </style>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden flex min-h-screen">
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen flex flex-col lg:flex-row">
     
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
-    <main class="flex-1 flex flex-col min-w-0">
+    <main class="flex-1 flex flex-col min-w-0 pt-14 lg:pt-0">
         <!-- Header Bar -->
         <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-10">
             <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight">Inventory Management</h1>

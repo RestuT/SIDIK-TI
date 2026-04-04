@@ -194,11 +194,15 @@ $deskripsi_clean = $data['description'] ?? '';
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Inventory QR Verification</p>
                     <div class="w-28 h-28 bg-white rounded-2xl flex items-center justify-center border border-slate-100 mx-auto md:mx-0 group overflow-hidden shadow-sm">
                         <?php 
-                            // QR mengarah ke halaman scan_result.php agar hasil scan tampil rapih
-                            $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
-                            $scan_url = $base_url . '/SIDIK-TI/api/modules_user/scan_result.php?id=' . urlencode($data['id']);
+                            // Buat URL yang benar untuk kedua environment (XAMPP & Vercel)
+                            $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+                            $host     = $_SERVER['HTTP_HOST'];
+                            $script   = $_SERVER['SCRIPT_NAME']; // misal: /SIDIK-TI/api/modules_user/cetak_tiket_pengadaan.php
+                            // Ambil base path hingga sebelum 'cetak_tiket_pengadaan.php'
+                            $base_path = rtrim(dirname($script), '/\\');
+                            $scan_url  = $protocol . '://' . $host . $base_path . '/scan_result.php?id=' . urlencode($data['id']);
                         ?>
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=<?php echo urlencode($scan_url); ?>" 
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=<?php echo urlencode($scan_url); ?>" 
                              alt="Scan to view ticket details" 
                              class="w-full h-full p-1 group-hover:scale-110 transition-transform">
                     </div>

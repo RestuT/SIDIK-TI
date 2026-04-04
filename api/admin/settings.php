@@ -120,12 +120,12 @@ foreach ($settings_docs as $doc) {
         .fill-1 { font-variation-settings: 'FILL' 1; }
     </style>
 </head>
-<body class="bg-surface-container-low dark:bg-slate-950 font-body text-on-surface dark:text-slate-200 antialiased flex min-h-screen transition-colors duration-500">
+<body class="bg-surface-container-low dark:bg-slate-950 font-body text-on-surface dark:text-slate-200 antialiased overflow-x-hidden min-h-screen flex flex-col lg:flex-row transition-colors duration-500">
     
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col min-w-0">
+    <main class="flex-1 flex flex-col min-w-0 pt-14 lg:pt-0">
         <!-- Header Bar -->
         <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-20">
             <div>
