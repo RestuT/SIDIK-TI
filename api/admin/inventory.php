@@ -11,6 +11,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 // --- LOGIKA PENCARIAN ---
 $search_query = isset($_GET['q']) ? $_GET['q'] : '';
+$search_q = $search_query; // alias untuk form input
 
 // 1. Fetch Inventory from Firestore
 $inventoryRef = $db->collection('inventory');
@@ -139,15 +140,15 @@ foreach ($master_templates as $doc) {
 
     <main class="flex-1 flex flex-col min-w-0">
         <!-- Header Bar -->
-        <header class="flex items-center justify-between px-8 py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-10">
-            <h1 class="font-headline text-2xl font-extrabold text-on-surface tracking-tight">Inventory Management</h1>
+        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-10">
+            <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight">Inventory Management</h1>
             <div class="flex items-center gap-4">
-                <form action="" method="GET" class="relative group">
+                <form action="" method="GET" class="relative group flex-1 sm:flex-none">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
                         <span class="material-symbols-outlined text-xl">search</span>
                     </div>
                     <input name="q" value="<?php echo htmlspecialchars($search_q); ?>" 
-                        class="block w-full pl-11 pr-11 py-2 bg-surface-container-low dark:bg-slate-800 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium text-sm placeholder:text-outline/60 dark:text-white" 
+                        class="block w-full sm:w-48 md:w-56 pl-11 pr-11 py-2 bg-surface-container-low dark:bg-slate-800 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium text-sm placeholder:text-outline/60 dark:text-white" 
                         placeholder="Cari perangkat..." type="text"/>
                     <?php if(!empty($search_q)): ?>
                         <a href="inventory.php" class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-rose-500 transition-colors">
@@ -155,14 +156,14 @@ foreach ($master_templates as $doc) {
                         </a>
                     <?php endif; ?>
                 </form>
-                <button onclick="toggleModal('modalTambah')" class="px-5 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-headline font-bold rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center gap-2 text-sm">
+                <button onclick="toggleModal('modalTambah')" class="px-4 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white font-headline font-bold rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all active:scale-95 flex items-center gap-2 text-sm whitespace-nowrap">
                     <span class="material-symbols-outlined text-lg">add_box</span>
-                    Update / Tambah Stok
+                    <span class="hidden sm:inline">Update / Tambah Stok</span>
                 </button>
             </div>
         </header>
 
-        <div class="p-8 space-y-8">
+        <div class="p-4 md:p-8 space-y-6 md:space-y-8">
             <!-- Asymmetric Stats Grid -->
             <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <!-- Highlight Card -->

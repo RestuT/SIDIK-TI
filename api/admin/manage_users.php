@@ -131,20 +131,20 @@ $active_count = count($user_list);
 
     <main class="flex-1 flex flex-col min-w-0">
         <!-- Header Bar -->
-        <header class="flex items-center justify-between px-8 py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-20">
+        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-20">
             <div>
-                <h1 class="font-headline text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">User <span class="text-primary italic">Directory</span></h1>
-                <p class="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Manajemen Akses & Personalia Karyawan</p>
+                <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">User <span class="text-primary italic">Directory</span></h1>
+                <p class="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Manajemen Akses &amp; Personalia Karyawan</p>
             </div>
             <div class="flex items-center gap-4">
-                <div class="bg-primary-fixed/20 px-4 py-2 rounded-2xl border border-primary-fixed/30 flex items-center gap-2">
+                <div class="bg-primary-fixed/20 px-3 py-2 md:px-4 md:py-2 rounded-2xl border border-primary-fixed/30 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-sm fill-1">verified_user</span>
-                    <span class="text-[10px] font-black text-primary uppercase tracking-widest"><?php echo $active_count; ?> Account Active</span>
+                    <span class="text-[10px] font-black text-primary uppercase tracking-widest"><?php echo $active_count; ?> Active</span>
                 </div>
             </div>
         </header>
 
-        <div class="p-8 space-y-8">
+        <div class="p-4 md:p-8 space-y-6 md:space-y-8">
             <!-- Alert Messages -->
             <?php if(isset($_GET['status']) && $_GET['status'] == 'deleted'): ?>
                 <div class="bg-primary-fixed/10 text-primary p-4 rounded-2xl flex items-center gap-3 border border-primary-fixed/30 animate-in fade-in slide-in-from-top-2 duration-300 font-bold uppercase tracking-widest text-xs">
@@ -155,12 +155,12 @@ $active_count = count($user_list);
 
             <!-- Directory Table Panel -->
             <section class="bg-white rounded-[2.5rem] border border-outline-variant/10 shadow-2xl shadow-indigo-900/5 overflow-hidden">
-                <div class="p-8 border-b border-outline-variant/5 flex items-center justify-between">
-                    <h2 class="font-headline text-xl font-black text-on-surface italic uppercase tracking-tighter">Registered <span class="text-primary italic">Personalities</span></h2>
+                <div class="p-4 md:p-8 border-b border-outline-variant/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h2 class="font-headline text-lg md:text-xl font-black text-on-surface italic uppercase tracking-tighter">Registered <span class="text-primary italic">Personalities</span></h2>
                     
-                    <form action="" method="GET" class="relative group">
+                    <form action="" method="GET" class="relative group w-full sm:w-auto">
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
-                        <input name="q" value="<?php echo htmlspecialchars($search_q); ?>" type="text" placeholder="Temukan nama..." class="pl-10 pr-10 py-2 bg-surface-container-low dark:bg-slate-800 border-0 rounded-xl text-xs font-bold text-on-surface dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all w-64">
+                        <input name="q" value="<?php echo htmlspecialchars($search_q); ?>" type="text" placeholder="Temukan nama..." class="pl-10 pr-10 py-2 bg-surface-container-low dark:bg-slate-800 border-0 rounded-xl text-xs font-bold text-on-surface dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all w-full sm:w-64">
                         <?php if(!empty($search_q)): ?>
                             <a href="manage_users.php" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-rose-500 transition-colors">
                                 <span class="material-symbols-outlined text-sm">close</span>

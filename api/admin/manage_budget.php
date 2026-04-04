@@ -141,20 +141,20 @@ $q_dept = $db->collection('departments')->orderBy('nama_dept', 'ASC')->documents
 
     <main class="flex-1 flex flex-col min-w-0">
         <!-- Header Bar -->
-        <header class="flex items-center justify-between px-8 py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-20">
+        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-20">
             <div>
-                <h1 class="font-headline text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">Fiscal <span class="text-primary italic">Control</span></h1>
-                <p class="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Manajemen Alokasi & Pagu Anggaran Departemen</p>
+                <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">Fiscal <span class="text-primary italic">Control</span></h1>
+                <p class="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Manajemen Alokasi &amp; Pagu Anggaran Departemen</p>
             </div>
             <div class="flex items-center gap-4">
-                <div class="px-5 py-2.5 bg-white border border-outline-variant/20 rounded-2xl shadow-sm flex items-center gap-3 group transition-all hover:border-primary/30">
+                <div class="px-4 py-2.5 bg-white border border-outline-variant/20 rounded-2xl shadow-sm flex items-center gap-3 group transition-all hover:border-primary/30">
                     <span class="material-symbols-outlined text-primary text-xl">calendar_today</span>
-                    <span class="text-xs font-black text-on-surface uppercase tracking-widest">Fiscal Year <?php echo date('Y'); ?></span>
+                    <span class="text-xs font-black text-on-surface uppercase tracking-widest">Fiscal <?php echo date('Y'); ?></span>
                 </div>
             </div>
         </header>
 
-        <div class="p-8 space-y-8">
+        <div class="p-4 md:p-8 space-y-6 md:space-y-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 
                 <!-- Budget Setting Panel -->

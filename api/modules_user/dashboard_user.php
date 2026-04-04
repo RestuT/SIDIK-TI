@@ -29,14 +29,19 @@ $stat_done = $submissionsRef->where('status', '=', 'Selesai')->count();
 $all_submissions = $submissionsRef->orderBy('created_at', 'DESC')->limit(5)->documents();
 
 // Fetch Daftar Pengumuman IT Terkini
-$announcementQuery = $db->collection('announcements')
-                        ->where('is_active', '=', true)
-                        ->orderBy('created_at', 'DESC')
-                        ->limit(3)
-                        ->documents();
 $announcements = [];
-foreach ($announcementQuery as $doc) {
-    $announcements[] = $doc->data();
+try {
+    $announcementQuery = $db->collection('announcements')
+                            ->where('is_active', '=', true)
+                            ->orderBy('created_at', 'DESC')
+                            ->limit(3)
+                            ->documents();
+    foreach ($announcementQuery as $doc) {
+        $announcements[] = $doc->data();
+    }
+} catch (Exception $e) {
+    // If index is missing or query fails, leave $announcements empty gracefully
+    error_log("Firestore Index Missing for Announcements: " . $e->getMessage());
 }
 ?>
 

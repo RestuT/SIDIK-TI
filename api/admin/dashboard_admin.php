@@ -151,8 +151,8 @@ $budget_summary = $db->collection('budget_config')
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col min-w-0">
         <!-- Top Search Bar -->
-        <header class="flex items-center justify-between px-8 py-5 border-b border-outline-variant/10 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-40">
-            <form action="" method="GET" class="flex-1 max-w-xl">
+        <header class="flex flex-col md:flex-row md:items-center gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-40">
+            <form action="" method="GET" class="flex-1">
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
                         <span class="material-symbols-outlined">search</span>
@@ -170,13 +170,10 @@ $budget_summary = $db->collection('budget_config')
                 <input type="hidden" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>">
                 <input type="hidden" name="end_date" value="<?php echo htmlspecialchars($end_date); ?>">
             </form>
-            <div class="flex items-center gap-6 ml-8">
-                <!-- Notifikasi Dihapus -->
-            </div>
         </header>
 
         <!-- Dynamic Content -->
-        <div class="p-8 space-y-8">
+        <div class="p-4 md:p-8 space-y-6 md:space-y-8">
             <!-- Messages -->
             <?php if(isset($_GET['msg'])): ?>
                 <?php if($_GET['msg'] == 'deleted'): ?>
@@ -193,9 +190,9 @@ $budget_summary = $db->collection('budget_config')
             <?php endif; ?>
 
             <!-- Breadcrumbs & Actions -->
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="space-y-1">
-                    <h1 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight">Overview Panel</h1>
+                    <h1 class="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">Overview Panel</h1>
                     <div class="flex items-center gap-2 text-sm text-on-surface-variant font-medium">
                         <span class="text-primary italic">Admin Dashboard</span>
                         <span class="material-symbols-outlined text-xs">chevron_right</span>
@@ -204,9 +201,9 @@ $budget_summary = $db->collection('budget_config')
                 </div>
                 <div class="flex gap-3">
                     <a href="export_excel.php?start_date=<?php echo $start_date; ?>&end_date=<?php echo $end_date; ?>" 
-                       class="px-5 py-3 rounded-2xl bg-indigo-50 border border-indigo-100 text-primary font-bold text-sm hover:bg-indigo-600 hover:text-white transition-all active:scale-95 flex items-center gap-2 shadow-sm">
+                       class="px-4 py-2.5 md:px-5 md:py-3 rounded-2xl bg-indigo-50 border border-indigo-100 text-primary font-bold text-sm hover:bg-indigo-600 hover:text-white transition-all active:scale-95 flex items-center gap-2 shadow-sm">
                         <span class="material-symbols-outlined text-lg">download</span>
-                        Export Excel
+                        <span class="hidden sm:inline">Export Excel</span>
                     </a>
                 </div>
             </div>

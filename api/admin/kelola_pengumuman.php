@@ -130,9 +130,9 @@ $query = $db->collection('announcements')->orderBy('created_at', 'DESC')->docume
 
     <main class="flex-1 flex flex-col min-w-0">
         <!-- Header Bar -->
-        <header class="flex items-center justify-between px-8 py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-20">
+        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-20">
             <div>
-                <h1 class="font-headline text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">Broadcast <span class="text-primary italic">Center</span></h1>
+                <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">Broadcast <span class="text-primary italic">Center</span></h1>
                 <p class="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Sistem Pengumuman IT Terpusat</p>
             </div>
             <div class="flex items-center gap-4">
@@ -142,7 +142,7 @@ $query = $db->collection('announcements')->orderBy('created_at', 'DESC')->docume
             </div>
         </header>
 
-        <div class="p-8 space-y-8">
+        <div class="p-4 md:p-8 space-y-6 md:space-y-8">
             <!-- Messages -->
             <?php if(isset($_GET['status'])): ?>
                 <?php if($_GET['status'] == 'added'): ?>

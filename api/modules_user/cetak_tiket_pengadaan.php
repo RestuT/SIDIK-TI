@@ -192,19 +192,17 @@ $deskripsi_clean = $data['description'] ?? '';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
                 <div class="text-center md:text-left space-y-4">
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Inventory QR Verification</p>
-                    <div class="w-24 h-24 bg-surface rounded-2xl flex items-center justify-center border border-slate-100 mx-auto md:mx-0 group overflow-hidden shadow-inner">
+                    <div class="w-28 h-28 bg-white rounded-2xl flex items-center justify-center border border-slate-100 mx-auto md:mx-0 group overflow-hidden shadow-sm">
                         <?php 
-                            $qr_content = "SIDIK-TI PROCUREMENT\n" .
-                                         "Ticket: " . ($data['ticket_number'] ?? '') . "\n" .
-                                         "User: " . ($data['full_name'] ?? '') . "\n" .
-                                         "Item: " . ($data['title'] ?? '') . "\n" .
-                                         "Status: " . ($data['status'] ?? '');
+                            // QR mengarah ke halaman scan_result.php agar hasil scan tampil rapih
+                            $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
+                            $scan_url = $base_url . '/SIDIK-TI/api/modules_user/scan_result.php?id=' . urlencode($data['id']);
                         ?>
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?php echo urlencode($qr_content); ?>" 
-                             alt="Verification QR Code" 
-                             class="w-full h-full p-2 group-hover:scale-110 transition-transform">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=<?php echo urlencode($scan_url); ?>" 
+                             alt="Scan to view ticket details" 
+                             class="w-full h-full p-1 group-hover:scale-110 transition-transform">
                     </div>
-                    <p class="text-[10px] font-bold text-slate-300 italic uppercase tracking-tighter leading-none">Scanned for Asset Ledger Entry</p>
+                    <p class="text-[9px] font-bold text-slate-300 italic uppercase tracking-tighter leading-tight">Scan QR untuk lihat detail tiket</p>
                 </div>
                 <div class="flex flex-col md:items-end justify-center">
                     <div class="text-center md:text-right bg-primary/5 p-6 rounded-3xl border border-primary/10 w-full md:w-64">
