@@ -4,10 +4,9 @@
  * Supports Dual Storage: MySQL (Local) and Firebase Firestore (Cloud/Vercel).
  */
 
-// Output buffering: mencegah 'headers already sent' dari whitespace/BOM tersembunyi
-if (!ob_get_level()) {
-    ob_start();
-}
+// Output buffering: safety net jika auto_prepend_file / .user.ini belum aktif
+// ob_start() aman dipanggil berkali-kali (stackable), tidak merusak apapun
+ob_start();
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 

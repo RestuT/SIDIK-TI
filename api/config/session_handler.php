@@ -78,4 +78,4 @@ class FirestoreSessionHandler implements SessionHandlerInterface {
         }
     }
 }
-// Catatan: Tidak ada closing ?> untuk mencegah trailing newline output
+// Catatan: Tidak ada closing

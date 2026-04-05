@@ -2,7 +2,13 @@
   "version": 2,
   "functions": {
     "api/**/*.php": {
-      "runtime": "vercel-php@0.7.2"
+      "runtime": "vercel-php@0.7.2",
+      "includeFiles": "api/**"
+    }
+  },
+  "build": {
+    "env": {
+      "PHP_INI_SCAN_DIR": "/var/task/user/api"
     }
   },
   "routes": [
