@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/../config/database.php';
 
@@ -121,12 +121,12 @@ try {
         }
     </style>
 </head>
-<body class="bg-surface-container-low font-body text-on-surface antialiased overflow-x-hidden min-h-screen flex flex-col lg:flex-row">
+<body class="bg-surface-container-low font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
     
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col min-w-0 pt-14 lg:pt-0">
+    <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
         <!-- Header Bar -->
         <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-white/80 backdrop-blur-xl z-20">
             <div>

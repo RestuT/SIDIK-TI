@@ -87,12 +87,12 @@ if (isset($_POST['update_maintenance'])) {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-100 flex font-sans">
+<body class="bg-slate-100 font-sans antialiased overflow-x-hidden min-h-screen">
 
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
-    <main class="flex-1 flex flex-col min-w-0 p-6 md:p-10">
-        <div class="max-w-4xl mx-auto">
+    <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
+        <div class="max-w-4xl mx-auto w-full p-6 md:p-10">
             <a href="dashboard_admin.php" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-blue-600 mb-6 transition">
                 <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Dashboard
             </a>

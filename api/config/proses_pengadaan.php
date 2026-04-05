@@ -10,10 +10,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     // 1. Ambil Data dan Sanitasi Input
     $user_id    = $_SESSION['user_id']; 
     $judul      = $_POST['title'] ?? '';
-    $estimasi   = (float)($_POST['estimasi'] ?? 0);
     $deskripsi  = $_POST['description'] ?? '';
     $urgensi    = $_POST['urgency'] ?? '';
-    
+    $qty        = max(1, (int)($_POST['qty'] ?? 1));
+    $base_price = (float)($_POST['base_price'] ?? 0);
+
     $current_year = date('Y');
     
     // Ambil departemen user
@@ -21,35 +22,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     if (!$userSnap->exists()) {
         die("User tidak ditemukan.");
     }
-    $userData = $userSnap->data();
-    $my_dept = $userData['department'] ?? '';
+    $userData  = $userSnap->data();
+    $my_dept   = $userData['department'] ?? '';
     $user_name = $userData['full_name'] ?? '';
 
-    // 2. Validasi Anggaran Spesifik Departemen
+    // 2. SERVER-SIDE: Ambil margin & pajak terbaru dari Firestore (anti-manipulasi)
+    $margin_pengadaan = 5;   // default markup (%)
+    $pajak            = 11;  // default PPN (%)
+    try {
+        $sys_docs = $db->collection('system_settings')->documents();
+        foreach ($sys_docs as $doc) {
+            if (!$doc->exists()) continue;
+            $val = $doc->data()['setting_value'] ?? null;
+            if ($val === null) continue;
+            if ($doc->id() === 'margin_pengadaan') $margin_pengadaan = (float)$val;
+            if ($doc->id() === 'pajak')            $pajak            = (float)$val;
+        }
+    } catch (Exception $e) { /* pakai default */ }
+
+    // 3. SERVER-SIDE: Hitung ulang estimasi yang valid
+    //    Formula: Qty × HargaSatuan × (1 + margin/100) × (1 + pajak/100)
+    $estimasi_server = round($qty * $base_price * (1 + $margin_pengadaan / 100) * (1 + $pajak / 100));
+
+    // 4. Validasi Anggaran Spesifik Departemen
     $budgetQuery = $db->collection('budget_config')
         ->where('department', '=', $my_dept)
         ->documents();
 
-    $budget_doc = null;
+    $budget_doc    = null;
     $sisa_anggaran = 0;
     foreach ($budgetQuery as $doc) {
         $b = $doc->data();
-        // Cek secara string maupun integer
         if ((string)($b['fiscal_year'] ?? '') === (string)$current_year) {
-            $budget_doc = $doc;
+            $budget_doc    = $doc;
             $sisa_anggaran = ((float)($b['total_limit'] ?? 0)) - ((float)($b['used_amount'] ?? 0));
             break;
         }
     }
 
-    if ($estimasi > $sisa_anggaran) {
-        die("Gagal: Estimasi harga melebihi sisa anggaran tersedia (Rp " . number_format($sisa_anggaran, 0, ',', '.') . ") untuk departemen " . htmlspecialchars($my_dept) . ".");
+    if ($estimasi_server > $sisa_anggaran) {
+        die("Gagal: Estimasi harga (Rp " . number_format($estimasi_server, 0, ',', '.') . ") melebihi sisa anggaran yang tersedia (Rp " . number_format($sisa_anggaran, 0, ',', '.') . ") untuk departemen " . htmlspecialchars($my_dept) . ".");
     }
 
-    // 3. Generasi Nomor Tiket dan Setup Folder Upload
+    // 5. Generasi Nomor Tiket dan Setup Folder Upload
     $ticket_no  = "PRO-" . date('Ymd') . "-" . strtoupper(substr(uniqid(), -3));
     
-    // Fallback: Gunakan /tmp di Vercel, atau folder lokal
     $is_vercel  = getenv('VERCEL') === '1';
     $target_dir = $is_vercel ? sys_get_temp_dir() . "/" : "../uploads/";
 
@@ -66,14 +83,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     $new_name    = $ticket_no . "." . $file_ext;
     $target_path = $target_dir . $new_name;
 
-    // 4. Validasi Ekstensi File
+    // 6. Validasi Ekstensi & MIME File
     $allowed_ext = ['pdf', 'jpg', 'jpeg', 'png'];
     if (!in_array($file_ext, $allowed_ext)) {
         die("Gagal: Format file tidak didukung. Harap unggah file PDF, JPG, atau PNG.");
     }
     
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime = finfo_file($finfo, $_FILES["attachment"]["tmp_name"]);
+    $mime  = finfo_file($finfo, $_FILES["attachment"]["tmp_name"]);
     finfo_close($finfo);
     
     $allowed_mime_types = ['application/pdf', 'image/jpeg', 'image/png'];
@@ -83,25 +100,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
     if (move_uploaded_file($_FILES["attachment"]["tmp_name"], $target_path)) {
         
-        // --- Integrasi Database-Encoded Storage untuk Vercel ---
-        $final_attachment_url = $target_path; // Default ke local
+        $final_attachment_url = $target_path;
         if ($is_vercel) {
             try {
-                // Baca file sementara dan encod ke Base64
                 $fileContent = file_get_contents($target_path);
-                $base64 = base64_encode($fileContent);
+                $base64      = base64_encode($fileContent);
                 
-                // Simpan ke Firestore (Batas aman < 1MB)
                 $db->collection('attachments')->document($ticket_no)->set([
-                    'data' => $base64,
-                    'mime_type' => $mime,
-                    'file_name' => $file_name,
+                    'data'       => $base64,
+                    'mime_type'  => $mime,
+                    'file_name'  => $file_name,
                     'created_at' => date('Y-m-d H:i:s')
                 ]);
                 
-                // Set path sebagai URL lokal bridge script viewer
                 $final_attachment_url = "../config/view_attachment.php?id=" . $ticket_no;
-                unlink($target_path); // Hapus sampah /tmp
+                unlink($target_path);
             } catch (Exception $e) {
                 if (stripos($e->getMessage(), 'Document size') !== false) {
                     die("Gagal Upload: Berkas terlalu besar, harap gunakan fitur kompres gambar terlebih dahulu!");
@@ -112,29 +125,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
         try {
             $auto_id = null;
-            // Executing in a Firestore transaction to ensure budget consistency
-            $db->runTransaction(function ($transaction) use ($db, $budget_doc, $estimasi, $ticket_no, $user_id, $judul, $deskripsi, $urgensi, $final_attachment_url, $user_name, $my_dept, &$auto_id) {
+            $db->runTransaction(function ($transaction) use ($db, $budget_doc, $estimasi_server, $ticket_no, $user_id, $judul, $deskripsi, $urgensi, $final_attachment_url, $user_name, $my_dept, $qty, $base_price, $margin_pengadaan, $pajak, &$auto_id) {
                 // A. Update pemakaian anggaran
                 $transaction->update($budget_doc->reference(), [
-                    ['path' => 'used_amount', 'value' => \Google\Cloud\Firestore\FieldValue::increment($estimasi)]
+                    ['path' => 'used_amount', 'value' => \Google\Cloud\Firestore\FieldValue::increment($estimasi_server)]
                 ]);
 
-                // B. Create submission
-                $subRef = $db->collection('submissions')->newDocument();
+                // B. Create submission dengan audit trail harga
+                $subRef  = $db->collection('submissions')->newDocument();
                 $auto_id = $subRef->id();
                 $transaction->create($subRef, [
-                    'ticket_number' => $ticket_no,
-                    'user_id' => $user_id,
-                    'user_name' => $user_name, // Denormalization
-                    'department' => $my_dept,   // Denormalization
-                    'type' => 'Pengadaan',
-                    'title' => $judul,
-                    'description' => $deskripsi,
-                    'urgency' => $urgensi,
-                    'attachment_path' => $final_attachment_url,
-                    'status' => 'Menunggu',
-                    'estimasi' => $estimasi,
-                    'created_at' => date('Y-m-d H:i:s')
+                    'ticket_number'    => $ticket_no,
+                    'user_id'          => $user_id,
+                    'user_name'        => $user_name,
+                    'department'       => $my_dept,
+                    'type'             => 'Pengadaan',
+                    'title'            => $judul,
+                    'description'      => $deskripsi,
+                    'urgency'          => $urgensi,
+                    'attachment_path'  => $final_attachment_url,
+                    'status'           => 'Menunggu',
+                    'estimasi'         => $estimasi_server,
+                    // Audit trail: nilai saat pengajuan dibuat
+                    'qty'              => $qty,
+                    'base_price'       => $base_price,
+                    'margin_snapshot'  => $margin_pengadaan,
+                    'pajak_snapshot'   => $pajak,
+                    'created_at'       => date('Y-m-d H:i:s')
                 ]);
             });
 

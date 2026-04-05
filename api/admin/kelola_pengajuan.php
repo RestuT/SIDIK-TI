@@ -125,10 +125,20 @@ if (isset($_POST['update'])) {
     <meta charset="UTF-8">
     <title>Validasi Pengadaan - #<?php echo $data['ticket_number']; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        .fill-1 { font-variation-settings: 'FILL' 1; }
+    </style>
 </head>
-<body class="bg-slate-50 p-6 md:p-10">
-    <div class="max-w-4xl mx-auto bg-white rounded-[35px] shadow-xl overflow-hidden border border-slate-100">
+<body class="bg-slate-50 font-sans antialiased overflow-x-hidden min-h-screen">
+
+    <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
+
+    <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen">
+        <div class="max-w-5xl mx-auto p-6 md:p-10">
         
         <div class="bg-slate-900 p-8 text-white flex justify-between items-center">
             <div>
@@ -233,6 +243,8 @@ if (isset($_POST['update'])) {
                 </div>
             </form>
         </div>
-    </div>
+        </div>
+    </main>
+
 </body>
 </html>

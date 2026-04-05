@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/csrf_helper.php';
@@ -47,6 +47,20 @@ $templates_data = [];
 foreach ($master_templates as $doc) {
     $templates_data[] = $doc->data();
 }
+
+// 3. Fetch System Settings (Margin & Pajak)
+$sys_margin = 5;   // default markup (%)
+$sys_pajak  = 11;  // default PPN (%)
+try {
+    $sys_docs = $db->collection('system_settings')->documents();
+    foreach ($sys_docs as $doc) {
+        if (!$doc->exists()) continue;
+        $val = $doc->data()['setting_value'] ?? null;
+        if ($val === null) continue;
+        if ($doc->id() === 'margin_pengadaan') $sys_margin = (float)$val;
+        if ($doc->id() === 'pajak')            $sys_pajak  = (float)$val;
+    }
+} catch (Exception $e) { /* pakai default */ }
 ?>
 
 <!DOCTYPE html>
@@ -134,11 +148,11 @@ foreach ($master_templates as $doc) {
         }
     </style>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen flex flex-col lg:flex-row">
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
     
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
-    <main class="flex-1 flex flex-col min-w-0 pt-14 lg:pt-0">
+    <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
         <!-- Header Bar -->
         <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-10">
             <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight">Inventory Management</h1>
@@ -245,9 +259,11 @@ foreach ($master_templates as $doc) {
                         <tbody class="divide-y divide-outline-variant/10">
                             <?php foreach($inventory_data as $row): 
                                 $harga_dasar = $row['harga_master'] ?? $row['price_reference'] ?? 0;
-                                $total_user = $harga_dasar + ($harga_dasar * 0.10) + ($harga_dasar * 0.05);
+                                // Formula: base × (1 + markup/100) × (1 + pajak/100)
+                                $total_user = $harga_dasar * (1 + $sys_margin / 100) * (1 + $sys_pajak / 100);
                             ?>
-                            <tr class="group hover:bg-surface-container-lowest transition-all">
+                            <tr class="group hover:bg-surface-container-lowest transition-all"
+                                data-base="<?php echo $harga_dasar; ?>">
                                 <td class="px-8 py-6">
                                     <div class="flex flex-col">
                                         <span class="font-bold text-on-surface leading-snug group-hover:text-primary transition-colors"><?php echo htmlspecialchars($row['item_name']); ?></span>
@@ -259,10 +275,11 @@ foreach ($master_templates as $doc) {
                                         <?php echo htmlspecialchars($row['category']); ?>
                                     </span>
                                 </td>
-                                <td class="px-8 py-6 text-right">
+                                <td class="px-8 py-6 text-right price-cell">
                                     <div class="flex flex-col items-end">
                                         <span class="text-[10px] text-outline font-bold uppercase mb-0.5">EST. FINAL</span>
-                                        <span class="font-headline font-black text-on-surface italic">Rp <?php echo number_format($total_user, 0, ',', '.'); ?></span>
+                                        <span class="font-headline font-black text-on-surface italic price-total">Rp <?php echo number_format($total_user, 0, ',', '.'); ?></span>
+                                        <span class="text-[9px] text-outline/40 mt-0.5 price-breakdown">+<?php echo $sys_margin; ?>% +<?php echo $sys_pajak; ?>%</span>
                                     </div>
                                 </td>
                                 <td class="px-8 py-6 text-center">
@@ -440,6 +457,41 @@ foreach ($master_templates as $doc) {
     </main>
 
     <script>
+    // =====================================================
+    // REAL-TIME: Poll settings tiap 30 detik & update harga
+    // =====================================================
+    let liveMargin = <?php echo $sys_margin; ?>;
+    let livePajak  = <?php echo $sys_pajak; ?>;
+
+    const fmtRp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+
+    function updateAllPrices() {
+        document.querySelectorAll('tr[data-base]').forEach(row => {
+            const base  = parseFloat(row.dataset.base) || 0;
+            const total = base * (1 + liveMargin / 100) * (1 + livePajak / 100);
+            const totalEl    = row.querySelector('.price-total');
+            const breakdownEl = row.querySelector('.price-breakdown');
+            if (totalEl)     totalEl.textContent     = fmtRp(total);
+            if (breakdownEl) breakdownEl.textContent = `+${liveMargin}% +${livePajak}%`;
+        });
+    }
+
+    async function pollSettings() {
+        try {
+            const res  = await fetch('../config/get_settings.php?_=' + Date.now());
+            const json = await res.json();
+            if (json.status !== 'ok') return;
+            let changed = false;
+            if (typeof json.margin_pengadaan === 'number' && json.margin_pengadaan !== liveMargin) { liveMargin = json.margin_pengadaan; changed = true; }
+            if (typeof json.pajak === 'number' && json.pajak !== livePajak)                         { livePajak  = json.pajak;            changed = true; }
+            if (changed) updateAllPrices();
+        } catch (e) {}
+    }
+
+    // Poll setiap 30 detik
+    setInterval(pollSettings, 30000);
+
+    // ===================================================
         function toggleModal(id) {
             const modal = document.getElementById(id);
             const content = id === 'modalTambah' ? document.getElementById('modalContent') : document.getElementById('modalEditContent');
