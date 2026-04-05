@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 
@@ -30,4 +30,4 @@ if (isset($_GET['id'])) {
 } else {
     header("Location: ../admin/manage_users.php");
 }
-?>
+// Closing tag removed to prevent header output

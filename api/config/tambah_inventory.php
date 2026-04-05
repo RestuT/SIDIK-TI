@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 
@@ -32,4 +32,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['role']) && $_SESSIO
     header("Location: ../auth/login_admin.php");
     exit();
 }
-?>
+// Closing tag removed to prevent header output

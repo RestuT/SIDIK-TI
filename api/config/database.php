@@ -4,6 +4,11 @@
  * Supports Dual Storage: MySQL (Local) and Firebase Firestore (Cloud/Vercel).
  */
 
+// Output buffering: mencegah 'headers already sent' dari whitespace/BOM tersembunyi
+if (!ob_get_level()) {
+    ob_start();
+}
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Kreait\Firebase\Factory;
@@ -105,4 +110,4 @@ if ($db) {
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-?>
+// Catatan: Tidak ada closing ?> untuk mencegah trailing newline output

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
@@ -61,4 +61,4 @@ if (isset($_POST['simpan_inventory'])) {
     header("Location: ../admin/inventory.php?status=success");
     exit();
 }
-?>
+// Closing tag removed to prevent header output

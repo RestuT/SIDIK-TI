@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 
@@ -33,4 +33,4 @@ if (isset($_POST['tambah_item'])) {
         die("Error 500: Terjadi kesalahan saat memproses data: " . $e->getMessage());
     }
 }
-?>
+// Closing tag removed to prevent header output

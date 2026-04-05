@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php'; // Mengambil koneksi database
 require_once __DIR__ . '/csrf_helper.php';
@@ -112,4 +112,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 } else {
     echo "Sesi tidak valid. Silakan login kembali.";
 }
-?>
+// Closing tag removed to prevent header output

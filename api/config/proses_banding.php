@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
@@ -30,4 +30,4 @@ if (isset($_POST['kirim_banding']) && isset($_SESSION['user_id'])) {
         die("Error 500: Terjadi kesalahan pada proses banding: " . $e->getMessage());
     }
 }
-?>
+// Closing tag removed to prevent header output

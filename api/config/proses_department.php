@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
@@ -36,4 +36,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_dept'])) {
 } else {
     header("Location: ../admin/manage_departments.php");
 }
-?>
+// Closing tag removed to prevent header output

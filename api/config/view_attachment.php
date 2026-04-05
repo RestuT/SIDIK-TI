@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/database.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -61,4 +61,4 @@ try {
 } catch (Exception $e) {
     die("Error membaca lampiran: " . htmlspecialchars($e->getMessage()));
 }
-?>
+// Closing tag removed to prevent header output

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
@@ -44,4 +44,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
 } else {
     header("Location: ../modules_user/dashboard_audit.php");
 }
-?>
+// Closing tag removed to prevent header output

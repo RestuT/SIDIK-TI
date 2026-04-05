@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 use Google\Cloud\Firestore\FieldValue;
@@ -37,4 +37,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['role']) && $_SESSIO
 } else {
     header("Location: ../auth/login_admin.php");
 }
-?>
+// Closing tag removed to prevent header output
