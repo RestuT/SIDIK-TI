@@ -40,30 +40,30 @@
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-container/30">
     <!-- TopAppBar -->
-    <header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50">
-        <div class="flex items-center gap-4">
-            <a href="index.php" class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 transition-all rounded-full">arrow_back</a>
-            <span class="text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
+    <header class="fixed top-0 w-full flex justify-between items-center px-4 md:px-6 h-16 bg-white/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50/50">
+        <div class="flex items-center gap-2 md:gap-4">
+            <a href="index.php" class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 transition-all rounded-xl md:rounded-full">arrow_back</a>
+            <span class="text-lg md:text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
         </div>
         <div class="hidden md:flex items-center space-x-8">
             <span class="text-slate-400 font-bold font-plus-jakarta text-xs uppercase tracking-widest">Digital Infrastructure Guidelines</span>
         </div>
         <div class="flex items-center">
-            <span class="text-indigo-600 font-black text-[10px] uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">Maintenance Module</span>
+            <span class="text-indigo-600 font-black text-[9px] md:text-[10px] uppercase tracking-widest bg-indigo-50 px-2 md:px-3 py-1 rounded-full border border-indigo-100">Maintenance Module</span>
         </div>
     </header>
 
     <main class="pt-32 pb-32 px-4 md:px-10 max-w-7xl mx-auto space-y-24">
         <!-- Header Section -->
-        <div class="max-w-4xl space-y-6">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-xs uppercase tracking-[0.2em]">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <div class="max-w-4xl space-y-4 md:space-y-6">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-[10px] md:text-xs uppercase tracking-[0.2em]">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 Operational Excellence
             </div>
-            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface leading-tight">
-                Strategi Pemeliharaan <span class="bg-gradient-to-r from-emerald-600 to-primary bg-clip-text text-transparent italic tracking-tighter">Infrastruktur Digital</span>
+            <h1 class="text-3xl md:text-6xl font-extrabold tracking-tight text-on-surface leading-tight">
+                Strategi Pemeliharaan <span class="bg-gradient-to-br from-emerald-600 to-primary bg-clip-text text-transparent italic tracking-tighter">Infrastruktur Digital</span>
             </h1>
-            <p class="text-on-surface-variant text-lg md:text-xl font-medium max-w-3xl leading-relaxed">
+            <p class="text-on-surface-variant text-base md:text-xl font-medium max-w-3xl leading-relaxed">
                 Pemeliharaan TI bukan sekadar memperbaiki yang rusak, melainkan cara memanjangkan siklus hidup aset dan memastikan keberlangsungan operasional tanpa kendala.
             </p>
         </div>
@@ -77,12 +77,12 @@
                     <span class="text-xs font-black uppercase tracking-[0.4em] text-primary">Hardware Ecosystem</span>
                 </div>
                 
-                <div class="group p-8 rounded-3xl bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">laptop_mac</span>
+                <div class="group p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500">
+                    <div class="flex items-center gap-4 mb-6 md:mb-8">
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-indigo-50 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-2xl md:text-3xl">laptop_mac</span>
                         </div>
-                        <h3 class="text-2xl font-bold tracking-tight">Workstation & Laptop</h3>
+                        <h3 class="text-xl md:text-2xl font-bold tracking-tight">Workstation & Laptop</h3>
                     </div>
                     <ul class="space-y-6">
                         <li class="flex gap-4">
@@ -102,12 +102,12 @@
                     </ul>
                 </div>
 
-                <div class="group p-8 rounded-3xl bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">print</span>
+                <div class="group p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500">
+                    <div class="flex items-center gap-4 mb-6 md:mb-8">
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-2xl md:text-3xl">print</span>
                         </div>
-                        <h3 class="text-2xl font-bold tracking-tight">Peripherals & Network</h3>
+                        <h3 class="text-xl md:text-2xl font-bold tracking-tight">Peripherals & Network</h3>
                     </div>
                     <ul class="space-y-6">
                         <li class="flex gap-4">
@@ -135,12 +135,12 @@
                     <span class="text-xs font-black uppercase tracking-[0.4em] text-secondary">Software Integrity</span>
                 </div>
 
-                <div class="group p-8 rounded-3xl bg-secondary-container/5 border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">terminal</span>
+                <div class="group p-6 md:p-8 rounded-2xl md:rounded-3xl bg-secondary-container/5 border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500">
+                    <div class="flex items-center gap-4 mb-6 md:mb-8">
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-blue-50 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-2xl md:text-3xl">terminal</span>
                         </div>
-                        <h3 class="text-2xl font-bold tracking-tight">System Operations</h3>
+                        <h3 class="text-xl md:text-2xl font-bold tracking-tight">System Operations</h3>
                     </div>
                     <ul class="space-y-6">
                         <li class="flex gap-4">
@@ -160,11 +160,11 @@
                     </ul>
                 </div>
 
-                <div class="bg-primary p-1 rounded-[2.5rem] shadow-2xl">
-                    <div class="bg-primary rounded-[2.2rem] p-8 text-white space-y-6 border border-white/10">
-                        <span class="material-symbols-outlined text-5xl">verified</span>
-                        <h3 class="text-2xl font-bold leading-tight">Mencegah Lebih Baik daripada Memperbaiki</h3>
-                        <p class="opacity-80 text-sm leading-relaxed">
+                <div class="bg-primary rounded-3xl md:rounded-[2.5rem] p-1 shadow-2xl">
+                    <div class="bg-primary rounded-[1.4rem] md:rounded-[2.2rem] p-6 md:p-8 text-white space-y-4 md:space-y-6 border border-white/10">
+                        <span class="material-symbols-outlined text-4xl md:text-5xl">verified</span>
+                        <h3 class="text-xl md:text-2xl font-bold leading-tight">Mencegah Lebih Baik daripada Memperbaiki</h3>
+                        <p class="opacity-80 text-xs md:text-sm leading-relaxed">
                             Biaya pemeliharaan preventif rata-rata 3x lebih efisien daripada biaya perbaikan reaktif yang mencakup kerugian waktu dan produktivitas karyawan.
                         </p>
                     </div>
@@ -173,14 +173,14 @@
         </div>
 
         <!-- Professional Tips -->
-        <div class="bg-surface-container-low rounded-[3rem] p-8 md:p-16 border border-outline-variant/10">
-            <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-12">
-                <div class="w-full md:w-1/3 text-primary">
-                    <span class="material-symbols-outlined text-[8rem] opacity-20">lightbulb</span>
+        <div class="bg-surface-container-low rounded-3xl md:rounded-[3rem] p-8 md:p-16 border border-outline-variant/10">
+            <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12 text-center md:text-left">
+                <div class="w-full md:w-1/3 text-primary flex justify-center md:justify-start">
+                    <span class="material-symbols-outlined text-6xl md:text-[8rem] opacity-20">lightbulb</span>
                 </div>
-                <div class="w-full md:w-2/3 space-y-6">
-                    <h3 class="text-3xl font-bold text-on-surface italic">IT Pro Insights</h3>
-                    <p class="text-on-surface-variant font-medium leading-relaxed">
+                <div class="w-full md:w-2/3 space-y-4 md:space-y-6">
+                    <h3 class="text-2xl md:text-3xl font-bold text-on-surface italic">IT Pro Insights</h3>
+                    <p class="text-on-surface-variant text-sm md:text-base font-medium leading-relaxed">
                         Lakukan inventarisasi nomor seri perangkat Anda secara mandiri di SIDIK-TI dashboard. Jika terjadi anomali performa secara konstan selama lebih dari 3 hari operasional, segera ajukan pemeriksaan melalui modul **Corrective Maintenance**.
                     </p>
                     <a href="index.php" class="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:shadow-xl hover:shadow-primary/30 transition-all">

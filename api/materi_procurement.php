@@ -45,30 +45,30 @@
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-container/30">
     <!-- TopAppBar -->
-    <header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50">
-        <div class="flex items-center gap-4">
-            <a href="index.php" class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 transition-all rounded-full">arrow_back</a>
-            <span class="text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
+    <header class="fixed top-0 w-full flex justify-between items-center px-4 md:px-6 h-16 bg-white/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50/50">
+        <div class="flex items-center gap-2 md:gap-4">
+            <a href="index.php" class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 transition-all rounded-xl md:rounded-full">arrow_back</a>
+            <span class="text-lg md:text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
         </div>
         <div class="hidden md:flex items-center space-x-8">
             <span class="text-slate-400 font-bold font-plus-jakarta text-xs uppercase tracking-widest">Resource Acquisition Guidelines</span>
         </div>
         <div class="flex items-center">
-            <span class="text-secondary font-black text-[10px] uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">Procurement Module</span>
+            <span class="text-secondary font-black text-[9px] md:text-[10px] uppercase tracking-widest bg-blue-50 px-2 md:px-3 py-1 rounded-full border border-blue-100">Procurement Module</span>
         </div>
     </header>
 
     <main class="pt-32 pb-32 px-4 md:px-10 max-w-7xl mx-auto space-y-24">
         <!-- Header Section -->
-        <div class="max-w-4xl space-y-6">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-secondary font-semibold text-xs uppercase tracking-[0.2em]">
-                <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+        <div class="max-w-4xl space-y-4 md:space-y-6 text-center md:text-left">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-secondary font-semibold text-[10px] md:text-xs uppercase tracking-[0.2em] mx-auto md:mx-0">
+                <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
                 Strategic Investment
             </div>
-            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface leading-tight">
-                Panduan Strategis <span class="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent italic tracking-tighter">Pengadaan Aset TI</span>
+            <h1 class="text-3xl md:text-6xl font-extrabold tracking-tight text-on-surface leading-tight">
+                Panduan Strategis <span class="bg-gradient-to-br from-secondary to-primary bg-clip-text text-transparent italic tracking-tighter">Pengadaan Aset TI</span>
             </h1>
-            <p class="text-on-surface-variant text-lg md:text-xl font-medium max-w-3xl leading-relaxed">
+            <p class="text-on-surface-variant text-base md:text-xl font-medium max-w-3xl leading-relaxed mx-auto md:mx-0">
                 Pengadaan bukan sekadar membeli barang baru, melainkan tentang memilih alat yang tepat untuk mengakselerasi produktivitas dengan efisiensi biaya yang terukur.
             </p>
         </div>
@@ -82,12 +82,12 @@
                     <span class="text-xs font-black uppercase tracking-[0.4em] text-secondary">Hardware Standards</span>
                 </div>
                 
-                <div class="group p-8 rounded-3xl bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">fact_check</span>
+                <div class="group p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500">
+                    <div class="flex items-center gap-4 mb-6 md:mb-8">
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-blue-50 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-2xl md:text-3xl">fact_check</span>
                         </div>
-                        <h3 class="text-2xl font-bold tracking-tight">Kriteria Pemilihan</h3>
+                        <h3 class="text-xl md:text-2xl font-bold tracking-tight">Kriteria Pemilihan</h3>
                     </div>
                     <ul class="space-y-6">
                         <li class="flex gap-4">
@@ -107,17 +107,17 @@
                     </ul>
                 </div>
 
-                <div class="group p-8 rounded-3xl bg-secondary text-white border border-white/10 shadow-2xl transition-all duration-500">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center">
-                            <span class="material-symbols-outlined text-3xl">balance</span>
+                <div class="group p-6 md:p-8 rounded-2xl md:rounded-3xl bg-secondary text-white border border-white/10 shadow-2xl transition-all duration-500">
+                    <div class="flex items-center gap-4 mb-6 md:mb-8">
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-white/10 text-white flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl md:text-3xl">balance</span>
                         </div>
-                        <h3 class="text-2xl font-bold tracking-tight">Repair vs Replace</h3>
+                        <h3 class="text-xl md:text-2xl font-bold tracking-tight">Repair vs Replace</h3>
                     </div>
-                    <p class="text-sm opacity-80 leading-relaxed mb-6">
+                    <p class="text-xs md:text-sm opacity-80 leading-relaxed mb-6">
                         Gunakan metode 50-50: Jika biaya perbaikan melebihi 50% dari harga unit baru, atau unit sudah berusia lebih dari 4 tahun, maka pengadaan unit baru adalah pilihan yang lebih ekonomis secara jangka panjang.
                     </p>
-                    <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+                    <div class="flex items-center gap-2 text-[10px] md:text-xs font-bold uppercase tracking-widest">
                         <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                         Executive Decision Matrix
                     </div>
@@ -131,12 +131,12 @@
                     <span class="text-xs font-black uppercase tracking-[0.4em] text-primary">Procurement Workflow</span>
                 </div>
 
-                <div class="group p-8 rounded-3xl bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">account_tree</span>
+                <div class="group p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500">
+                    <div class="flex items-center gap-4 mb-6 md:mb-8">
+                        <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-indigo-50 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-2xl md:text-3xl">account_tree</span>
                         </div>
-                        <h3 class="text-2xl font-bold tracking-tight">Proses Pengajuan</h3>
+                        <h3 class="text-xl md:text-2xl font-bold tracking-tight">Proses Pengajuan</h3>
                     </div>
                     <div class="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-indigo-50">
                         <div class="relative pl-10">
@@ -157,10 +157,10 @@
                     </div>
                 </div>
 
-                <div class="bg-surface-container-low rounded-[2rem] p-8 space-y-4">
-                    <span class="material-symbols-outlined text-amber-600 text-4xl">warning</span>
-                    <h4 class="font-bold">Penting:</h4>
-                    <p class="text-xs text-on-surface-variant leading-relaxed">
+                <div class="bg-surface-container-low rounded-2xl md:rounded-[2rem] p-6 md:p-8 space-y-4 border border-outline-variant/10">
+                    <span class="material-symbols-outlined text-amber-600 text-3xl md:text-4xl">warning</span>
+                    <h4 class="font-bold text-sm md:text-base">Penting:</h4>
+                    <p class="text-[11px] md:text-xs text-on-surface-variant leading-relaxed">
                         Segala bentuk pengadaan aset TI wajib melalui sistem **SIDIK-TI** untuk pendataan nomor aset, masa garansi, dan sinkronisasi dengan jadwal pemeliharaan rutin di masa mendatang.
                     </p>
                 </div>
@@ -168,15 +168,15 @@
         </div>
 
         <!-- Call to Action -->
-        <div class="relative overflow-hidden rounded-[3rem] bg-indigo-900 p-8 md:p-16 text-white text-center italic">
+        <div class="relative overflow-hidden rounded-2xl md:rounded-[3rem] bg-indigo-900 p-8 md:p-16 text-white text-center italic border border-white/10 shadow-2xl">
             <div class="absolute inset-0 opacity-10 pointer-events-none">
-                <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] bg-[size:40px_40px]"></div>
+                <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] bg-[size:30px_30px] md:bg-[size:40px_40px]"></div>
             </div>
-            <div class="relative z-10 max-w-2xl mx-auto space-y-8">
-                <h3 class="text-3xl md:text-5xl font-extrabold tracking-tighter">Sudah Menentukan Kebutuhan Anda?</h3>
-                <p class="opacity-80 font-medium">Beralih ke dashboard untuk memulai proses pengadaan formal dengan tim logistik dan IT kami.</p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="index.php" class="px-10 py-5 bg-white text-indigo-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">
+            <div class="relative z-10 max-w-2xl mx-auto space-y-6 md:space-y-8">
+                <h3 class="text-2xl md:text-5xl font-extrabold tracking-tighter leading-tight">Sudah Menentukan Kebutuhan Anda?</h3>
+                <p class="text-sm md:text-base opacity-80 font-medium">Beralih ke dashboard untuk memulai proses pengadaan formal dengan tim logistik dan IT kami.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+                    <a href="index.php" class="px-10 py-5 bg-white text-indigo-900 rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10">
                         Ajukan Sekarang
                     </a>
                 </div>

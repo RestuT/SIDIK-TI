@@ -79,67 +79,185 @@ if (isset($_POST['register_admin'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html class="light" lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Register Admin - SIDIK-TI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SIDIK-TI | Register Administrator</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1e293b",
+                        "primary-container": "#334155",
+                        "secondary": "#4f46e5",
+                        "active-glow": "#6366f1",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#64748b",
+                        "surface": "#f8fafc",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#e2e8f0",
+                        "error-container": "#fee2e2",
+                        "on-error-container": "#991b1b",
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
     <?php include_once __DIR__ . '/../includes/firebase_js.php'; ?>
 </head>
-<body class="bg-slate-900 min-h-screen flex items-center justify-center p-6">
-
-    <div class="bg-white p-8 rounded-[35px] shadow-2xl w-full max-w-lg">
-        <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-slate-800">Registrasi Administrator</h2>
-            <p class="text-slate-500 text-sm">Pastikan simpan kode 2FA Anda dengan aman</p>
-        </div>
-
-        <?php if($error): ?>
-            <div class="bg-red-50 text-red-700 p-4 rounded-xl mb-6 text-sm font-bold border-l-4 border-red-500">
-                <?php echo $error; ?>
-            </div>
-        <?php endif; ?>
-
-        <form action="" method="POST" class="space-y-4">
-            <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1 tracking-wider">Username</label>
-                    <input type="text" name="username" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username">
+<body class="bg-primary font-body text-on-surface antialiased overflow-x-hidden">
+    <main class="min-h-screen flex flex-col md:flex-row items-stretch">
+        <!-- Kolom Kiri: Form Registrasi -->
+        <section class="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-20 bg-surface order-1">
+            <div class="w-full max-w-xl space-y-10 py-12 md:py-0">
+                <!-- Identitas Brand -->
+                <div class="flex flex-col items-center md:items-start space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 border border-white/10">
+                            <span class="material-symbols-outlined text-white text-3xl">admin_panel_settings</span>
+                        </div>
+                        <h1 class="font-headline font-extrabold text-2xl tracking-tight text-primary">
+                            SIDIK-TI <span class="text-secondary tracking-widest text-[10px] uppercase font-black ml-2 px-2 py-0.5 bg-secondary/10 rounded-full">Admin Console</span>
+                        </h1>
+                    </div>
+                    <div class="text-center md:text-left">
+                        <h2 class="font-headline text-3xl font-bold text-on-surface tracking-tight">Daftar Akun Administrator</h2>
+                        <p class="text-on-surface-variant mt-2 font-medium">Otoritas tinggi memerlukan tanggung jawab enkripsi yang tepat.</p>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1 tracking-wider">Nama Lengkap</label>
-                    <input type="text" name="fullname" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nama Lengkap">
+
+                <!-- Form Card -->
+                <div class="bg-surface-container-lowest p-8 md:p-10 rounded-3xl shadow-2xl shadow-primary/10 border border-outline-variant/10">
+                    <?php if($error): ?>
+                        <div class="bg-error-container text-on-error-container p-4 rounded-2xl mb-6 flex items-center gap-3 border border-red-200">
+                            <span class="material-symbols-outlined">gpp_maybe</span>
+                            <p class="text-xs font-bold uppercase tracking-tight"><?php echo $error; ?></p>
+                        </div>
+                    <?php endif; ?>
+
+                    <form action="" method="POST" class="space-y-6">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Username -->
+                            <div class="space-y-2">
+                                <label class="block font-headline text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-1">Admin Username</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-on-surface-variant/40 group-focus-within:text-secondary transition-colors">
+                                        <span class="material-symbols-outlined text-lg">terminal</span>
+                                    </div>
+                                    <input class="block w-full pl-10 pr-4 py-4 bg-surface border border-outline-variant/50 rounded-2xl focus:ring-4 focus:ring-secondary/10 focus:border-secondary/50 focus:bg-white transition-all outline-none text-sm font-medium" 
+                                        name="username" placeholder="sys-admin-01" type="text" required/>
+                                </div>
+                            </div>
+                            <!-- Fullname -->
+                            <div class="space-y-2">
+                                <label class="block font-headline text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-1">Full Legal Name</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-on-surface-variant/40 group-focus-within:text-secondary transition-colors">
+                                        <span class="material-symbols-outlined text-lg">badge</span>
+                                    </div>
+                                    <input class="block w-full pl-10 pr-4 py-4 bg-surface border border-outline-variant/50 rounded-2xl focus:ring-4 focus:ring-secondary/10 focus:border-secondary/50 focus:bg-white transition-all outline-none text-sm font-medium" 
+                                        name="fullname" placeholder="Administrator Name" type="text" required/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Password -->
+                            <div class="space-y-2">
+                                <label class="block font-headline text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-1">Master Password</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-on-surface-variant/40 group-focus-within:text-secondary transition-colors">
+                                        <span class="material-symbols-outlined text-lg">key</span>
+                                    </div>
+                                    <input class="block w-full pl-10 pr-4 py-4 bg-surface border border-outline-variant/50 rounded-2xl focus:ring-4 focus:ring-secondary/10 focus:border-secondary/50 focus:bg-white transition-all outline-none text-sm font-medium" 
+                                        name="password" placeholder="••••••••" type="password" required/>
+                                </div>
+                            </div>
+                            <!-- Confirm Password -->
+                            <div class="space-y-2">
+                                <label class="block font-headline text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-1">Confirm Identity</label>
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-on-surface-variant/40 group-focus-within:text-secondary transition-colors">
+                                        <span class="material-symbols-outlined text-lg">shield</span>
+                                    </div>
+                                    <input class="block w-full pl-10 pr-4 py-4 bg-surface border border-outline-variant/50 rounded-2xl focus:ring-4 focus:ring-secondary/10 focus:border-secondary/50 focus:bg-white transition-all outline-none text-sm font-medium" 
+                                        name="confirm_password" placeholder="••••••••" type="password" required/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2FA Section -->
+                        <div class="p-6 bg-secondary/5 rounded-3xl border border-secondary/10 space-y-4">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-secondary">phonelink_lock</span>
+                                <label class="block font-headline text-[10px] font-black text-secondary uppercase tracking-[0.2em]">Setup Kode 2FA (6 Digit PIN)</label>
+                            </div>
+                            <input type="text" name="two_fa_code" maxlength="6" required placeholder="0 0 0 0 0 0" 
+                                class="w-full py-5 bg-white border border-secondary/20 rounded-2xl focus:ring-4 focus:ring-secondary/10 focus:border-secondary/50 outline-none font-headline font-black text-center text-3xl tracking-[0.5em] text-secondary placeholder:opacity-20 shadow-inner">
+                            <p class="text-[10px] text-center text-on-surface-variant/70 italic leading-relaxed">Simpan kode ini dengan aman. Anda akan memerlukannya untuk setiap sesi otentikasi admin.</p>
+                        </div>
+
+                        <button type="submit" name="register_admin" class="w-full py-5 px-6 bg-primary text-white font-headline font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-primary/20 hover:bg-secondary hover:shadow-secondary/30 hover:scale-[1.02] active:scale-95 transition-all duration-500 flex items-center justify-center gap-3 group">
+                            <span>Initialize Admin Profile</span>
+                            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">bolt</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="pt-6 text-center text-sm text-on-surface-variant">
+                    <p>Kembali ke <a class="text-secondary font-bold hover:underline" href="login_admin.php">Login Konsol</a></p>
                 </div>
             </div>
+        </section>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1 tracking-wider">Password</label>
-                    <input type="password" name="password" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••">
+        <!-- Kolom Kanan: Visual Area -->
+        <section class="hidden md:flex flex-1 relative overflow-hidden bg-primary items-center justify-center p-12">
+            <div class="absolute inset-0">
+                <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.05)_1.5px,_transparent_1.5px)] bg-[size:40px_40px]"></div>
+                <!-- Animated Gradients -->
+                <div class="absolute top-1/4 right-[-10%] w-96 h-96 bg-secondary/20 blur-[100px] rounded-full"></div>
+                <div class="absolute bottom-1/4 left-[-10%] w-96 h-96 bg-active-glow/10 blur-[100px] rounded-full"></div>
+            </div>
+            <div class="relative z-10 max-w-sm text-center text-white space-y-8">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 shadow-2xl relative">
+                    <span class="material-symbols-outlined text-5xl">hub</span>
+                    <div class="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-full animate-ping"></div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1 tracking-wider">Konfirmasi</label>
-                    <input type="password" name="confirm_password" required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••••">
+                <div class="space-y-4">
+                    <h2 class="font-headline text-4xl font-extrabold leading-tight tracking-tight uppercase italic">
+                        Enterprise <span class="text-secondary">Security</span> Gateway
+                    </h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent mx-auto rounded-full opacity-50"></div>
+                    <p class="text-white/60 font-medium leading-relaxed italic text-sm">
+                        "Enforce strict policy, maintain zero-trust integrity, and orchestrate the digital landscape from a single unified console."
+                    </p>
+                </div>
+                <!-- Status Matrix Mockup -->
+                <div class="grid grid-cols-3 gap-2 opacity-30 mt-12">
+                    <div class="h-1 bg-white/20 rounded-full overflow-hidden"><div class="h-full bg-secondary w-full"></div></div>
+                    <div class="h-1 bg-white/20 rounded-full overflow-hidden"><div class="h-full bg-secondary w-[80%]"></div></div>
+                    <div class="h-1 bg-white/20 rounded-full overflow-hidden"><div class="h-full bg-secondary w-[60%]"></div></div>
                 </div>
             </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1 tracking-wider">Setup Kode 2FA (6 Digit PIN)</label>
-                <input type="text" name="two_fa_code" maxlength="6" required placeholder="Contoh: 123456" 
-                    class="w-full p-3 bg-blue-50 border border-blue-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-bold text-center text-xl tracking-widest">
-            </div>
-
-            <button type="submit" name="register_admin" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95">
-                Daftarkan Admin Baru
-            </button>
-        </form>
-
-        <p class="text-center mt-6 text-sm text-slate-500">
-            Sudah punya akun? <a href="login_admin.php" class="text-blue-600 font-bold hover:underline">Masuk di sini</a>
-        </p>
-    </div>
-
+        </section>
+    </main>
 </body>
 </html>

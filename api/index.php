@@ -82,9 +82,9 @@
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-container/30">
     <!-- TopAppBar -->
-<header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 shadow-sm shadow-indigo-500/5">
-    <div class="flex items-center gap-4">
-        <span class="text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
+<header class="fixed top-0 w-full flex justify-between items-center px-4 md:px-6 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 shadow-sm shadow-indigo-500/5">
+    <div class="flex items-center gap-3">
+        <span class="text-lg md:text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
     </div>
     <div class="hidden md:flex items-center space-x-8">
         <a class="text-indigo-600 dark:text-indigo-400 font-bold font-plus-jakarta text-lg tracking-tight" href="index.php">Home</a>
@@ -98,7 +98,7 @@
 
     <main class="pt-24 pb-32 px-4 md:px-10 max-w-7xl mx-auto space-y-20">
 <!-- Hero Section -->
-<section class="relative overflow-hidden rounded-3xl bg-surface-container-low min-h-[500px] flex items-center p-8 md:p-16">
+<section class="relative overflow-hidden rounded-2xl md:rounded-3xl bg-surface-container-low min-h-[400px] md:min-h-[500px] flex items-center p-6 md:p-16">
 <div class="absolute inset-0 z-0">
 <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-primary/10 blur-[100px] rounded-full"></div>
 <div class="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-secondary/10 blur-[100px] rounded-full"></div>
@@ -109,8 +109,8 @@
 <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
                     Smart IT Maintenance System
                 </div>
-<h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface leading-[1.1]">
-                    Sistem Pemeliharaan Adalah <span class="bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">Investasi</span>, Bukan Beban
+<h1 class="text-3xl md:text-6xl font-extrabold tracking-tight text-on-surface leading-[1.1]">
+                    Sistem Pemeliharaan Adalah <span class="bg-gradient-to-br from-primary to-primary-container bg-clip-text text-transparent">Investasi</span>, Bukan Beban
                 </h1>
 <p class="text-on-surface-variant text-lg md:text-xl leading-relaxed max-w-2xl font-body">
                     Optimalkan kinerja infrastruktur TI Anda dengan pemeliharaan terukur dan pengadaan perangkat berkualitas tinggi bersama SIDIK-TI.
@@ -239,8 +239,8 @@
 </div>
 </div>
         <!-- Strategic Insight Section -->
-        <section class="bg-primary rounded-[3rem] p-1 shadow-2xl">
-            <div class="bg-primary rounded-[2.8rem] p-10 md:p-16 text-white grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative overflow-hidden group">
+        <section class="bg-primary rounded-3xl md:rounded-[3rem] p-1 shadow-2xl">
+            <div class="bg-primary rounded-[1.8rem] md:rounded-[2.8rem] p-6 md:p-16 text-white grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center relative overflow-hidden group">
                 <div class="absolute -top-10 -right-10 w-64 h-64 bg-white/5 rounded-full group-hover:scale-110 transition-transform duration-700"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full group-hover:scale-125 transition-transform duration-700"></div>
                 
@@ -250,8 +250,8 @@
                         New Intelligence Module
                     </div>
                     <div>
-                        <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight italic leading-tight uppercase">Economic <span class="bg-gradient-to-r from-indigo-200 to-white bg-clip-text text-transparent">Valuation</span> Insight</h2>
-                        <p class="text-indigo-100/70 text-lg font-medium mt-6 leading-relaxed italic">Pelajari bagaimana aset TI Anda terdepresiasi dan temukan strategi terbaik untuk pengadaan barang di masa depan.</p>
+                        <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight italic leading-tight uppercase">Economic <span class="bg-gradient-to-br from-indigo-200 to-white bg-clip-text text-transparent">Valuation</span> Insight</h2>
+                        <p class="text-indigo-100/70 text-base md:text-lg font-medium mt-4 md:mt-6 leading-relaxed italic">Pelajari bagaimana aset TI Anda terdepresiasi dan temukan strategi terbaik untuk pengadaan barang di masa depan.</p>
                     </div>
                     <div class="pt-2">
                         <a href="modules_user/asset_market_analysis.php" class="inline-flex items-center gap-4 px-10 py-5 bg-white text-primary rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:shadow-2xl transition-all hover:-translate-y-1 active:scale-95">
@@ -261,26 +261,26 @@
                     </div>
                 </div>
 
-                <div class="relative z-10 grid grid-cols-2 gap-4">
-                    <div class="p-6 bg-white/10 backdrop-blur-md rounded-3xl border border-white/10 space-y-3 hover:bg-white/15 transition-colors">
-                        <span class="material-symbols-outlined text-3xl opacity-60">trending_down</span>
-                        <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Avg. Laptop Drop</p>
-                        <p class="text-3xl font-black italic">30%<span class="text-xs opacity-40 ml-1">/yr</span></p>
+                <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                    <div class="p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl md:rounded-3xl border border-white/10 space-y-2 md:space-y-3 hover:bg-white/15 transition-colors">
+                        <span class="material-symbols-outlined text-2xl md:text-3xl opacity-60">trending_down</span>
+                        <p class="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-60">Avg. Laptop Drop</p>
+                        <p class="text-2xl md:text-3xl font-black italic">30%<span class="text-xs opacity-40 ml-1">/yr</span></p>
                     </div>
-                    <div class="p-6 bg-white/10 backdrop-blur-md rounded-3xl border border-white/10 space-y-3 hover:bg-white/15 transition-colors">
-                        <span class="material-symbols-outlined text-3xl opacity-60">update</span>
-                        <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Replacement Cycle</p>
-                        <p class="text-3xl font-black italic">3-5<span class="text-xs opacity-40 ml-1">y</span></p>
+                    <div class="p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl md:rounded-3xl border border-white/10 space-y-2 md:space-y-3 hover:bg-white/15 transition-colors">
+                        <span class="material-symbols-outlined text-2xl md:text-3xl opacity-60">update</span>
+                        <p class="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-60">Replacement Cycle</p>
+                        <p class="text-2xl md:text-3xl font-black italic">3-5<span class="text-xs opacity-40 ml-1">y</span></p>
                     </div>
-                    <div class="p-6 bg-white/10 backdrop-blur-md rounded-3xl border border-white/10 space-y-3 hover:bg-white/15 transition-colors">
-                        <span class="material-symbols-outlined text-3xl opacity-60">payments</span>
-                        <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Budget Efficiency</p>
-                        <p class="text-3xl font-black italic">15%<span class="text-xs opacity-40 ml-1">up</span></p>
+                    <div class="p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl md:rounded-3xl border border-white/10 space-y-2 md:space-y-3 hover:bg-white/15 transition-colors">
+                        <span class="material-symbols-outlined text-2xl md:text-3xl opacity-60">payments</span>
+                        <p class="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-60">Budget Efficiency</p>
+                        <p class="text-2xl md:text-3xl font-black italic">15%<span class="text-xs opacity-40 ml-1">up</span></p>
                     </div>
-                    <div class="p-6 bg-white/10 backdrop-blur-md rounded-3xl border border-white/10 space-y-3 hover:bg-white/15 transition-colors">
-                        <span class="material-symbols-outlined text-3xl opacity-60">savings</span>
-                        <p class="text-[10px] font-black uppercase tracking-widest opacity-60">Resale Strategy</p>
-                        <p class="text-3xl font-black italic">Optimal</p>
+                    <div class="p-4 md:p-6 bg-white/10 backdrop-blur-md rounded-2xl md:rounded-3xl border border-white/10 space-y-2 md:space-y-3 hover:bg-white/15 transition-colors">
+                        <span class="material-symbols-outlined text-2xl md:text-3xl opacity-60">savings</span>
+                        <p class="text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-60">Resale Strategy</p>
+                        <p class="text-2xl md:text-3xl font-black italic text-nowrap">Optimal</p>
                     </div>
                 </div>
             </div>
@@ -300,7 +300,7 @@
 </div>
 </footer>
 <!-- BottomNavBar (Mobile Only) -->
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl md:hidden shadow-[0_-4px_24px_rgba(79,70,229,0.06)] rounded-t-3xl">
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl md:hidden shadow-[0_-4px_24px_rgba(79,70,229,0.06)] rounded-t-[2.5rem] border-t border-indigo-50/50">
 <a class="flex flex-col items-center justify-center bg-primary text-white rounded-2xl px-5 py-2 transition-all duration-300" href="index.php">
 <span class="material-symbols-outlined text-2xl">home</span>
 <span class="font-plus-jakarta text-[11px] font-semibold uppercase tracking-wider mt-1">Home</span>
