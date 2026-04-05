@@ -1,4 +1,5 @@
 <?php
+ob_start();
 header('Content-Type: text/plain');
 
 // DEBUG: Catch any initialization errors from database.php

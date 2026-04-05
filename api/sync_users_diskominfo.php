@@ -1,4 +1,5 @@
 <?php
+ob_start();
 /**
  * User Department Sync
  * Updates user departments to match the new DISKOMINFO structure.

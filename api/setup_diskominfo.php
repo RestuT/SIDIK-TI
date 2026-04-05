@@ -1,4 +1,5 @@
 <?php
+ob_start();
 /**
  * DISKOMINFO Special Seeder
  * Adjusts departments and budget to match typical DISKOMINFO structure.

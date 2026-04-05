@@ -1,4 +1,5 @@
 <?php
+ob_start();
 /**
  * SIDIK-TI Data Migration: MySQL -> Cloud Firestore
  * Run this script locally on your XAMPP server to move your data to the cloud.

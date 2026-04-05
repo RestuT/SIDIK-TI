@@ -1,4 +1,5 @@
 <?php
+ob_start();
 /**
  * SIDIK-TI Bootstrap / Auto-Prepend File
  *

@@ -1,4 +1,5 @@
 <?php
+ob_start();
 // PERBAIKAN: Pastikan file database.php benar-benar terhubung
 require_once __DIR__ . '/../config/database.php'; 
 require_once __DIR__ . '/../config/csrf_helper.php';

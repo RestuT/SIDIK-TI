@@ -1,4 +1,5 @@
 <?php
+ob_start();
 /**
  * SIDIK-TI Dummy Data Seeder (Firestore Version)
  * Use this script to populate your Cloud Firestore database with realistic testing data.

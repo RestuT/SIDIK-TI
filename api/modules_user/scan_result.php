@@ -1,4 +1,5 @@
 <?php
+ob_start();
 /**
  * SIDIK-TI QR Scan Result Page
  * Halaman ini BISA diakses TANPA login — hanya membaca data tiket.

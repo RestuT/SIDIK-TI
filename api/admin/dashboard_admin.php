@@ -1,4 +1,5 @@
-﻿<?php
+<?php
+ob_start();
 // PERBAIKAN: Gunakan require_once __DIR__ agar path absolut dan aman di Vercel
 require_once __DIR__ . '/../config/database.php';
 
