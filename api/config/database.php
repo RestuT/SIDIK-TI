@@ -109,4 +109,3 @@ if ($db) {
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Catatan: Tidak ada closing ?> untuk mencegah trailing newline output

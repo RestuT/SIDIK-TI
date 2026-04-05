@@ -33,4 +33,4 @@ function require_csrf_token() {
         }
     }
 }
-// Catatan: Tidak ada closing ?> untuk mencegah trailing newline output
+
