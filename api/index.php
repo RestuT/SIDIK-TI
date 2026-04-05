@@ -82,9 +82,9 @@
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-container/30">
     <!-- TopAppBar -->
-<header class="fixed top-0 w-full flex justify-between items-center px-4 md:px-6 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 shadow-sm shadow-indigo-500/5">
+<header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 shadow-sm shadow-indigo-500/5">
     <div class="flex items-center gap-3">
-        <span class="text-lg md:text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
+        <span class="text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
     </div>
     <div class="hidden md:flex items-center space-x-8">
         <a class="text-indigo-600 dark:text-indigo-400 font-bold font-plus-jakarta text-lg tracking-tight" href="index.php">Home</a>
@@ -96,7 +96,7 @@
     </div>
 </header>
 
-    <main class="pt-24 pb-32 px-4 md:px-10 max-w-7xl mx-auto space-y-20">
+    <main class="pt-24 pb-32 px-4 md:px-10 max-w-7xl mx-auto space-y-12 md:space-y-20">
 <!-- Hero Section -->
 <section class="relative overflow-hidden rounded-2xl md:rounded-3xl bg-surface-container-low min-h-[400px] md:min-h-[500px] flex items-center p-6 md:p-16">
 <div class="absolute inset-0 z-0">
@@ -136,7 +136,7 @@
 <!-- Preventive -->
 <div class="group p-8 rounded-3xl bg-surface-container-lowest border border-outline-variant/10 hover:shadow-xl transition-all duration-500">
 <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined text-3xl">shield</span>
+<span class="material-symbols-outlined text-3xl">verified_user</span>
 </div>
 <h3 class="text-xl font-bold mb-3 text-on-surface">Preventive Maintenance</h3>
 <p class="text-on-surface-variant leading-relaxed text-sm mb-6">
@@ -250,7 +250,7 @@
                         New Intelligence Module
                     </div>
                     <div>
-                        <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight italic leading-tight uppercase">Economic <span class="bg-gradient-to-br from-indigo-200 to-white bg-clip-text text-transparent">Valuation</span> Insight</h2>
+                        <h2 class="text-2xl md:text-5xl font-extrabold tracking-tight italic leading-tight uppercase text-center md:text-left">Economic <span class="bg-gradient-to-br from-indigo-200 to-white bg-clip-text text-transparent">Valuation</span> Insight</h2>
                         <p class="text-indigo-100/70 text-base md:text-lg font-medium mt-4 md:mt-6 leading-relaxed italic">Pelajari bagaimana aset TI Anda terdepresiasi dan temukan strategi terbaik untuk pengadaan barang di masa depan.</p>
                     </div>
                     <div class="pt-2">
@@ -307,15 +307,15 @@
 </a>
 <a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-indigo-500 transition-all duration-200 active:scale-90" href="materi_maintenance.php">
 <span class="material-symbols-outlined text-2xl">build</span>
-<span class="font-plus-jakarta text-[11px] font-semibold uppercase tracking-wider mt-1">Maintenance</span>
+<span class="font-plus-jakarta text-[10px] font-semibold uppercase tracking-wider mt-1">Maint.</span>
 </a>
 <a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-indigo-500 transition-all duration-200 active:scale-90" href="auth/login_user.php">
 <span class="material-symbols-outlined text-2xl">shopping_cart</span>
-<span class="font-plus-jakarta text-[11px] font-semibold uppercase tracking-wider mt-1">Procurement</span>
+<span class="font-plus-jakarta text-[10px] font-semibold uppercase tracking-wider mt-1">Procure.</span>
 </a>
 <a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-2 hover:text-indigo-500 transition-all duration-200 active:scale-90" href="auth/login_user.php">
 <span class="material-symbols-outlined text-2xl">person</span>
-<span class="font-plus-jakarta text-[11px] font-semibold uppercase tracking-wider mt-1">Profile</span>
+<span class="font-plus-jakarta text-[10px] font-semibold uppercase tracking-wider mt-1">Profile</span>
 </a>
 </nav>
 </body>
