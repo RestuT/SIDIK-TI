@@ -16,7 +16,7 @@ if (substr($base_path, -4) === '/api') {
     $base_path = substr($base_path, 0, -4);
 }
 // For safety, let's hardcode the path structure relative to domain:
-$qr_scan_url = $current_domain . "/api/modules_user/scan_asset.php?id="; 
+$qr_scan_url = $current_domain . "/scan/asset?id="; 
 
 $asset_id = $_GET['id'] ?? '';
 if (empty($asset_id)) {
