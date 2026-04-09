@@ -116,7 +116,7 @@ try {
             <div class="bg-primary rounded-[2.8rem] p-8 md:p-12 text-white grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
                 <div class="space-y-6">
                     <h3 class="text-3xl font-bold italic tracking-tight">Depreciation Calculator</h3>
-                    <p class="opacity-70 text-sm leading-relaxed">Masukkan perkiraan harga beli awal untuk melihat proyeksi nilai aset Anda setelah satu tahun pemakaian. Kalkulasi menggunakan konfigurasi <strong>Markup + PPN</strong> terkini dari sistem.</p>
+                    <p class="opacity-70 text-sm leading-relaxed">Masukkan perkiraan harga beli awal untuk melihat proyeksi nilai aset Anda setelah satu tahun pemakaian. Kalkulasi menggunakan konfigurasi <strong>Biaya Overhead + PPN</strong> terkini dari sistem.</p>
 
                     <div class="space-y-4">
                         <div class="relative">
@@ -138,7 +138,7 @@ try {
                     <div class="bg-white/10 rounded-2xl p-5 space-y-2 text-sm border border-white/10">
                         <p class="text-white/50 text-[10px] font-black uppercase tracking-widest mb-3">Konfigurasi Aktif (Real-Time)</p>
                         <div class="flex justify-between">
-                            <span class="text-white/70">Markup</span>
+                            <span class="text-white/70">Biaya Overhead</span>
                             <span class="font-black text-orange-300" id="conf-margin"><?php echo $margin_pengadaan; ?>%</span>
                         </div>
                         <div class="flex justify-between">
@@ -172,7 +172,7 @@ try {
                             <span class="font-bold" id="dep-base">Rp 10.000.000</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-orange-300" id="dep-markup-lbl">+ Markup (5%)</span>
+                            <span class="text-orange-300" id="dep-markup-lbl">+ Biaya Overhead (5%)</span>
                             <span class="font-bold text-orange-300" id="dep-markup-val">Rp 500.000</span>
                         </div>
                         <div class="flex justify-between">
@@ -332,7 +332,7 @@ try {
 
         // Update breakdown
         document.getElementById('dep-base').textContent          = fmt(basePrice);
-        document.getElementById('dep-markup-lbl').textContent    = `+ Markup (${marginPct}%)`;
+        document.getElementById('dep-markup-lbl').textContent    = `+ Biaya Overhead (${marginPct}%)`;
         document.getElementById('dep-markup-val').textContent    = fmt(markupAmount);
         document.getElementById('dep-pajak-lbl').textContent     = `+ PPN (${pajakPct}%)`;
         document.getElementById('dep-pajak-val').textContent     = fmt(pajakAmount);

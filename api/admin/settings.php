@@ -1,5 +1,6 @@
 <?php
 ob_start();
+session_start();
 
 require_once __DIR__ . '/../config/database.php';
 
@@ -44,40 +45,9 @@ if (isset($_POST['save_profile'])) {
     }
 }
 
-// --- LOGIKA SIMPAN SYSTEM SETTINGS ---
-if (isset($_POST['save_system_settings'])) {
-    $margin_pengadaan = (float)($_POST['margin_pengadaan'] ?? 5);
-    $pajak            = (float)($_POST['pajak'] ?? 11);
-    $nilai_sisa       = (float)($_POST['nilai_sisa'] ?? 10);
-
-    try {
-        $db->collection('system_settings')->document('margin_pengadaan')->set(['setting_value' => $margin_pengadaan]);
-        $db->collection('system_settings')->document('pajak')->set(['setting_value' => $pajak]);
-        $db->collection('system_settings')->document('nilai_sisa')->set(['setting_value' => $nilai_sisa]);
-        $msg = "success_system";
-    } catch (Exception $e) {
-        $msg = "error_db";
-    }
-}
-
 // --- AMBIL DATA PROFIL TERBARU ---
 $userSnap      = $db->collection('users')->document($user_id)->snapshot();
 $current_admin = $userSnap->exists() ? $userSnap->data() : [];
-
-// --- AMBIL SYSTEM SETTINGS ---
-$settings = [
-    'margin_pengadaan' => 5,
-    'pajak'            => 11,
-    'nilai_sisa'       => 10,
-];
-try {
-    $settings_docs = $db->collection('system_settings')->documents();
-    foreach ($settings_docs as $doc) {
-        if ($doc->exists() && isset($settings[$doc->id()])) {
-            $settings[$doc->id()] = (float)($doc->data()['setting_value'] ?? $settings[$doc->id()]);
-        }
-    }
-} catch (Exception $e) { /* pakai default */ }
 ?>
 
 <!DOCTYPE html>
@@ -154,14 +124,13 @@ try {
         <div class="p-4 md:p-8 max-w-5xl mx-auto w-full space-y-8 md:space-y-10">
 
             <!-- Alerts -->
-            <?php if($msg === 'success' || $msg === 'success_pw' || $msg === 'success_system'): ?>
+            <?php if($msg === 'success' || $msg === 'success_pw'): ?>
                 <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-8 py-5 rounded-3xl flex items-center gap-4 animate-slide-up shadow-sm">
                     <span class="material-symbols-outlined text-2xl fill-1">check_circle</span>
                     <div class="flex flex-col">
                         <p class="font-headline font-bold text-sm tracking-tight leading-none uppercase">Berhasil Disimpan!</p>
                         <p class="text-[10px] font-medium opacity-70 mt-1"><?php 
-                            if($msg === 'success_pw')     echo 'Sesi Anda telah diperbarui dengan kata sandi baru.'; 
-                            elseif($msg === 'success_system') echo 'Konfigurasi margin, pajak & depresiasi berhasil diperbarui dan langsung berlaku.';
+                            if($msg === 'success_pw') echo 'Sesi Anda telah diperbarui dengan kata sandi baru.'; 
                             else echo 'Informasi profil Anda telah diperbarui secara real-time.';
                         ?></p>
                     </div>
@@ -177,120 +146,6 @@ try {
                     </div>
                 </div>
             <?php endif; ?>
-
-            <!-- ===== KONFIGURASI DEPRESIASI & HARGA ===== -->
-            <section class="space-y-6 animate-slide-up">
-                <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-2xl">calculate</span>
-                    <div>
-                        <h2 class="font-headline text-xl font-bold">Konfigurasi Harga, Pajak &amp; Depresiasi</h2>
-                        <p class="text-xs text-on-surface-variant mt-0.5">Perubahan langsung berlaku real-time di semua halaman user dan admin.</p>
-                    </div>
-                </div>
-
-                <form id="form-system-settings" action="" method="POST" class="bg-white dark:bg-slate-900 rounded-[3rem] p-8 md:p-10 border border-outline-variant/10 shadow-sm space-y-8">
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Markup -->
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant dark:text-slate-400 ml-1 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm text-orange-500">trending_up</span>
-                                Markup / Overhead (%)
-                            </label>
-                            <input type="number" step="0.1" min="0" max="100" id="inp_margin" name="margin_pengadaan"
-                                value="<?php echo htmlspecialchars($settings['margin_pengadaan']); ?>"
-                                oninput="updatePreview()"
-                                required
-                                class="w-full bg-orange-50 dark:bg-slate-800 border-2 border-orange-100 rounded-2xl p-4 font-black text-xl text-orange-600 outline-none focus:ring-2 focus:ring-orange-300 transition text-center">
-                            <p class="text-[10px] text-on-surface-variant dark:text-slate-500 ml-2">Biaya overhead &amp; administrasi pengadaan.</p>
-                        </div>
-
-                        <!-- Pajak -->
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant dark:text-slate-400 ml-1 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm text-violet-500">receipt_long</span>
-                                Pajak / PPN (%)
-                            </label>
-                            <input type="number" step="0.1" min="0" max="100" id="inp_pajak" name="pajak"
-                                value="<?php echo htmlspecialchars($settings['pajak']); ?>"
-                                oninput="updatePreview()"
-                                required
-                                class="w-full bg-violet-50 dark:bg-slate-800 border-2 border-violet-100 rounded-2xl p-4 font-black text-xl text-violet-600 outline-none focus:ring-2 focus:ring-violet-300 transition text-center">
-                            <p class="text-[10px] text-on-surface-variant dark:text-slate-500 ml-2">Tarif PPN atau pajak barang yang berlaku.</p>
-                        </div>
-
-                        <!-- Nilai Sisa -->
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant dark:text-slate-400 ml-1 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm text-rose-500">trending_down</span>
-                                Nilai Sisa Depresiasi (%)
-                            </label>
-                            <input type="number" step="0.1" min="0" max="100" id="inp_sisa" name="nilai_sisa"
-                                value="<?php echo htmlspecialchars($settings['nilai_sisa']); ?>"
-                                oninput="updatePreview()"
-                                required
-                                class="w-full bg-rose-50 dark:bg-slate-800 border-2 border-rose-100 rounded-2xl p-4 font-black text-xl text-rose-600 outline-none focus:ring-2 focus:ring-rose-300 transition text-center">
-                            <p class="text-[10px] text-on-surface-variant dark:text-slate-500 ml-2">Persentase salvage value di akhir umur aset.</p>
-                        </div>
-                    </div>
-
-                    <!-- ===== LIVE PREVIEW KALKULASI ===== -->
-                    <div class="bg-gradient-to-br from-slate-900 to-primary rounded-3xl p-8 text-white space-y-5" id="preview-panel">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="material-symbols-outlined text-white/60">preview</span>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-white/60">Live Preview Kalkulasi (Contoh Harga Rp 10.000.000)</p>
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot ml-auto"></span>
-                        </div>
-
-                        <!-- Breakdown Harga Pengadaan -->
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-white/70">Harga Satuan (HPS)</span>
-                                <span class="font-bold">Rp 10.000.000</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-orange-300" id="prev-markup-label">+ Markup (5%)</span>
-                                <span class="font-bold text-orange-300" id="prev-markup-val">Rp 500.000</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-violet-300" id="prev-pajak-label">+ PPN (11%)</span>
-                                <span class="font-bold text-violet-300" id="prev-pajak-val">Rp 1.155.000</span>
-                            </div>
-                            <div class="border-t border-white/10 pt-3 flex justify-between items-center">
-                                <span class="font-black uppercase tracking-wider">Total Pengajuan</span>
-                                <span class="text-2xl font-black font-headline" id="prev-total">Rp 11.655.000</span>
-                            </div>
-                        </div>
-
-                        <!-- Breakdown Depresiasi -->
-                        <div class="border-t border-white/10 pt-5 space-y-3">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Proyeksi Depresiasi (Aset 4 Tahun)</p>
-                            <div class="grid grid-cols-3 gap-3 text-center">
-                                <div class="bg-white/10 rounded-2xl p-4">
-                                    <p class="text-[10px] text-white/50 uppercase font-bold mb-1">Harga Beli</p>
-                                    <p class="font-black" id="dep-purchase">Rp 11.655.000</p>
-                                </div>
-                                <div class="bg-white/10 rounded-2xl p-4">
-                                    <p class="text-[10px] text-white/50 uppercase font-bold mb-1">Nilai Sisa</p>
-                                    <p class="font-black text-rose-300" id="dep-salvage">Rp 1.165.500</p>
-                                </div>
-                                <div class="bg-white/10 rounded-2xl p-4">
-                                    <p class="text-[10px] text-white/50 uppercase font-bold mb-1">Susut/Tahun</p>
-                                    <p class="font-black text-orange-300" id="dep-per-year">Rp 2.622.375</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t border-outline-variant/10 flex justify-end">
-                        <button type="submit" name="save_system_settings"
-                            class="px-8 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition active:scale-95 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-lg">save</span>
-                            Simpan & Terapkan Konfigurasi
-                        </button>
-                    </div>
-                </form>
-            </section>
 
             <!-- ===== APPEARANCE ===== -->
             <section class="space-y-6">
@@ -374,44 +229,6 @@ try {
     </main>
 
     <script>
-    // =====================================================
-    // LIVE PREVIEW KALKULASI (Admin Settings)
-    // =====================================================
-    const SAMPLE_PRICE = 10000000; // Rp 10 juta sample
-
-    function fmt(n) {
-        return 'Rp ' + Math.round(n).toLocaleString('id-ID');
-    }
-
-    function updatePreview() {
-        const margin = parseFloat(document.getElementById('inp_margin').value) || 0;
-        const pajak  = parseFloat(document.getElementById('inp_pajak').value)  || 0;
-        const sisa   = parseFloat(document.getElementById('inp_sisa').value)   || 0;
-
-        // Formula: HPS × (1 + markup/100) × (1 + pajak/100)
-        const afterMarkup  = SAMPLE_PRICE * (1 + margin / 100);
-        const markupAmount = afterMarkup - SAMPLE_PRICE;
-        const pajakAmount  = afterMarkup * (pajak / 100);
-        const total        = afterMarkup * (1 + pajak / 100);
-
-        document.getElementById('prev-markup-label').textContent = `+ Markup (${margin}%)`;
-        document.getElementById('prev-markup-val').textContent   = fmt(markupAmount);
-        document.getElementById('prev-pajak-label').textContent  = `+ PPN (${pajak}%)`;
-        document.getElementById('prev-pajak-val').textContent    = fmt(pajakAmount);
-        document.getElementById('prev-total').textContent        = fmt(total);
-
-        // Depresiasi: salvage = total × (sisa/100), susut/tahun garis lurus 4 tahun
-        const salvage   = total * (sisa / 100);
-        const perYear   = (total - salvage) / 4;
-
-        document.getElementById('dep-purchase').textContent = fmt(total);
-        document.getElementById('dep-salvage').textContent  = fmt(salvage);
-        document.getElementById('dep-per-year').textContent  = fmt(perYear);
-    }
-
-    // Inisialisasi preview
-    updatePreview();
-
     // =====================================================
     // TEMA
     // =====================================================

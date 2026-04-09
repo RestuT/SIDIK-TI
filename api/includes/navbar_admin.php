@@ -179,6 +179,12 @@ try {
                 <span class="material-symbols-outlined text-xl shrink-0 <?php if($current_page == 'manage_templates.php') echo 'fill-1'; ?>">settings_suggest</span>
                 <span class="font-headline text-sm font-semibold truncate">Templates</span>
             </a>
+
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?php echo get_nav_style('valuasi_depresiasi.php', $current_page); ?>"
+               href="valuasi_depresiasi.php">
+                <span class="material-symbols-outlined text-xl shrink-0 <?php if($current_page == 'valuasi_depresiasi.php') echo 'fill-1'; ?>">price_change</span>
+                <span class="font-headline text-sm font-semibold truncate">Valuasi Depresiasi</span>
+            </a>
         </div>
     </nav>
 

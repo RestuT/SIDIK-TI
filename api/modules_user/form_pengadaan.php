@@ -144,7 +144,7 @@ try {
                             <span class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs shrink-0">2</span>
                             <div>
                                 <p class="text-sm font-bold text-on-surface">Validasi Budgeting</p>
-                                <p class="text-[11px] text-on-surface-variant leading-tight italic">Sistem menghitung Markup + PPN secara otomatis dan membandingkannya dengan limit departemen Anda.</p>
+                                <p class="text-[11px] text-on-surface-variant leading-tight italic">Sistem otomatis menyertakan Biaya Overhead + PPN murni untuk kalkulasi perbandingan limit departemen Anda.</p>
                             </div>
                         </div>
                         <div class="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors">
@@ -313,7 +313,7 @@ try {
                                 <span class="font-bold text-white" id="disp_subtotal">Rp 0</span>
                             </div>
                             <div class="flex justify-between items-center text-sm">
-                                <span class="text-orange-300" id="lbl_markup">+ Markup (5%)</span>
+                                <span class="text-orange-300" id="lbl_markup">+ Biaya Overhead (5%)</span>
                                 <span class="font-bold text-orange-300" id="disp_markup">Rp 0</span>
                             </div>
                             <div class="flex justify-between items-center text-sm">
@@ -376,7 +376,7 @@ try {
         document.getElementById('lbl_qty').textContent       = qty;
         document.getElementById('lbl_hps').textContent       = fmt(basePrice);
         document.getElementById('disp_subtotal').textContent = fmt(subtotal);
-        document.getElementById('lbl_markup').textContent    = `+ Markup (${marginPct}%)`;
+        document.getElementById('lbl_markup').textContent    = `+ Biaya Overhead (${marginPct}%)`;
         document.getElementById('disp_markup').textContent   = fmt(markupAmount);
         document.getElementById('lbl_pajak').textContent     = `+ PPN (${pajakPct}%)`;
         document.getElementById('disp_pajak').textContent    = fmt(pajakAmount);
