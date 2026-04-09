@@ -320,6 +320,12 @@ foreach ($assets_docs as $doc) {
                                             <?php echo isset($row['assigned_at']) ? date('d M Y', strtotime($row['assigned_at'])) : '-'; ?>
                                         </span>
 
+                                        <!-- Cetak QR Code Label -->
+                                        <a href="cetak_label_aset.php?id=<?php echo urlencode($row['id'] ?? ''); ?>" target="_blank" class="px-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors mt-1 shadow-sm border border-indigo-100 flex items-center gap-1.5 focus:ring-2 focus:ring-indigo-200">
+                                            <span class="material-symbols-outlined text-[14px]">qr_code_2</span>
+                                            Cetak Label QR
+                                        </a>
+
                                         <!-- Call to Action (Dynamic Sensus Status) -->
                                         <?php if($rowStatus !== 'Disposed' && $rowStatus !== 'Pending Disposal' && $rowStatus !== 'Maintenance'): ?>
                                             <?php if($condCode == 3): ?>

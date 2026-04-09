@@ -12,7 +12,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 // Fetch all Asset Assignments
 $assetsRef = $db->collection('asset_assignments');
-$documents = $assetsRef->orderedBy('assigned_at', 'DESC')->documents();
+$documents = $assetsRef->orderBy('assigned_at', 'DESC')->documents();
 
 $assets = [];
 $stat_baik = 0;
