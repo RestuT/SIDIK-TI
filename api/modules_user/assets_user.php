@@ -56,41 +56,54 @@ try {
 } catch (Exception $e) {}
 
 // =====================================================
-// HELPER: Hitung Depresiasi Garis Lurus
-// Formula Harga Beli: base_price × (1 + margin/100) × (1 + pajak/100)
+// HELPER: Hitung Depresiasi Garis Lurus (PMK 72/2023)
 // =====================================================
 function calculateDepreciation($item_name, $category, $assigned_date, $inv_prices, $margin_pct, $pajak_pct, $salvage_pct, $custom_price = null) {
+    if (stripos($category, 'Software') !== false || stripos($category, 'Aplikasi') !== false) {
+        // Alur Software: Biaya Operasional Rutin (Habis)
+        return [
+            'type' => 'software',
+            'current' => 0, 
+            'purchase' => ($custom_price ?: 0), 
+            'salvage' => false, 
+            'pct_used' => 0,
+            'auto_condition' => 1
+        ];
+    }
+
     $base_price = ($custom_price && $custom_price > 0) ? $custom_price : ($inv_prices[$item_name] ?? 0);
     if ($base_price == 0 || !$assigned_date) return null;
 
-    // Harga beli = base × (1+markup) × (1+pajak)
-    $purchase_price = $base_price * (1 + $margin_pct / 100) * (1 + $pajak_pct / 100);
-    $salvage_value  = $purchase_price * ($salvage_pct / 100);
+    // Untuk HEA / Capitalized price, harga sudah fix = base_price
+    $purchase_price = $base_price;
+    $salvage_value  = 0; // PMK 72/2023 Nilai Sisa dianggap Rp 0
 
-    // Umur ekonomis dalam bulan
-    $useful_life_months = 48; // default 4 tahun
-    if ($category === 'Software')                                              $useful_life_months = 36;
-    if (in_array($category, ['Server', 'Networking', 'Router', 'Network']))   $useful_life_months = 60;
+    // Kelompok 1 (Masa Manfaat 4 Tahun / 48 Bulan)
+    $useful_life_months = 48; 
 
     // Usia dalam bulan
     $assigned_time  = strtotime($assigned_date);
     $now            = time();
     $months_used    = max(0, ($now - $assigned_time) / (30.4375 * 24 * 3600));
 
+    // Hitung Auto-Depreciation Condition
+    $pct_used = min(100, ($months_used / $useful_life_months) * 100);
+    $auto_condition = 1; // 0-50% Baik
+    if ($pct_used > 50 && $pct_used <= 75) $auto_condition = 2; // >50% Warning (Rusak Ringan)
+    if ($pct_used > 75) $auto_condition = 3; // >75% Critical (Rusak Berat)
+
     if ($months_used <= 0) {
-        return ['current' => $purchase_price, 'purchase' => $purchase_price, 'salvage' => false, 'pct_used' => 0];
+        return ['type' => 'hardware', 'current' => $purchase_price, 'purchase' => $purchase_price, 'salvage' => false, 'pct_used' => 0, 'auto_condition' => 1];
     }
 
-    // Depresiasi garis lurus
     $depreciation_per_month = ($purchase_price - $salvage_value) / $useful_life_months;
     $current_value          = $purchase_price - ($depreciation_per_month * $months_used);
-    $pct_used               = min(100, ($months_used / $useful_life_months) * 100);
 
     if ($current_value <= $salvage_value || $months_used >= $useful_life_months) {
-        return ['current' => $salvage_value, 'purchase' => $purchase_price, 'salvage' => true, 'pct_used' => 100];
+        return ['type' => 'hardware', 'current' => $salvage_value, 'purchase' => $purchase_price, 'salvage' => true, 'pct_used' => 100, 'auto_condition' => 3];
     }
 
-    return ['current' => $current_value, 'purchase' => $purchase_price, 'salvage' => false, 'pct_used' => $pct_used];
+    return ['type' => 'hardware', 'current' => $current_value, 'purchase' => $purchase_price, 'salvage' => false, 'pct_used' => $pct_used, 'auto_condition' => $auto_condition];
 }
 
 $asset_list = [];
@@ -281,12 +294,26 @@ foreach ($assets_docs as $doc) {
                                     <div class="flex flex-col items-start gap-2">
                                         <?php 
                                         $rowStatus   = $row['status'] ?? '';
-                                        $statusClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                                        if($rowStatus == 'Maintenance') $statusClass = "bg-orange-50 text-orange-700 border-orange-100";
-                                        elseif($rowStatus == 'Returned') $statusClass = "bg-slate-50 text-slate-700 border-slate-100";
+                                        $condCode    = max((int)($row['latest_condition_code'] ?? 1), (int)($dep_info['auto_condition'] ?? 1));
+
+                                        if($rowStatus == 'Disposed' || $rowStatus == 'Pending Disposal') {
+                                            $statusClass = "bg-slate-100 text-slate-500 border-slate-200";
+                                            $kondisiLabel = "Aset Dihapus";
+                                        } else {
+                                            if($condCode == 1) {
+                                                $statusClass = "bg-emerald-50 text-emerald-700 border-emerald-100";
+                                                $kondisiLabel = "Kondisi Baik";
+                                            } elseif($condCode == 2) {
+                                                $statusClass = "bg-orange-50 text-orange-700 border-orange-100";
+                                                $kondisiLabel = "Maintenance";
+                                            } else {
+                                                $statusClass = "bg-red-50 text-red-700 border-red-100";
+                                                $kondisiLabel = "Rusak Berat";
+                                            }
+                                        }
                                         ?>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider <?php echo $statusClass; ?>">
-                                            <?php echo $rowStatus; ?>
+                                            <?php echo $kondisiLabel; ?>
                                         </span>
                                         <span class="text-on-surface-variant text-xs opacity-70">
                                             <span class="material-symbols-outlined text-[10px] align-middle">calendar_month</span>
@@ -318,8 +345,15 @@ foreach ($assets_docs as $doc) {
                                     <?php endif; ?>
                                 </td>
 
-                                <!-- Progress Bar Kondisi -->
+                                <!-- Progress Bar Kondisi / Depresiasi -->
                                 <td class="px-6 py-6">
+                                <?php if(isset($dep_info['type']) && $dep_info['type'] === 'software'): ?>
+                                    <div class="flex flex-col items-center gap-1.5 min-w-[80px]">
+                                        <span class="px-2 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-lg text-[9px] font-black uppercase tracking-widest text-center leading-tight">
+                                            Biaya<br>Rutin
+                                        </span>
+                                    </div>
+                                <?php else: ?>
                                     <div class="flex flex-col items-center gap-1.5 min-w-[80px]">
                                         <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                                             <div class="h-full rounded-full transition-all duration-700 <?php echo $pct_used >= 100 ? 'bg-rose-400' : ($pct_used >= 75 ? 'bg-orange-400' : 'bg-emerald-400'); ?>"
@@ -327,6 +361,7 @@ foreach ($assets_docs as $doc) {
                                         </div>
                                         <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-wider"><?php echo round($pct_used); ?>% used</span>
                                     </div>
+                                <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

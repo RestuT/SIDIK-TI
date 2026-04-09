@@ -1,0 +1,6 @@
+USID,TCID,Type,Category,Test Case,Pre-condition,Test Steps,Test Data,Expected Result,Status,Severity,Developer
+US001,TC0001,Web,Positive,Login User Valid,Akun terdaftar,1. Buka login; 2. Input Data; 3. Klik Masuk,"User: pegawai_ti, Pass: admin123",Redirect ke Dashboard,Todo,High,Dev-Auth
+US001,TC0002,Web,Negative,Login Password Salah,Akun terdaftar,1. Input Username; 2. Input Pass Salah; 3. Klik Masuk,"User: pegawai_ti, Pass: salah",Tampil error: Kata sandi salah!,Todo,Medium,Dev-Auth
+US002,TC0003,Web,Validasi,Kalkulasi Pagu,Saldo tersedia,1. Pilih barang; 2. Qty; 3. Cek total,"Item: HP Probook, Qty: 2",Total bertambah 15% margin,Todo,High,Dev-Proc
+US003,TC0004,Web,Positive,Lapor Maint c/ Gambar,Aset terdaftar,1. Klik Lapor; 2. Upload; 3. Kirim,Foto: bug.jpg (800KB),Tiket sukses & Foto Base64,Todo,High,Dev-Maint
+US004,TC0005,API,Performance,Load Aset Personal,Aset > 5 item,1. Buka Aset Saya; 2. Amati waktu,-,Data muncul < 2 detik,Todo,Low,Dev-Asset
