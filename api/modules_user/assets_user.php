@@ -319,6 +319,21 @@ foreach ($assets_docs as $doc) {
                                             <span class="material-symbols-outlined text-[10px] align-middle">calendar_month</span>
                                             <?php echo isset($row['assigned_at']) ? date('d M Y', strtotime($row['assigned_at'])) : '-'; ?>
                                         </span>
+
+                                        <!-- Call to Action (Dynamic Sensus Status) -->
+                                        <?php if($rowStatus !== 'Disposed' && $rowStatus !== 'Pending Disposal' && $rowStatus !== 'Maintenance'): ?>
+                                            <?php if($condCode == 3): ?>
+                                                <a href="form_maintenance.php?prefill_asset=<?php echo urlencode($row['id'] ?? ''); ?>&action=disposal" class="px-3 py-2 bg-red-50 text-red-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-100 hover:text-red-700 transition-colors mt-2 shadow-sm border border-red-100 flex items-center gap-1.5 animate-[pulse_2s_ease-in-out_infinite]">
+                                                    <span class="material-symbols-outlined text-[14px]">delete_sweep</span>
+                                                    Ajukan Disposal
+                                                </a>
+                                            <?php elseif($condCode == 2): ?>
+                                                <a href="form_maintenance.php?prefill_asset=<?php echo urlencode($row['id'] ?? ''); ?>&action=maintenance" class="px-3 py-2 bg-orange-50 text-orange-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-orange-100 transition-colors mt-2 shadow-sm border border-orange-100 flex items-center gap-1.5">
+                                                    <span class="material-symbols-outlined text-[14px]">build</span>
+                                                    Ajukan Perbaikan
+                                                </a>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
 

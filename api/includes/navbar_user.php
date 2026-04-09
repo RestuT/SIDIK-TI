@@ -1,11 +1,58 @@
-<!-- Theme Loader Script -->
+<!-- Theme Loader & Global Override Script -->
 <script>
+    function updateThemeIconG(theme) {
+        const icons = document.querySelectorAll('.theme-icon-g');
+        icons.forEach(i => i.textContent = theme === 'dark' ? 'dark_mode' : 'light_mode');
+    }
+    function toggleGlobalTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+            updateThemeIconG('light');
+        } else {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+            updateThemeIconG('dark');
+        }
+    }
+    
+    // Initializer
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
+        document.addEventListener('DOMContentLoaded', () => updateThemeIconG('dark'));
     } else {
         document.documentElement.classList.remove('dark');
+        document.addEventListener('DOMContentLoaded', () => updateThemeIconG('light'));
     }
 </script>
+
+<style>
+/* =========================================================
+   GLOBAL DARK MODE OVERRIDE (FORCING RAW CSS)
+   Memastikan Panel yang hanya punya class bg-white otomatis
+   menjadi dark theme tanpa harus edit ratusan baris file.
+   ========================================================= */
+html.dark body { background-color: #020617 !important; color: #f8fafc !important; }
+html.dark .bg-white, html.dark .bg-surface-container-low, html.dark [class*="bg-surface"], html.dark .bg-slate-50 { 
+    background-color: #0f172a !important; 
+    border-color: rgba(255,255,255,0.08) !important; 
+    color: #e2e8f0 !important; 
+}
+html.dark .text-on-surface, html.dark .text-slate-800, html.dark .text-slate-900, html.dark h1, html.dark h2, html.dark h3, html.dark h4 { 
+    color: #f8fafc !important; 
+}
+html.dark .text-slate-500, html.dark .text-slate-600, html.dark [class*="text-on-surface-variant"] { 
+    color: #94a3b8 !important; 
+}
+html.dark [class*="border-outline"], html.dark .border-slate-200, html.dark .border-slate-100 { 
+    border-color: rgba(255,255,255,0.08) !important; 
+}
+html.dark input, html.dark select, html.dark textarea { 
+    background-color: #1e293b !important; color: #f1f5f9 !important; border-color: rgba(255,255,255,0.15) !important; 
+}
+html.dark table thead tr, html.dark th { background-color: rgba(255,255,255,0.05) !important; color: #cbd5e1 !important; border-color: rgba(255,255,255,0.1) !important; }
+html.dark table td { border-color: rgba(255,255,255,0.05) !important; color: #e2e8f0 !important;}
+</style>
 
 <?php
 // Fetch Global App Name from Firestore
@@ -50,6 +97,11 @@ try {
                 <?php echo htmlspecialchars($_SESSION['full_name'] ?? ($display_name ?? 'User')); ?>
             </span>
         </div>
+        
+        <!-- Toggle Theme -->
+        <button onclick="toggleGlobalTheme()" class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 transition-all hover:bg-white hover:shadow-lg mr-1" title="Ganti Tema">
+            <span class="material-symbols-outlined theme-icon-g text-xl">light_mode</span>
+        </button>
         <div class="relative group">
             <button class="w-10 h-10 rounded-xl bg-slate-50 border border-indigo-100 flex items-center justify-center text-indigo-600 transition-all hover:bg-white hover:shadow-lg">
                 <span class="material-symbols-outlined">account_circle</span>

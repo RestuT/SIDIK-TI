@@ -1,11 +1,58 @@
-<!-- Theme Loader Script -->
+<!-- Theme Loader & Global Override Script -->
 <script>
+    function updateThemeIconG(theme) {
+        const icons = document.querySelectorAll('.theme-icon-g');
+        icons.forEach(i => i.textContent = theme === 'dark' ? 'dark_mode' : 'light_mode');
+    }
+    function toggleGlobalTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+            updateThemeIconG('light');
+        } else {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+            updateThemeIconG('dark');
+        }
+    }
+    
+    // Initializer
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
+        document.addEventListener('DOMContentLoaded', () => updateThemeIconG('dark'));
     } else {
         document.documentElement.classList.remove('dark');
+        document.addEventListener('DOMContentLoaded', () => updateThemeIconG('light'));
     }
 </script>
+
+<style>
+/* =========================================================
+   GLOBAL DARK MODE OVERRIDE (ADMIN PANELS)
+   Memastikan Panel yang hanya punya class bg-white otomatis
+   menjadi dark theme tanpa harus edit ratusan baris file.
+   ========================================================= */
+html.dark body { background-color: #020617 !important; color: #f8fafc !important; }
+html.dark .bg-white, html.dark .bg-surface-container-low, html.dark [class*="bg-surface"], html.dark .bg-slate-50, html.dark .bg-surface-bright { 
+    background-color: #0f172a !important; 
+    border-color: rgba(255,255,255,0.08) !important; 
+    color: #e2e8f0 !important; 
+}
+html.dark .text-on-surface, html.dark .text-slate-800, html.dark .text-slate-900, html.dark h1, html.dark h2, html.dark h3, html.dark h4 { 
+    color: #f8fafc !important; 
+}
+html.dark .text-slate-500, html.dark .text-slate-600, html.dark [class*="text-on-surface-variant"] { 
+    color: #94a3b8 !important; 
+}
+html.dark [class*="border-outline"], html.dark .border-slate-200, html.dark .border-slate-100 { 
+    border-color: rgba(255,255,255,0.08) !important; 
+}
+html.dark input[type="text"], html.dark input[type="password"], html.dark input[type="date"], html.dark select, html.dark textarea { 
+    background-color: #1e293b !important; color: #f1f5f9 !important; border-color: rgba(255,255,255,0.15) !important; 
+}
+html.dark table thead tr, html.dark th { background-color: rgba(255,255,255,0.05) !important; color: #cbd5e1 !important; border-color: rgba(255,255,255,0.1) !important; border-width: 1px;}
+html.dark table td, html.dark .divide-outline-variant\/10 > * { border-color: rgba(255,255,255,0.05) !important; color: #e2e8f0 !important;}
+</style>
 
 <?php
 // Fetch Global App Name from Firestore
@@ -42,9 +89,15 @@ try {
             </span>
         </div>
     </div>
-    <div class="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-full">
-        <span class="material-symbols-outlined text-indigo-500 text-sm fill-1">admin_panel_settings</span>
-        <span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Admin</span>
+    <div class="flex items-center gap-2">
+        <!-- Toggle Theme Mobile -->
+        <button onclick="toggleGlobalTheme()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all mr-1">
+            <span class="material-symbols-outlined theme-icon-g text-xl">light_mode</span>
+        </button>
+        <div class="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-full">
+            <span class="material-symbols-outlined text-indigo-500 text-sm fill-1">admin_panel_settings</span>
+            <span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Admin</span>
+        </div>
     </div>
 </div>
 
@@ -146,6 +199,12 @@ try {
             <span class="material-symbols-outlined text-xl shrink-0 <?php if($current_page == 'inventory.php') echo 'fill-1'; ?>">inventory_2</span>
             <span class="font-headline text-sm font-semibold truncate">Inventory</span>
         </a>
+        
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 active:scale-[0.98] <?php echo get_nav_style('sensus_barang.php', $current_page); ?>"
+           href="sensus_barang.php">
+            <span class="material-symbols-outlined text-xl shrink-0 <?php if($current_page == 'sensus_barang.php') echo 'fill-1'; ?>">fact_check</span>
+            <span class="font-headline text-sm font-semibold truncate">Sensus Barang</span>
+        </a>
 
         <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 active:scale-[0.98] <?php echo get_nav_style('analytics.php', $current_page); ?>"
            href="analytics.php">
@@ -190,6 +249,10 @@ try {
 
     <!-- Bottom Actions -->
     <div class="shrink-0 border-t border-slate-100 dark:border-slate-800 p-3 space-y-0.5">
+        <button onclick="toggleGlobalTheme()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-200">
+            <span class="material-symbols-outlined text-xl shrink-0 theme-icon-g">light_mode</span>
+            <span class="font-headline text-sm font-semibold truncate text-left flex-1" id="theme-btn-text">Ganti Tema</span>
+        </button>
         <a class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 <?php echo get_nav_style('settings.php', $current_page); ?>"
            href="settings.php">
             <span class="material-symbols-outlined text-xl shrink-0 <?php if($current_page == 'settings.php') echo 'fill-1'; ?>">settings</span>
