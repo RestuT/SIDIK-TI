@@ -36,11 +36,12 @@ try {
 }
 
 // Persiapkan Informasi
-$itemName = $assetData['item_name'] ?? 'Unknown Asset';
-$assignedTo = $assetData['assigned_to'] ?? 'Unassigned';
-$department = $assetData['department'] ?? '-';
-$category = $assetData['category'] ?? '-';
-$qrLink = $qr_scan_url . urlencode($assetData['id']);
+$itemName    = $assetData['item_name'] ?? 'Unknown Asset';
+$assignedTo  = $assetData['user_name'] ?? ($assetData['assigned_to'] ?? 'Unassigned');
+$department  = $assetData['department'] ?? '-';
+$category    = $assetData['category'] ?? '-';
+$kodeBarang  = $assetData['kode_barang'] ?? ($assetData['item_code'] ?? 'N/A');
+$qrLink      = $qr_scan_url . urlencode($assetData['id']);
 
 $assignedAt = isset($assetData['assigned_at']) ? date('M Y', strtotime($assetData['assigned_at'])) : '-';
 ?>
@@ -170,7 +171,7 @@ $assignedAt = isset($assetData['assigned_at']) ? date('M Y', strtotime($assetDat
         <!-- Footer Strip -->
         <div class="bg-slate-50 border-t border-slate-100 px-4 py-1.5 flex items-center justify-between shrink-0">
             <p class="text-[7px] font-mono font-medium text-slate-500">ID: <?php echo substr($assetData['id'], 0, 12); ?>...</p>
-            <p class="text-[7px] font-mono font-medium text-slate-500">KODE: <?php echo htmlspecialchars($assetData['item_code'] ?? 'N/A'); ?> &middot; EST: <?php echo $assignedAt; ?></p>
+            <p class="text-[7px] font-mono font-medium text-slate-500">KODE: <?php echo htmlspecialchars($kodeBarang); ?> &middot; EST: <?php echo $assignedAt; ?></p>
         </div>
     </div>
     
