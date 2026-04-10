@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 @theme {
   --font-headline: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
