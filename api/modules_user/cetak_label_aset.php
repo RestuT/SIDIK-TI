@@ -113,65 +113,67 @@ $assignedAt = isset($assetData['assigned_at']) ? date('M Y', strtotime($assetDat
     </div>
 
     <!-- The Printable Asset Tag Card -->
-    <!-- Ukuran disesuaikan kurang lebih 85mm x 54mm jika dicetak (aspect ratio umum) -->
-    <div class="print-card-wrapper bg-white rounded-[1rem] shadow-xl overflow-hidden flex flex-col relative" style="width: 340px; height: 216px; border: 1px solid #e2e8f0;">
+    <!-- Ukuran disesuaikan untuk stiker vertikal (approx 240px x 380px) -->
+    <div class="print-card-wrapper bg-white rounded-[2rem] shadow-2xl overflow-hidden flex flex-col relative" style="width: 280px; height: 420px; border: 1px solid #e2e8f0;">
         
-        <!-- Header Banner -->
-        <div class="bg-indigo-600 text-white px-4 py-2 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-1.5">
-                <span class="material-symbols-outlined text-[16px] text-emerald-300">verified_user</span>
-                <span class="font-headline font-black text-[12px] uppercase tracking-widest">SIDIK-TI Asset</span>
+        <!-- Header Section (White Strip) -->
+        <div class="bg-white px-6 py-4 flex flex-col items-center justify-center border-b border-slate-100 shrink-0">
+            <div class="flex items-center gap-2 mb-1">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-[20px]">verified_user</span>
+                </div>
+                <span class="font-headline font-black text-[16px] uppercase tracking-tighter text-slate-800">SIDIK-TI</span>
             </div>
-            <span class="text-[9px] font-bold text-indigo-200 uppercase tracking-widest bg-indigo-800/50 px-2 rounded-full border border-indigo-500/50">
-                PROPERTI NEGARA
-            </span>
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em]">Smart Inventory</p>
         </div>
 
-        <!-- Body Content -->
-        <div class="flex flex-1 items-center p-4 gap-4">
-            <!-- QR Code Canvas Container -->
-            <div class="shrink-0 bg-white p-1 rounded-xl shadow-[0_0_10px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-center">
-                <canvas id="qrcode-canvas" class="w-24 h-24"></canvas>
-                <p class="text-[7px] text-center font-mono text-slate-400 mt-1 uppercase leading-none tracking-tighter">
-                    SCAN TO VERIFY
-                </p>
-            </div>
+        <!-- Main Body (Indigo Background) -->
+        <div class="flex-1 bg-indigo-600 p-6 flex flex-col items-center justify-between text-white relative">
+            <!-- Decorative circle -->
+            <div class="absolute -right-8 -top-8 w-32 h-32 bg-indigo-500 rounded-full opacity-50"></div>
+            <div class="absolute -left-4 bottom-12 w-16 h-16 bg-indigo-400 rounded-full opacity-30"></div>
 
-            <!-- Asset Details -->
-            <div class="flex-1 min-w-0 flex flex-col justify-center space-y-2.5">
-                
-                <div>
-                    <p class="text-[8px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-0.5"><?php echo htmlspecialchars($category); ?></p>
-                    <h2 class="font-headline font-extrabold text-[15px] leading-tight text-slate-800 truncate" title="<?php echo htmlspecialchars($itemName); ?>">
+            <div class="relative z-10 w-full flex flex-col items-center">
+                <!-- QR Code Container -->
+                <div class="bg-white p-4 rounded-[2rem] shadow-xl mb-6">
+                    <canvas id="qrcode-canvas" class="w-36 h-36"></canvas>
+                </div>
+
+                <!-- Asset Primary Details -->
+                <div class="text-center w-full space-y-1 mb-4">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-indigo-200">Nama Barang</p>
+                    <h2 class="font-headline font-extrabold text-[18px] leading-tight line-clamp-2">
                         <?php echo htmlspecialchars($itemName); ?>
                     </h2>
                 </div>
 
-                <div class="space-y-1">
-                    <div class="flex items-start gap-1">
-                        <span class="material-symbols-outlined text-[10px] text-slate-400 mt-0.5">person</span>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 leading-none">Pemegang</p>
-                            <p class="text-[10px] font-bold text-slate-700 truncate leading-tight"><?php echo htmlspecialchars($assignedTo); ?></p>
-                        </div>
+                <!-- Secondary Details Grid -->
+                <div class="w-full grid grid-cols-1 gap-4 pt-4 border-t border-indigo-500/50">
+                    <div class="flex flex-col items-center">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-indigo-200 mb-1">Kode Barang</p>
+                        <p class="text-[12px] font-mono font-bold bg-indigo-800/50 px-3 py-1 rounded-full border border-indigo-400/30">
+                            <?php echo htmlspecialchars($kodeBarang); ?>
+                        </p>
                     </div>
-                    
-                    <div class="flex items-start gap-1">
-                        <span class="material-symbols-outlined text-[10px] text-slate-400 mt-0.5">apartment</span>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 leading-none">Departemen</p>
-                            <p class="text-[10px] font-bold text-slate-700 truncate leading-tight"><?php echo htmlspecialchars($department); ?></p>
+
+                    <div class="flex justify-between items-end gap-2 px-2">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[8px] font-black uppercase tracking-widest text-indigo-300">Pemilik</p>
+                            <p class="text-[11px] font-bold truncate"><?php echo htmlspecialchars($assignedTo); ?></p>
+                        </div>
+                        <div class="flex-1 min-w-0 text-right">
+                            <p class="text-[8px] font-black uppercase tracking-widest text-indigo-300">Departemen</p>
+                            <p class="text-[11px] font-bold truncate"><?php echo htmlspecialchars($department); ?></p>
                         </div>
                     </div>
                 </div>
-
             </div>
-        </div>
 
-        <!-- Footer Strip -->
-        <div class="bg-slate-50 border-t border-slate-100 px-4 py-1.5 flex items-center justify-between shrink-0">
-            <p class="text-[7px] font-mono font-medium text-slate-500">ID: <?php echo substr($assetData['id'], 0, 12); ?>...</p>
-            <p class="text-[7px] font-mono font-medium text-slate-500">KODE: <?php echo htmlspecialchars($kodeBarang); ?> &middot; EST: <?php echo $assignedAt; ?></p>
+            <!-- Footer Small Info -->
+            <div class="relative z-10 w-full flex justify-between items-center opacity-60 text-[8px] font-mono mt-4">
+                <span>ID: <?php echo substr($assetData['id'], 0, 8); ?></span>
+                <span>EST: <?php echo $assignedAt; ?></span>
+            </div>
         </div>
     </div>
     
