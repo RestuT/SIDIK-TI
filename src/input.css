@@ -6,32 +6,71 @@
 
   --color-primary: #3525cd;
   --color-primary-container: #4f46e5;
-  --color-background: #f7f9fb;
-  --color-surface: #ffffff;
-  --color-on-surface: #191c1e;
-  --color-on-surface-variant: #464555;
-  --color-outline: #777587;
-  --color-outline-variant: #c7c4d8;
-  --color-error: #ba1a1a;
-  --color-error-container: #ffdad6;
-  --color-secondary: #0051d5;
-  --color-secondary-container: #316bf3;
-  --color-tertiary: #005338;
-  --color-tertiary-container: #006e4b;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f2f4f6;
-  --color-surface-container: #eceef0;
-  --color-surface-container-high: #e6e8ea;
-  --color-surface-container-highest: #e0e3e5;
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  
+  --color-surface-container-lowest: var(--surface-lowest);
+  --color-surface-container-low: var(--surface-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-high);
+
+  /* Semantic Highlighting */
+  --color-highlight-indigo: var(--highlight-indigo);
+  --color-highlight-emerald: var(--highlight-emerald);
+  --color-highlight-rose: var(--highlight-rose);
+  --color-highlight-orange: var(--highlight-orange);
 
   --radius-default: 1rem;
   --radius-lg: 2rem;
   --radius-xl: 3rem;
 }
 
+:root {
+  --background: #f7f9fb;
+  --surface: #ffffff;
+  --on-surface: #191c1e;
+  --on-surface-variant: #464555;
+  --outline: #777587;
+  --outline-variant: #c7c4d8;
+  
+  --surface-lowest: #ffffff;
+  --surface-low: #f2f4f6;
+  --surface-container: #eceef0;
+  --surface-high: #e6e8ea;
+
+  --highlight-indigo: #eef2ff; /* bg-indigo-50 */
+  --highlight-emerald: #ecfdf5; /* bg-emerald-50 */
+  --highlight-rose: #fff1f2; /* bg-rose-50 */
+  --highlight-orange: #fff7ed; /* bg-orange-50 */
+}
+
+.dark {
+  --background: #020617;
+  --surface: #0f172a;
+  --on-surface: #f8fafc;
+  --on-surface-variant: #94a3b8;
+  --outline: #334155;
+  --outline-variant: #1e293b;
+
+  --surface-lowest: #0f172a;
+  --surface-low: #1e293b;
+  --surface-container: #334155;
+  --surface-high: #475569;
+
+  /* Muted Highlights for Dark Mode */
+  --highlight-indigo: rgba(79, 70, 229, 0.15);
+  --highlight-emerald: rgba(16, 185, 129, 0.15);
+  --highlight-rose: rgba(225, 29, 72, 0.15);
+  --highlight-orange: rgba(245, 158, 11, 0.15);
+}
+
 @layer base {
   body {
-    @apply font-body antialiased bg-background text-on-surface;
+    @apply font-body antialiased bg-background text-on-surface transition-colors duration-300;
   }
 }
 
