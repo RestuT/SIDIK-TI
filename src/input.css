@@ -13,12 +13,12 @@
   --color-outline: var(--outline);
   --color-outline-variant: var(--outline-variant);
   
-  --color-surface-container-lowest: var(--surface-lowest);
-  --color-surface-container-low: var(--surface-low);
+  --color-surface-lowest: var(--surface-lowest);
+  --color-surface-low: var(--surface-low);
   --color-surface-container: var(--surface-container);
-  --color-surface-container-high: var(--surface-high);
+  --color-surface-high: var(--surface-high);
 
-  /* Semantic Highlighting */
+  /* Muted Highlights - Semantic */
   --color-highlight-indigo: var(--highlight-indigo);
   --color-highlight-emerald: var(--highlight-emerald);
   --color-highlight-rose: var(--highlight-rose);
@@ -49,43 +49,43 @@
 }
 
 .dark {
-  --background: #020617; /* Obsidian Depth */
-  --surface: #0b0f1a;    /* Premium Navy Background */
-  --on-surface: #f1f5f9;  /* Soft White */
-  --on-surface-variant: #94a3b8; /* Muted Blue Grey */
-  --outline: rgba(255, 255, 255, 0.08);
-  --outline-variant: rgba(255, 255, 255, 0.04);
+  /* True Black / Obsidian Theme */
+  --background: #000000; 
+  --surface: #0a0a0a;    
+  --on-surface: #f5f5f5;
+  --on-surface-variant: #a1a1aa;
+  --outline: rgba(255, 255, 255, 0.1);
+  --outline-variant: rgba(255, 255, 255, 0.05);
 
-  --surface-lowest: #0d1221;
-  --surface-low: #1e293b;
-  --surface-container: #334155;
-  --surface-high: #475569;
+  --surface-lowest: #0a0a0a;
+  --surface-low: #141414;
+  --surface-container: #1c1c1c;
+  --surface-high: #262626;
 
-  /* Premium Obsidian Highlights - Low Contrast, High Class */
-  --highlight-indigo: rgba(79, 70, 229, 0.08);
-  --highlight-emerald: rgba(16, 185, 129, 0.08);
-  --highlight-rose: rgba(225, 29, 72, 0.08);
-  --highlight-orange: rgba(245, 158, 11, 0.08);
+  /* Obsidian Highlights - Extremely Subtle */
+  --highlight-indigo: rgba(79, 70, 229, 0.12);
+  --highlight-emerald: rgba(16, 185, 129, 0.12);
+  --highlight-rose: rgba(225, 29, 72, 0.12);
+  --highlight-orange: rgba(245, 158, 11, 0.12);
 }
 
 @layer base {
   body {
-    @apply font-body antialiased bg-background text-on-surface transition-colors duration-500 selection:bg-primary/30;
-  }
-  
-  h1, h2, h3, h4, .font-headline {
-    @apply font-headline;
+    @apply font-body antialiased bg-background text-on-surface transition-colors duration-500 selection:bg-primary/40;
   }
 }
 
-/* Custom Components for Premium Look */
 @layer components {
   .glass-card {
-    @apply bg-surface/80 backdrop-blur-xl border border-outline dark:border-white/5 shadow-sm;
+    @apply bg-surface/80 backdrop-blur-xl border border-outline dark:border-white/10 shadow-sm;
   }
   
   .obsidian-panel {
-    @apply bg-surface-container-lowest border border-outline/10 dark:border-white/5;
+    @apply bg-surface-lowest border border-outline/10 dark:border-white/5;
+  }
+
+  .table-row-hover {
+    @apply hover:bg-surface-low transition-colors duration-200;
   }
 }
 
