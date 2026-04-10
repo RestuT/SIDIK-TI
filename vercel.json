@@ -13,6 +13,7 @@
     }
   },
   "routes": [
+    { "src": "/public/(.*)", "dest": "/api/public/$1" },
     { "src": "/(.*).php", "dest": "/api/$1.php" },
     { "src": "/scan/asset", "dest": "/api/modules_user/scan_asset.php" },
     { "src": "/scan/result", "dest": "/api/modules_user/scan_result.php" },

@@ -30,47 +30,62 @@
 }
 
 :root {
-  --background: #f7f9fb;
+  --background: #f8fafc;
   --surface: #ffffff;
-  --on-surface: #191c1e;
-  --on-surface-variant: #464555;
-  --outline: #777587;
-  --outline-variant: #c7c4d8;
+  --on-surface: #0f172a;
+  --on-surface-variant: #475569;
+  --outline: rgba(0, 0, 0, 0.08);
+  --outline-variant: rgba(0, 0, 0, 0.04);
   
   --surface-lowest: #ffffff;
-  --surface-low: #f2f4f6;
-  --surface-container: #eceef0;
-  --surface-high: #e6e8ea;
+  --surface-low: #f1f5f9;
+  --surface-container: #e2e8f0;
+  --surface-high: #cbd5e1;
 
-  --highlight-indigo: #eef2ff; /* bg-indigo-50 */
-  --highlight-emerald: #ecfdf5; /* bg-emerald-50 */
-  --highlight-rose: #fff1f2; /* bg-rose-50 */
-  --highlight-orange: #fff7ed; /* bg-orange-50 */
+  --highlight-indigo: #eef2ff;
+  --highlight-emerald: #ecfdf5;
+  --highlight-rose: #fff1f2;
+  --highlight-orange: #fff7ed;
 }
 
 .dark {
-  --background: #020617;
-  --surface: #0f172a;
-  --on-surface: #f8fafc;
-  --on-surface-variant: #94a3b8;
-  --outline: #334155;
-  --outline-variant: #1e293b;
+  --background: #020617; /* Obsidian Depth */
+  --surface: #0b0f1a;    /* Premium Navy Background */
+  --on-surface: #f1f5f9;  /* Soft White */
+  --on-surface-variant: #94a3b8; /* Muted Blue Grey */
+  --outline: rgba(255, 255, 255, 0.08);
+  --outline-variant: rgba(255, 255, 255, 0.04);
 
-  --surface-lowest: #0f172a;
+  --surface-lowest: #0d1221;
   --surface-low: #1e293b;
   --surface-container: #334155;
   --surface-high: #475569;
 
-  /* Muted Highlights for Dark Mode */
-  --highlight-indigo: rgba(79, 70, 229, 0.15);
-  --highlight-emerald: rgba(16, 185, 129, 0.15);
-  --highlight-rose: rgba(225, 29, 72, 0.15);
-  --highlight-orange: rgba(245, 158, 11, 0.15);
+  /* Premium Obsidian Highlights - Low Contrast, High Class */
+  --highlight-indigo: rgba(79, 70, 229, 0.08);
+  --highlight-emerald: rgba(16, 185, 129, 0.08);
+  --highlight-rose: rgba(225, 29, 72, 0.08);
+  --highlight-orange: rgba(245, 158, 11, 0.08);
 }
 
 @layer base {
   body {
-    @apply font-body antialiased bg-background text-on-surface transition-colors duration-300;
+    @apply font-body antialiased bg-background text-on-surface transition-colors duration-500 selection:bg-primary/30;
+  }
+  
+  h1, h2, h3, h4, .font-headline {
+    @apply font-headline;
+  }
+}
+
+/* Custom Components for Premium Look */
+@layer components {
+  .glass-card {
+    @apply bg-surface/80 backdrop-blur-xl border border-outline dark:border-white/5 shadow-sm;
+  }
+  
+  .obsidian-panel {
+    @apply bg-surface-container-lowest border border-outline/10 dark:border-white/5;
   }
 }
 
