@@ -1,6 +1,18 @@
 {
+  "scripts": {
+    "build": "npx tailwindcss -i ./src/input.css -o ./api/public/css/style.css --minify",
+    "watch": "npx tailwindcss -i ./src/input.css -o ./api/public/css/style.css --watch"
+  },
   "dependencies": {
     "firebase": "^12.11.0",
     "firebase-admin": "^13.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.11",
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2"
   }
 }

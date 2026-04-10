@@ -3,6 +3,7 @@ ob_start();
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/csrf_helper.php';
+require_once __DIR__ . '/../includes/pagination_helper.php';
 
 // Proteksi halaman
 if (!isset($_SESSION['user_id'])) {
@@ -12,14 +13,30 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// 1. Statistik Aset
+// --- PAGINATION ---
+$page = max(1, (int)($_GET['page'] ?? 1));
+$pageSize = 25;
+$offset = ($page - 1) * $pageSize;
+
+// 1. Statistik Aset (Total for this user)
 $assetAssignmentsRef = $db->collection('asset_assignments')->where('user_id', '=', $user_id);
+// Note: We might want to cache these counts or use a lighter way if this gets huge
 $stat_total       = $assetAssignmentsRef->count();
 $stat_active      = $assetAssignmentsRef->where('status', '=', 'Active')->count();
 $stat_maintenance = $assetAssignmentsRef->where('status', '=', 'Maintenance')->count();
 
-// 2. Daftar Aset
-$assets_docs = $assetAssignmentsRef->orderBy('assigned_at', 'DESC')->documents();
+// 2. Daftar Aset (Paginated)
+$assets_docs = $assetAssignmentsRef->orderBy('assigned_at', 'DESC')->offset($offset)->limit($pageSize + 1)->documents();
+$all_fetched = [];
+foreach ($assets_docs as $doc) {
+    if ($doc->exists()) {
+        $data       = $doc->data();
+        $data['id'] = $doc->id();
+        $all_fetched[] = $data;
+    }
+}
+$asset_list = array_slice($all_fetched, 0, $pageSize);
+$hasMore = count($all_fetched) > $pageSize;
 
 // 3. User Detail
 $userRef   = $db->collection('users')->document($user_id);
@@ -42,9 +59,9 @@ try {
             case 'pajak':            $pajak            = (float)$val; break;
         }
     }
-} catch (Exception $e) { /* fallback ke default */ }
+} catch (Exception $e) { }
 
-// 5. Inventory Base Prices
+// 5. Inventory Base Prices (Lighter fetch could be done by joining, but for now we keep)
 $inventory_prices = [];
 try {
     $inv_docs = $db->collection('inventory')->documents();
@@ -60,7 +77,6 @@ try {
 // =====================================================
 function calculateDepreciation($item_name, $category, $assigned_date, $inv_prices, $margin_pct, $pajak_pct, $salvage_pct, $custom_price = null) {
     if (stripos($category, 'Software') !== false || stripos($category, 'Aplikasi') !== false) {
-        // Alur Software: Biaya Operasional Rutin (Habis)
         return [
             'type' => 'software',
             'current' => 0, 
@@ -74,23 +90,18 @@ function calculateDepreciation($item_name, $category, $assigned_date, $inv_price
     $base_price = ($custom_price && $custom_price > 0) ? $custom_price : ($inv_prices[$item_name] ?? 0);
     if ($base_price == 0 || !$assigned_date) return null;
 
-    // Untuk HEA / Capitalized price, harga sudah fix = base_price
     $purchase_price = $base_price;
-    $salvage_value  = 0; // PMK 72/2023 Nilai Sisa dianggap Rp 0
-
-    // Kelompok 1 (Masa Manfaat 4 Tahun / 48 Bulan)
+    $salvage_value  = 0; 
     $useful_life_months = 48; 
 
-    // Usia dalam bulan
     $assigned_time  = strtotime($assigned_date);
     $now            = time();
     $months_used    = max(0, ($now - $assigned_time) / (30.4375 * 24 * 3600));
 
-    // Hitung Auto-Depreciation Condition
     $pct_used = min(100, ($months_used / $useful_life_months) * 100);
-    $auto_condition = 1; // 0-50% Baik
-    if ($pct_used > 50 && $pct_used <= 75) $auto_condition = 2; // >50% Warning (Rusak Ringan)
-    if ($pct_used > 75) $auto_condition = 3; // >75% Critical (Rusak Berat)
+    $auto_condition = 1;
+    if ($pct_used > 50 && $pct_used <= 75) $auto_condition = 2;
+    if ($pct_used > 75) $auto_condition = 3;
 
     if ($months_used <= 0) {
         return ['type' => 'hardware', 'current' => $purchase_price, 'purchase' => $purchase_price, 'salvage' => false, 'pct_used' => 0, 'auto_condition' => 1];
@@ -105,61 +116,19 @@ function calculateDepreciation($item_name, $category, $assigned_date, $inv_price
 
     return ['type' => 'hardware', 'current' => $current_value, 'purchase' => $purchase_price, 'salvage' => false, 'pct_used' => $pct_used, 'auto_condition' => $auto_condition];
 }
-
-$asset_list = [];
-foreach ($assets_docs as $doc) {
-    $a       = $doc->data();
-    $a['id'] = $doc->id();
-    $asset_list[] = $a;
-}
 ?>
 
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIDIK-TI | My Assets</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary":                   "#3525cd",
-                        "primary-container":         "#4f46e5",
-                        "background":                "#f7f9fb",
-                        "on-surface":                "#191c1e",
-                        "on-surface-variant":        "#464555",
-                        "surface-container-lowest":  "#ffffff",
-                        "surface-container-low":     "#f2f4f6",
-                        "surface-container-high":    "#e6e8ea",
-                        "outline-variant":           "#c7c4d8",
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body":     ["Inter"],
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
+    <?php 
+        $pageTitle = 'SIDIK-TI | My Assets';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
-
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
         .live-dot { animation: blink 1.5s ease-in-out infinite; }
-
         @keyframes fade-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
         .asset-row { animation: fade-in .3s ease both; }
     </style>
@@ -174,10 +143,9 @@ foreach ($assets_docs as $doc) {
             <div class="space-y-1">
                 <p class="text-on-surface-variant font-medium tracking-wide text-xs uppercase italic">Inventory Intelligence</p>
                 <h1 class="text-5xl font-extrabold text-on-surface tracking-tight leading-none italic">Aset <span class="text-primary italic">Saya</span></h1>
-                <p class="text-on-surface-variant max-w-lg font-medium text-sm mt-3 leading-relaxed">Daftar perangkat IT yang saat ini berada di bawah tanggung jawab Anda secara personal.</p>
+                <p class="text-on-surface-variant max-w-lg font-medium text-sm mt-3 leading-relaxed">Daftar perangkat IT yang saat ini berada di bawah tanggung jawab Anda (Page <?php echo $page; ?>).</p>
             </div>
             <div class="flex items-center gap-4">
-                <!-- Realtime indicator -->
                 <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
                     <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest" id="sync-status">Live Valuation</span>
@@ -241,7 +209,7 @@ foreach ($assets_docs as $doc) {
                         </tr>
                     </thead>
                     <tbody id="asset-tbody" class="divide-y divide-slate-100">
-                        <?php if($stat_total > 0): ?>
+                        <?php if(count($asset_list) > 0): ?>
                             <?php foreach($asset_list as $row):
                                 $specific_price = isset($row['price_reference']) ? (float)$row['price_reference'] : null;
                                 $dep_info = calculateDepreciation(
@@ -320,13 +288,11 @@ foreach ($assets_docs as $doc) {
                                             <?php echo isset($row['assigned_at']) ? date('d M Y', strtotime($row['assigned_at'])) : '-'; ?>
                                         </span>
 
-                                        <!-- Cetak QR Code Label -->
                                         <a href="cetak_label_aset.php?id=<?php echo urlencode($row['id'] ?? ''); ?>" target="_blank" class="px-3 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors mt-1 shadow-sm border border-indigo-100 flex items-center gap-1.5 focus:ring-2 focus:ring-indigo-200">
                                             <span class="material-symbols-outlined text-[14px]">qr_code_2</span>
                                             Cetak Label QR
                                         </a>
 
-                                        <!-- Call to Action (Dynamic Sensus Status) -->
                                         <?php if($rowStatus !== 'Disposed' && $rowStatus !== 'Pending Disposal' && $rowStatus !== 'Maintenance'): ?>
                                             <?php if($condCode == 3): ?>
                                                 <a href="form_maintenance.php?prefill_asset=<?php echo urlencode($row['id'] ?? ''); ?>&action=disposal" class="px-3 py-2 bg-red-50 text-red-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-red-100 hover:text-red-700 transition-colors mt-2 shadow-sm border border-red-100 flex items-center gap-1.5 animate-[pulse_2s_ease-in-out_infinite]">
@@ -366,7 +332,6 @@ foreach ($assets_docs as $doc) {
                                     <?php endif; ?>
                                 </td>
 
-                                <!-- Progress Bar Kondisi / Depresiasi -->
                                 <td class="px-6 py-6">
                                 <?php if(isset($dep_info['type']) && $dep_info['type'] === 'software'): ?>
                                     <div class="flex flex-col items-center gap-1.5 min-w-[80px]">
@@ -399,25 +364,22 @@ foreach ($assets_docs as $doc) {
                     </tbody>
                 </table>
             </div>
+            <!-- Pagination UI -->
+            <?php renderPagination($page, $hasMore, 'assets_user.php'); ?>
         </section>
     </main>
 
     <?php include __DIR__ . '/../includes/bottom_nav_user.php'; ?>
 
     <script>
-    // =====================================================
-    // Real-time settings poll & re-hitung depresiasi
-    // =====================================================
     let currentMargin = <?php echo $margin_pengadaan; ?>;
     let currentPajak  = <?php echo $pajak; ?>;
     let currentSisa   = <?php echo $nilai_sisa_pct; ?>;
-
     const fmt = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
 
-    // Kategori → umur ekonomis (bulan)
     function usefulLife(cat) {
-        if (cat === 'Software')                                                  return 36;
-        if (['Server','Networking','Router','Network'].includes(cat))             return 60;
+        if (cat === 'Software') return 36;
+        if (['Server','Networking','Router','Network'].includes(cat)) return 60;
         return 48;
     }
 
@@ -425,7 +387,6 @@ foreach ($assets_docs as $doc) {
         const basePrice  = parseFloat(row.dataset.base) || 0;
         const assignDate = row.dataset.date;
         const cat        = row.dataset.cat;
-
         if (!basePrice || !assignDate) return;
 
         const purchase   = basePrice * (1 + currentMargin / 100) * (1 + currentPajak / 100);
@@ -437,20 +398,16 @@ foreach ($assets_docs as $doc) {
         const pctUsed    = Math.min(100, (monthsUsed / lifeMonths) * 100);
 
         let current, isSalvage;
-        if (monthsUsed <= 0) {
-            current = purchase; isSalvage = false;
-        } else {
+        if (monthsUsed <= 0) { current = purchase; isSalvage = false; }
+        else {
             const depPerMonth = (purchase - salvage) / lifeMonths;
             current = purchase - (depPerMonth * monthsUsed);
             isSalvage = current <= salvage || monthsUsed >= lifeMonths;
             if (isSalvage) current = salvage;
         }
 
-        // Update Harga Beli cell
         const purchaseCell = row.querySelector('.dep-purchase-cell');
         if (purchaseCell) purchaseCell.innerHTML = `<span class="font-bold text-on-surface text-sm">${fmt(purchase)}</span>`;
-
-        // Update Nilai Saat Ini cell
         const currentCell = row.querySelector('.dep-current-cell');
         if (currentCell) {
             if (isSalvage) {
@@ -461,41 +418,24 @@ foreach ($assets_docs as $doc) {
         }
     }
 
-    function recomputeAllRows() {
-        document.querySelectorAll('#asset-tbody tr[data-item]').forEach(recomputeRow);
-    }
+    function recomputeAllRows() { document.querySelectorAll('#asset-tbody tr[data-item]').forEach(recomputeRow); }
 
     async function fetchAndSync() {
         try {
             const res  = await fetch('../config/get_settings.php?_=' + Date.now());
             const json = await res.json();
             if (json.status !== 'ok') return;
-
             let changed = false;
-            if (typeof json.margin_pengadaan === 'number' && json.margin_pengadaan !== currentMargin) {
-                currentMargin = json.margin_pengadaan; changed = true;
-            }
-            if (typeof json.pajak === 'number' && json.pajak !== currentPajak) {
-                currentPajak  = json.pajak; changed = true;
-            }
-            if (typeof json.nilai_sisa === 'number' && json.nilai_sisa !== currentSisa) {
-                currentSisa   = json.nilai_sisa; changed = true;
-            }
-
+            if (typeof json.margin_pengadaan === 'number' && json.margin_pengadaan !== currentMargin) { currentMargin = json.margin_pengadaan; changed = true; }
+            if (typeof json.pajak === 'number' && json.pajak !== currentPajak) { currentPajak  = json.pajak; changed = true; }
+            if (typeof json.nilai_sisa === 'number' && json.nilai_sisa !== currentSisa) { currentSisa   = json.nilai_sisa; changed = true; }
             if (changed) {
                 recomputeAllRows();
                 const label = document.getElementById('sync-status');
-                if (label) {
-                    label.textContent = 'Updated!';
-                    setTimeout(() => label.textContent = 'Live Valuation', 2500);
-                }
+                if (label) { label.textContent = 'Updated!'; setTimeout(() => label.textContent = 'Live Valuation', 2500); }
             }
-        } catch (e) {
-            console.warn('[SIDIK-TI] Settings fetch error:', e);
-        }
+        } catch (e) { }
     }
-
-    // Init: fetch langsung dan poll tiap 60 detik
     fetchAndSync();
     setInterval(fetchAndSync, 60000);
     </script>

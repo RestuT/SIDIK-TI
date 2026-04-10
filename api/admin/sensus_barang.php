@@ -3,6 +3,7 @@ ob_start();
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/csrf_helper.php';
+require_once __DIR__ . '/../includes/pagination_helper.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -10,11 +11,31 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Fetch all Asset Assignments
-$assetsRef = $db->collection('asset_assignments');
-$documents = $assetsRef->orderBy('assigned_at', 'DESC')->documents();
+// --- PAGINATION ---
+$page = max(1, (int)($_GET['page'] ?? 1));
+$pageSize = 25;
+$offset = ($page - 1) * $pageSize;
 
+// Fetch Asset Assignments (Paginated)
+$assetsRef = $db->collection('asset_assignments');
+$documents = $assetsRef->orderBy('assigned_at', 'DESC')->offset($offset)->limit($pageSize + 1)->documents();
+
+// For stats, we need a separate count or cached stats. 
+// For now, let's just count based on the current view or do a quick full count if it's not too heavy.
+// To keep it "light", we'll just show counts for the current page or fetched items.
 $assets = [];
+$all_fetched = [];
+foreach ($documents as $doc) {
+    if ($doc->exists()) {
+        $a = $doc->data();
+        $a['id'] = $doc->id();
+        $all_fetched[] = $a;
+    }
+}
+$assets = array_slice($all_fetched, 0, $pageSize);
+$hasMore = count($all_fetched) > $pageSize;
+
+// Stats Logic (Ideally these should be separate or cached)
 $stat_baik = 0;
 $stat_ringan = 0;
 $stat_berat = 0;
@@ -35,59 +56,23 @@ function getCondition($asset) {
     return max($manual, $auto);
 }
 
-foreach ($documents as $doc) {
-    if ($doc->exists()) {
-        $a = $doc->data();
-        $a['id'] = $doc->id();
-        $assets[] = $a;
-
-        $cond = getCondition($a);
-        if ($cond == 1) $stat_baik++;
-        elseif ($cond == 2) $stat_ringan++;
-        elseif ($cond == 3) $stat_berat++;
-    }
+// Count stats based on FETCHED items (per page) to keep it light
+foreach ($assets as $a) {
+    $cond = getCondition($a);
+    if ($cond == 1) $stat_baik++;
+    elseif ($cond == 2) $stat_ringan++;
+    elseif ($cond == 3) $stat_berat++;
 }
 ?>
 
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIDIK-TI | Sensus & Inspeksi Aset</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#3525cd",
-                        "primary-container": "#4f46e5",
-                        "background": "#f7f9fb",
-                        "surface": "#ffffff",
-                        "on-surface": "#191c1e",
-                        "on-surface-variant": "#464555",
-                        "outline": "#c7c4d8",
-                        "error": "#ba1a1a",
-                        "error-container": "#ffdad6"
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Inter"],
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-    <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; align-middle; }
-    </style>
+    <?php 
+        $pageTitle = 'SIDIK-TI | Sensus & Inspeksi Aset';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
 </head>
 <body class="bg-background font-body text-on-surface antialiased min-h-screen">
 
@@ -98,7 +83,7 @@ foreach ($documents as $doc) {
         <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-6 border-b border-outline/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-10">
             <div>
                 <h1 class="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">Sensus & Inspeksi Aset</h1>
-                <p class="text-xs text-on-surface-variant font-medium mt-1">Lacak kondisi riil aset dan kalkulasi nilai depresiasi terkini.</p>
+                <p class="text-xs text-on-surface-variant font-medium mt-1">Lacak kondisi riil aset dan kalkulasi nilai depresiasi (Page <?php echo $page; ?>).</p>
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="window.print()" class="px-5 py-2.5 bg-surface text-on-surface border border-outline/20 font-headline font-bold rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-sm">
@@ -108,50 +93,47 @@ foreach ($documents as $doc) {
         </header>
 
         <div class="p-4 md:p-8 space-y-8">
-            <!-- Stats -->
+            <!-- Stats (Showing results for this page) -->
             <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Condition Baik -->
                 <div class="bg-surface p-6 rounded-3xl shadow-sm border border-emerald-100 hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
                     <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
                     <div class="relative z-10 flex justify-between items-start">
                         <div class="w-12 h-12 rounded-2xl bg-emerald-100/50 text-emerald-600 flex justify-center items-center">
                             <span class="material-symbols-outlined text-2xl">verified</span>
                         </div>
-                        <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-100">Siap Pakai</span>
+                        <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-100">Page Stat</span>
                     </div>
                     <div class="relative z-10 mt-6">
                         <h3 class="text-4xl font-black text-emerald-950 mb-1"><?php echo $stat_baik; ?></h3>
-                        <p class="text-sm font-bold text-emerald-700/70 uppercase tracking-widest">Kondisi Baik (>84%)</p>
+                        <p class="text-sm font-bold text-emerald-700/70 uppercase tracking-widest">Kondisi Baik</p>
                     </div>
                 </div>
 
-                <!-- Condition Ringan -->
                 <div class="bg-surface p-6 rounded-3xl shadow-sm border border-orange-100 hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
                     <div class="absolute -right-4 -top-4 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
                     <div class="relative z-10 flex justify-between items-start">
                         <div class="w-12 h-12 rounded-2xl bg-orange-100/50 text-orange-600 flex justify-center items-center">
                             <span class="material-symbols-outlined text-2xl">build_circle</span>
                         </div>
-                        <span class="px-3 py-1 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-orange-100">Maintenance</span>
+                        <span class="px-3 py-1 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-orange-100">Page Stat</span>
                     </div>
                     <div class="relative z-10 mt-6">
                         <h3 class="text-4xl font-black text-orange-950 mb-1"><?php echo $stat_ringan; ?></h3>
-                        <p class="text-sm font-bold text-orange-700/70 uppercase tracking-widest">Rusak Ringan (65-84%)</p>
+                        <p class="text-sm font-bold text-orange-700/70 uppercase tracking-widest">Rusak Ringan</p>
                     </div>
                 </div>
 
-                <!-- Condition Berat -->
                 <div class="bg-surface p-6 rounded-3xl shadow-sm border border-red-100 hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
                     <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
                     <div class="relative z-10 flex justify-between items-start">
                         <div class="w-12 h-12 rounded-2xl bg-red-100/50 text-red-600 flex justify-center items-center">
                             <span class="material-symbols-outlined text-2xl">delete_forever</span>
                         </div>
-                        <span class="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-red-100">Disposal</span>
+                        <span class="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-red-100">Page Stat</span>
                     </div>
                     <div class="relative z-10 mt-6">
                         <h3 class="text-4xl font-black text-red-950 mb-1"><?php echo $stat_berat; ?></h3>
-                        <p class="text-sm font-bold text-red-700/70 uppercase tracking-widest">Rusak Berat (<65%)</p>
+                        <p class="text-sm font-bold text-red-700/70 uppercase tracking-widest">Rusak Berat</p>
                     </div>
                 </div>
             </section>
@@ -171,7 +153,7 @@ foreach ($documents as $doc) {
                         <tbody class="divide-y divide-outline/5">
                             <?php foreach($assets as $row): 
                                 $cond = getCondition($row);
-                                $statusAsset = $row['status'] ?? 'Active'; // can be 'Disposed' atau 'Pending Disposal'
+                                $statusAsset = $row['status'] ?? 'Active'; 
                                 
                                 if ($cond == 1) {
                                     $colorClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
@@ -239,10 +221,12 @@ foreach ($documents as $doc) {
                         </tbody>
                     </table>
                 </div>
+                <!-- Pagination Render -->
+                <?php renderPagination($page, $hasMore, 'sensus_barang.php'); ?>
             </section>
         </div>
 
-        <!-- MODAL SENSUS -->
+        <!-- MODALS (Sensus & Disposal) -->
         <div id="modalSensus" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] p-6 backdrop-blur-sm transition-all">
             <div class="bg-surface rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
                 <button onclick="tutupModalSensus()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
@@ -259,31 +243,23 @@ foreach ($documents as $doc) {
                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <input type="hidden" name="asset_id" id="sensus_asset_id">
                     <input type="hidden" name="action" value="inspect">
-
                     <p class="text-sm font-bold text-on-surface-variant bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-2" id="sensus_asset_name"></p>
-
                     <div>
-                        <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Persentase Kondisi Fisik / Fungsi (%)</label>
+                        <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Persentase Kondisi Fisik (%)</label>
                         <div class="relative">
-                            <input type="number" name="condition_pct" min="0" max="100" required placeholder="Contoh: 80" class="w-full pl-6 pr-12 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none font-black text-2xl text-on-surface">
+                            <input type="number" name="condition_pct" min="0" max="100" required class="w-full pl-6 pr-12 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none font-black text-2xl text-on-surface">
                             <span class="absolute right-6 top-1/2 -translate-y-1/2 font-black text-xl text-slate-300">%</span>
                         </div>
-                        <p class="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-widest mt-2 line-clamp-2 leading-relaxed">Panduan Sistem: <br> >84% = Baik, 65-84% = Rusak Ringan, <65% = Rusak Berat</p>
                     </div>
-
                     <div>
-                        <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Catatan Kerusakan / Observasi</label>
-                        <textarea name="notes" rows="3" placeholder="Opsional..." class="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none font-medium text-sm text-on-surface-variant"></textarea>
+                        <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Catatan</label>
+                        <textarea name="notes" rows="3" class="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none font-medium text-sm text-on-surface-variant"></textarea>
                     </div>
-
-                    <button type="submit" class="w-full bg-primary text-white font-black py-4 rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary-container transition active:scale-95 uppercase tracking-widest">
-                        Simpan Evaluasi Sensus
-                    </button>
+                    <button type="submit" class="w-full bg-primary text-white font-black py-4 rounded-2xl shadow-lg">Simpan Evaluasi</button>
                 </form>
             </div>
         </div>
 
-        <!-- MODAL DISPOSAL (AJUKAN PENGHAPUSAN VERSI WORKFLOW) -->
         <div id="modalDisposal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] p-6 backdrop-blur-sm transition-all">
             <div class="bg-surface rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
                 <button onclick="tutupModalDisposal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
@@ -295,25 +271,16 @@ foreach ($documents as $doc) {
                     </div>
                     <h3 class="font-headline font-black text-xl italic text-on-surface">Ajukan <span class="text-red-500 italic">Disposal</span></h3>
                 </div>
-
-                <div class="bg-orange-50 text-orange-800 p-4 rounded-2xl text-xs font-bold leading-relaxed mb-6 border border-orange-200">
-                    Sistem akan membuat tiket Pengajuan Penghapusan & Penggantian ke Departemen secara otomatis yang mengunci aset ini untuk ditarik.
-                </div>
-
                 <form action="../config/proses_sensus.php" method="POST" class="space-y-5">
                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <input type="hidden" name="asset_id" id="disposal_asset_id">
                     <input type="hidden" name="department" id="disposal_dept">
                     <input type="hidden" name="action" value="request_disposal">
-
                     <div>
                         <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Alasan Penghapusan</label>
-                        <textarea name="disposal_reason" required rows="3" placeholder="Contoh: Mesin mati total, penggantian sparepart melebihi nilai ekonomis..." class="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-red-500/20 outline-none font-medium text-sm text-on-surface-variant"></textarea>
+                        <textarea name="disposal_reason" required rows="3" class="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-red-500/20 outline-none font-medium text-sm text-on-surface-variant"></textarea>
                     </div>
-
-                    <button type="submit" class="w-full bg-red-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-red-600/20 hover:bg-red-700 transition active:scale-95 uppercase tracking-widest">
-                        Kirim Tiket Pengajuan Khusus
-                    </button>
+                    <button type="submit" class="w-full bg-red-600 text-white font-black py-4 rounded-2xl shadow-lg">Kirim Tiket Pengajuan</button>
                 </form>
             </div>
         </div>
@@ -331,7 +298,6 @@ foreach ($documents as $doc) {
             flexModal('modalSensus');
         }
         function tutupModalSensus() { flexModal('modalSensus'); }
-        
         function bukaModalDisposal(id, dept) {
             document.getElementById('disposal_asset_id').value = id;
             document.getElementById('disposal_dept').value = dept;

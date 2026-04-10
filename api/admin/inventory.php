@@ -3,6 +3,7 @@ ob_start();
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/csrf_helper.php';
+require_once __DIR__ . '/../includes/pagination_helper.php';
 
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -10,37 +11,41 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// --- LOGIKA PENCARIAN ---
+// --- LOGIKA PENCARIAN & PAGINATION ---
 $search_query = isset($_GET['q']) ? $_GET['q'] : '';
-$search_q = $search_query; // alias untuk form input
+$search_q = $search_query; 
+$page = max(1, (int)($_GET['page'] ?? 1));
+$pageSize = 25;
+$offset = ($page - 1) * $pageSize;
 
 // 1. Fetch Inventory from Firestore
 $inventoryRef = $db->collection('inventory');
-$query = $inventoryRef;
 
-// Note: Firestore doesn't support partial string matching (LIKE) easily.
-// For now, we fetch all and filter in PHP, or use standard equality if applicable.
-$documents = $query->orderBy('stock', 'ASC')->documents();
+// Note: We fetch pageSize + 1 to check if there is a next page
+$query = $inventoryRef->orderBy('stock', 'ASC')->offset($offset)->limit($pageSize + 1);
+$documents = $query->documents();
 
 $inventory_data = [];
-$categories = [];
+$all_fetched = [];
 foreach ($documents as $doc) {
     if ($doc->exists()) {
         $data = $doc->data();
         $data['id'] = $doc->id();
         
-        // Client-side search filtering
+        // Client-side search filtering (fallback for simpler implementation)
         if (!empty($search_query)) {
             if (stripos($data['item_name'], $search_query) === false && 
                 stripos($data['category'], $search_query) === false) {
                 continue;
             }
         }
-        
-        $inventory_data[] = $data;
-        $categories[] = $data['category'];
+        $all_fetched[] = $data;
     }
 }
+
+// Check hasMore and slice to actual page size
+$inventory_data = array_slice($all_fetched, 0, $pageSize);
+$hasMore = count($all_fetched) > $pageSize;
 
 // 2. Fetch Master Templates
 $master_templates = $db->collection('procurement_templates')->orderBy('product_name', 'ASC')->documents();
@@ -50,8 +55,8 @@ foreach ($master_templates as $doc) {
 }
 
 // 3. Fetch System Settings (Margin & Pajak)
-$sys_margin = 5;   // default markup (%)
-$sys_pajak  = 11;  // default PPN (%)
+$sys_margin = 5;
+$sys_pajak  = 11;
 try {
     $sys_docs = $db->collection('system_settings')->documents();
     foreach ($sys_docs as $doc) {
@@ -61,93 +66,17 @@ try {
         if ($doc->id() === 'margin_pengadaan') $sys_margin = (float)$val;
         if ($doc->id() === 'pajak')            $sys_pajak  = (float)$val;
     }
-} catch (Exception $e) { /* pakai default */ }
+} catch (Exception $e) { }
 ?>
 
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIDIK-TI | Inventory Management</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary-fixed-dim": "#c3c0ff",
-                        "on-error": "#ffffff",
-                        "on-error-container": "#93000a",
-                        "on-secondary-container": "#fefcff",
-                        "on-tertiary-container": "#67f4b7",
-                        "inverse-surface": "#2d3133",
-                        "surface-variant": "#e0e3e5",
-                        "primary-fixed": "#e2dfff",
-                        "tertiary": "#005338",
-                        "secondary": "#0051d5",
-                        "on-surface": "#191c1e",
-                        "background": "#f7f9fb",
-                        "on-primary-container": "#dad7ff",
-                        "tertiary-fixed-dim": "#4edea3",
-                        "surface-tint": "#4d44e3",
-                        "on-tertiary": "#ffffff",
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "secondary-fixed": "#dbe1ff",
-                        "surface-container-low": "#f2f4f6",
-                        "on-surface-variant": "#464555",
-                        "on-secondary": "#ffffff",
-                        "surface": "#f7f9fb",
-                        "error-container": "#ffdad6",
-                        "error": "#ba1a1a",
-                        "surface-container-high": "#e6e8ea",
-                        "on-tertiary-fixed-variant": "#005236",
-                        "surface-container-highest": "#e0e3e5",
-                        "on-primary-fixed-variant": "#3323cc",
-                        "on-primary": "#ffffff",
-                        "primary-container": "#4f46e5",
-                        "outline-variant": "#c7c4d8",
-                        "on-primary-fixed": "#0f0069",
-                        "inverse-on-surface": "#eff1f3",
-                        "tertiary-fixed": "#6ffbbe",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "primary": "#3525cd",
-                        "surface-bright": "#f7f9fb",
-                        "secondary-container": "#316bf3",
-                        "on-background": "#191c1e",
-                        "surface-container-lowest": "#ffffff",
-                        "tertiary-container": "#006e4b",
-                        "surface-dim": "#d8dadc",
-                        "on-secondary-fixed": "#00174b",
-                        "surface-container": "#eceef0",
-                        "inverse-primary": "#c3c0ff",
-                        "outline": "#777587",
-                        "on-tertiary-fixed": "#002113"
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-    </style>
+    <?php 
+        $pageTitle = 'SIDIK-TI | Inventory Management';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
     
@@ -163,7 +92,7 @@ try {
                         <span class="material-symbols-outlined text-xl">search</span>
                     </div>
                     <input name="q" value="<?php echo htmlspecialchars($search_q); ?>" 
-                        class="block w-full sm:w-48 md:w-56 pl-11 pr-11 py-2 bg-surface-container-low dark:bg-slate-800 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium text-sm placeholder:text-outline/60 dark:text-white" 
+                        class="block w-full sm:w-48 md:w-56 pl-11 pr-11 py-2 bg-surface-container-low border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 transition-all outline-none font-medium text-sm placeholder:text-outline/60" 
                         placeholder="Cari perangkat..." type="text"/>
                     <?php if(!empty($search_q)): ?>
                         <a href="inventory.php" class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-rose-500 transition-colors">
@@ -207,12 +136,13 @@ try {
                     <div>
                         <?php 
                             $stat_low = 0;
+                            // Note: this only counts from current page. For global count, separate query needed.
                             foreach ($inventory_data as $inv) {
-                                if ($inv['stock'] <= $inv['min_stock']) $stat_low++;
+                                if ($inv['stock'] <= ($inv['min_stock'] ?? 0)) $stat_low++;
                             }
                         ?>
                         <h3 class="text-4xl font-black text-on-surface"><?php echo sprintf("%02d", $stat_low); ?></h3>
-                        <p class="text-on-surface-variant text-xs font-bold mt-1 uppercase tracking-wider">Perangkat Perlu Restock</p>
+                        <p class="text-on-surface-variant text-xs font-bold mt-1 uppercase tracking-wider">Low Stock (This Page)</p>
                     </div>
                 </div>
 
@@ -223,11 +153,8 @@ try {
                         </div>
                     </div>
                     <div>
-                        <?php 
-                            $stat_cat = count(array_unique($categories));
-                        ?>
-                        <h3 class="text-4xl font-black text-on-surface"><?php echo sprintf("%02d", $stat_cat); ?></h3>
-                        <p class="text-on-surface-variant text-xs font-bold mt-1 uppercase tracking-wider">Kategori Hardware</p>
+                        <h3 class="text-4xl font-black text-on-surface"><?php echo sprintf("%02d", count($inventory_data)); ?></h3>
+                        <p class="text-on-surface-variant text-xs font-bold mt-1 uppercase tracking-wider">Items on Page</p>
                     </div>
                 </div>
             </section>
@@ -237,7 +164,7 @@ try {
                 <div class="p-8 border-b border-outline-variant/10 flex items-center justify-between">
                     <div>
                         <h3 class="font-headline text-xl font-bold text-on-surface italic uppercase tracking-tight">Asset <span class="text-primary">Repository</span></h3>
-                        <p class="text-xs text-on-surface-variant mt-1 font-medium">Daftar lengkap perangkat yang tersedia di gudang TI.</p>
+                        <p class="text-xs text-on-surface-variant mt-1 font-medium">Daftar lengkap perangkat yang tersedia di gudang TI (Page <?php echo $page; ?>).</p>
                     </div>
                     <div class="flex gap-2">
                          <span class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-outline hover:text-primary cursor-pointer transition-colors">
@@ -251,7 +178,7 @@ try {
                         <thead>
                             <tr class="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] bg-surface-container-low/30 border-b border-outline-variant/10">
                                 <th class="px-8 py-5">Detail Perangkat</th>
-                                <th class="px-8 py-5">Kategori</th>
+                                <th class="px-8 py-5 text-center">Kategori</th>
                                 <th class="px-8 py-5 text-right">Pricing (User)</th>
                                 <th class="px-8 py-5 text-center">Qty / Satuan</th>
                                 <th class="px-8 py-5 text-right">Tindakan</th>
@@ -291,11 +218,11 @@ try {
                                 </td>
                                 <td class="px-8 py-6 text-right">
                                     <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-                                        <button onclick="bukaModalEdit(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="w-10 h-10 rounded-xl bg-primary-fixed/30 text-primary flex items-center justify-center hover:bg-primary hover:text-white shadow-sm transition-all">
+                                        <button onclick="bukaModalEdit(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white shadow-sm transition-all">
                                             <span class="material-symbols-outlined text-lg">edit</span>
                                         </button>
                                         <a href="../config/hapus_inventory.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Peringatan: Menghapus item dari gudang akan menghentikan sinkronisasi stok!')" 
-                                           class="w-10 h-10 rounded-xl bg-error-container/20 text-error flex items-center justify-center hover:bg-error hover:text-white transition-all">
+                                           class="w-10 h-10 rounded-xl bg-error/10 text-error flex items-center justify-center hover:bg-error hover:text-white transition-all">
                                             <span class="material-symbols-outlined text-lg">delete</span>
                                         </a>
                                     </div>
@@ -305,6 +232,8 @@ try {
                         </tbody>
                     </table>
                 </div>
+                <!-- Pagination Render -->
+                <?php renderPagination($page, $hasMore, 'inventory.php', ['q' => $search_q]); ?>
             </section>
         </div>
 
@@ -315,7 +244,7 @@ try {
                 
                 <div class="relative flex justify-between items-center mb-8">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-primary-fixed flex items-center justify-center text-primary">
+                        <div class="w-10 h-10 rounded-2xl bg-primary-container/20 flex items-center justify-center text-primary">
                             <span class="material-symbols-outlined">input</span>
                         </div>
                         <h3 class="font-headline text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">Update <span class="text-primary italic">Stok Gudang</span></h3>
@@ -360,16 +289,16 @@ try {
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-primary uppercase tracking-widest ml-1">Tambah Jumlah Stok</label>
                             <input type="number" name="stock" required 
-                                class="w-full px-5 py-4 bg-primary-fixed/20 border-2 border-primary-fixed rounded-2xl focus:border-primary focus:ring-0 outline-none font-black text-2xl text-primary text-center">
+                                class="w-full px-5 py-4 bg-primary/5 border-2 border-primary/20 rounded-2xl focus:border-primary focus:ring-0 outline-none font-black text-2xl text-primary text-center">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-error uppercase tracking-widest ml-1">Min. Stok Alert</label>
                             <input type="number" name="min_stock" value="5" 
-                                class="w-full px-5 py-4 bg-error-container/20 border-2 border-error-container/50 rounded-2xl focus:border-error focus:ring-0 outline-none font-black text-2xl text-error text-center">
+                                class="w-full px-5 py-4 bg-error/5 border-2 border-error/20 rounded-2xl focus:border-error focus:ring-0 outline-none font-black text-2xl text-error text-center">
                         </div>
                     </div>
 
-                    <div class="bg-surface-container rounded-2x p-6 border border-outline-variant/20 flex items-center justify-between">
+                    <div class="bg-surface-container rounded-2xl p-6 border border-outline-variant/20 flex items-center justify-between">
                         <div class="flex flex-col">
                             <span class="text-[10px] font-black text-outline uppercase tracking-widest">Base Price Reference</span>
                             <span id="disp_price" class="text-xl font-headline font-black text-on-surface-variant italic leading-none mt-1">Rp 0</span>
@@ -380,21 +309,21 @@ try {
                         </div>
                     </div>
 
-                    <button type="submit" name="simpan_inventory" class="w-full bg-gradient-to-br from-indigo-600 to-primary text-white font-headline font-black py-5 rounded-2xl shadow-xl hover:shadow-primary/40 hover:-translate-y-1 transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-xs">
+                    <button type="submit" name="simpan_inventory" class="w-full bg-primary text-white font-headline font-black py-5 rounded-2xl shadow-xl hover:shadow-primary/40 hover:-translate-y-1 transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-xs">
                         Update Stok Gudang
                     </button>
                 </form>
             </div>
         </div>
 
-        <!-- MODAL EDIT INVENTORY (Similar Modern Style) -->
+        <!-- MODAL EDIT INVENTORY -->
         <div id="modalEdit" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[110] p-6 backdrop-blur-md">
             <div class="bg-white rounded-[3rem] max-w-lg w-full p-10 shadow-3xl overflow-hidden relative" id="modalEditContent">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16"></div>
                 
                 <div class="relative flex justify-between items-center mb-8">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-secondary-fixed flex items-center justify-center text-secondary">
+                        <div class="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
                             <span class="material-symbols-outlined text-xl">stylus_note</span>
                         </div>
                         <h3 class="font-headline text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">Revisi <span class="text-secondary italic">Stok Barang</span></h3>
@@ -423,7 +352,7 @@ try {
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-secondary uppercase tracking-widest ml-1">Satuan</label>
                             <input type="text" name="satuan" id="edit_satuan" required 
-                                class="w-full px-5 py-4 bg-secondary-fixed/10 border-2 border-secondary-fixed rounded-2xl focus:border-secondary focus:ring-0 outline-none font-bold text-secondary">
+                                class="w-full px-5 py-4 bg-secondary/5 border-2 border-secondary/20 rounded-2xl focus:border-secondary focus:ring-0 outline-none font-bold text-secondary">
                         </div>
                     </div>
 
@@ -431,16 +360,16 @@ try {
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-secondary uppercase tracking-widest ml-1">Revisi Sisa Stok Fisik</label>
                             <input type="number" name="stock" id="edit_stock" required 
-                                class="w-full px-5 py-4 bg-secondary-fixed/20 border-2 border-secondary-fixed rounded-2xl focus:border-secondary focus:ring-0 outline-none font-black text-3xl text-secondary text-center">
+                                class="w-full px-5 py-4 bg-secondary/5 border-2 border-secondary/20 rounded-2xl focus:border-secondary focus:ring-0 outline-none font-black text-3xl text-secondary text-center">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-xs font-black text-error uppercase tracking-widest ml-1">Min. Stok Alert</label>
                             <input type="number" name="min_stock" id="edit_min" 
-                                class="w-full px-5 py-4 bg-error-container/10 border-2 border-error-container/30 rounded-2xl focus:border-error focus:ring-0 outline-none font-black text-3xl text-error text-center">
+                                class="w-full px-5 py-4 bg-error/5 border-2 border-error/20 rounded-2xl focus:border-error focus:ring-0 outline-none font-black text-3xl text-error text-center">
                         </div>
                     </div>
 
-                    <div class="bg-surface-container rounded-2x p-6 border border-outline-variant/20 relative group">
+                    <div class="bg-surface-container rounded-2xl p-6 border border-outline-variant/20 relative group">
                         <label class="block text-[10px] font-black text-outline uppercase tracking-widest mb-1">Update Dasar Harga Master (Opsional)</label>
                         <div class="flex items-center gap-3">
                             <span class="font-headline font-black text-on-surface-variant opacity-60">Rp</span>
