@@ -6,6 +6,16 @@ $pageTitle = $pageTitle ?? 'SIDIK-TI | Asset Management';
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title><?php echo $pageTitle; ?></title>
 
+<!-- Dark Mode Init (runs before CSS paint to prevent flash) -->
+<script>
+(function(){
+    var t=localStorage.getItem('theme');
+    if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
+        document.documentElement.classList.add('dark');
+    }
+})();
+</script>
+
 <!-- Fonts -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>

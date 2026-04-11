@@ -71,8 +71,11 @@
 }
 
 @layer base {
+  html {
+    @apply transition-colors duration-300;
+  }
   body {
-    @apply font-body antialiased bg-background text-on-surface transition-colors duration-500 selection:bg-primary/40;
+    @apply font-body antialiased bg-background text-on-surface transition-colors duration-300 selection:bg-primary/40;
   }
 }
 
@@ -88,6 +91,49 @@
   .table-row-hover {
     @apply hover:bg-surface-low transition-colors duration-200;
   }
+
+  /* Navbar User - Dark Mode */
+  header.sticky {
+    @apply dark:bg-surface/80 dark:border-white/5;
+  }
+}
+
+/* ===== DARK MODE FIXES for User Modules ===== */
+/* Navbar */
+.dark header {
+  background-color: rgba(10,10,10,0.85) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Stats cards */
+.dark .obsidian-panel {
+  background-color: #0d0d0d;
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* Table cells */
+.dark table thead tr {
+  background-color: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.06);
+}
+.dark table tbody tr {
+  border-color: rgba(255,255,255,0.04);
+}
+.dark table tbody tr:hover {
+  background-color: rgba(255,255,255,0.03);
+}
+
+/* Inputs */
+.dark input, .dark select, .dark textarea {
+  background-color: #141414;
+  color: #f5f5f5;
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* Dropdown profile */
+.dark .group div[class*="bg-surface"] {
+  background-color: #141414;
+  border-color: rgba(255,255,255,0.08);
 }
 
 .material-symbols-outlined {

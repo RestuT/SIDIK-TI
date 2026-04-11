@@ -1,29 +1,30 @@
-<!-- Theme Loader & Global Override Script -->
+<!-- Dark Mode: Toggle via class on <html>, persisted in localStorage -->
 <script>
-    function updateThemeIconG(theme) {
-        const icons = document.querySelectorAll('.theme-icon-g');
-        icons.forEach(i => i.textContent = theme === 'dark' ? 'dark_mode' : 'light_mode');
-    }
-    function toggleGlobalTheme() {
-        if (document.documentElement.classList.contains('dark')) {
-            document.documentElement.classList.remove('dark');
-            localStorage.theme = 'light';
-            updateThemeIconG('light');
-        } else {
+    (function() {
+        // Jalankan sebelum paint untuk mencegah flash
+        var saved = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
             document.documentElement.classList.add('dark');
-            localStorage.theme = 'dark';
-            updateThemeIconG('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
+    })();
+
+    function toggleGlobalTheme() {
+        var isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        document.querySelectorAll('.theme-icon-g').forEach(function(el) {
+            el.textContent = isDark ? 'dark_mode' : 'light_mode';
+        });
     }
-    
-    // Initializer
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-        document.addEventListener('DOMContentLoaded', () => updateThemeIconG('dark'));
-    } else {
-        document.documentElement.classList.remove('dark');
-        document.addEventListener('DOMContentLoaded', () => updateThemeIconG('light'));
-    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var isDark = document.documentElement.classList.contains('dark');
+        document.querySelectorAll('.theme-icon-g').forEach(function(el) {
+            el.textContent = isDark ? 'dark_mode' : 'light_mode';
+        });
+    });
 </script>
 
 <?php

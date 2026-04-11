@@ -130,6 +130,17 @@ function calculateDepreciation($item_name, $category, $assigned_date, $inv_price
         .live-dot { animation: blink 1.5s ease-in-out infinite; }
         @keyframes fade-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
         .asset-row { animation: fade-in .3s ease both; }
+
+        /* Dark mode: table rows */
+        .dark #asset-tbody tr {
+            border-color: rgba(255,255,255,0.04);
+        }
+        .dark #asset-tbody tr:hover {
+            background-color: rgba(255,255,255,0.03);
+        }
+        .dark #asset-tbody td {
+            color: #e2e8f0;
+        }
     </style>
 </head>
 <body class="selection:bg-primary/30 pb-24 md:pb-0">
@@ -199,13 +210,13 @@ function calculateDepreciation($item_name, $category, $assigned_date, $inv_price
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse min-w-[900px]">
                     <thead>
-                        <tr class="text-on-surface-variant text-[10px] uppercase tracking-[0.2em] border-b border-outline/5 bg-surface-low/30">
-                            <th class="px-6 py-6 font-black">Perangkat</th>
-                            <th class="px-6 py-6 font-black">Details</th>
-                            <th class="px-6 py-6 font-black">Status & Actions</th>
-                            <th class="px-6 py-6 font-black text-right">Perolehan</th>
-                            <th class="px-6 py-6 font-black text-right">Valuasi</th>
-                            <th class="px-6 py-6 font-black text-center">Utilisasi</th>
+                        <tr class="text-on-surface-variant text-[10px] uppercase tracking-[0.2em] border-b border-outline/5 bg-surface-low/30 dark:bg-white/5 dark:border-white/10">
+                            <th class="px-6 py-5 font-black">Perangkat</th>
+                            <th class="px-6 py-5 font-black">Details</th>
+                            <th class="px-6 py-5 font-black">Status & Actions</th>
+                            <th class="px-6 py-5 font-black text-right">Perolehan</th>
+                            <th class="px-6 py-5 font-black text-right">Valuasi</th>
+                            <th class="px-6 py-5 font-black text-center">Utilisasi</th>
                         </tr>
                     </thead>
                     <tbody id="asset-tbody" class="divide-y divide-outline/5">
