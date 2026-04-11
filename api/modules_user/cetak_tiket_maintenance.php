@@ -44,51 +44,15 @@ try {
 ?>
 
 <!DOCTYPE html>
-<html class="light" lang="id">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintenance Ticket - <?php echo htmlspecialchars($data['ticket_number'] ?? ''); ?></title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#3525cd",
-                        "surface": "#f7f9fb",
-                        "outline-variant": "#c7c4d8",
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Inter"],
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; padding: 0 !important; }
-            .print-card { border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; border-radius: 0 !important; }
-        }
-    </style>
+    <?php 
+        $pageTitle = 'SIDIK-TI | Cetak Tiket Maintenance';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
 </head>
-<body class="bg-surface p-6 md:p-12 font-body text-slate-900 antialiased">
+<body class="bg-surface p-6 md:p-12 font-body text-slate-900 antialiased transition-colors duration-300">
 
     <div class="max-w-3xl mx-auto bg-white p-12 rounded-[3rem] shadow-2xl border border-outline-variant/10 print-card relative overflow-hidden">
         <!-- Watermark/Decorative -->

@@ -21,92 +21,15 @@ try {
 ?>
 
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="id">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIDIK-TI | Maintenance Reporting</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary-fixed-dim": "#c3c0ff",
-                        "on-error": "#ffffff",
-                        "on-error-container": "#93000a",
-                        "on-secondary-container": "#fefcff",
-                        "on-tertiary-container": "#67f4b7",
-                        "inverse-surface": "#2d3133",
-                        "surface-variant": "#e0e3e5",
-                        "primary-fixed": "#e2dfff",
-                        "tertiary": "#005338",
-                        "secondary": "#0051d5",
-                        "on-surface": "#191c1e",
-                        "background": "#f7f9fb",
-                        "on-primary-container": "#dad7ff",
-                        "tertiary-fixed-dim": "#4edea3",
-                        "surface-tint": "#4d44e3",
-                        "on-tertiary": "#ffffff",
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "secondary-fixed": "#dbe1ff",
-                        "surface-container-low": "#f2f4f6",
-                        "on-surface-variant": "#464555",
-                        "on-secondary": "#ffffff",
-                        "surface": "#f7f9fb",
-                        "error-container": "#ffdad6",
-                        "error": "#ba1a1a",
-                        "surface-container-high": "#e6e8ea",
-                        "on-tertiary-fixed-variant": "#005236",
-                        "surface-container-highest": "#e0e3e5",
-                        "on-primary-fixed-variant": "#3323cc",
-                        "on-primary": "#ffffff",
-                        "primary-container": "#4f46e5",
-                        "outline-variant": "#c7c4d8",
-                        "on-primary-fixed": "#0f0069",
-                        "inverse-on-surface": "#eff1f3",
-                        "tertiary-fixed": "#6ffbbe",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "primary": "#3525cd",
-                        "surface-bright": "#f7f9fb",
-                        "secondary-container": "#316bf3",
-                        "on-background": "#191c1e",
-                        "surface-container-lowest": "#ffffff",
-                        "tertiary-container": "#006e4b",
-                        "surface-dim": "#d8dadc",
-                        "on-secondary-fixed": "#00174b",
-                        "surface-container": "#eceef0",
-                        "inverse-primary": "#c3c0ff",
-                        "outline": "#777587",
-                        "on-tertiary-fixed": "#002113"
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .fill-1 { font-variation-settings: 'FILL' 1; }
-    </style>
+    <?php 
+        $pageTitle = 'SIDIK-TI | Form Maintenance';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0">
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0 transition-colors duration-300">
     
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 

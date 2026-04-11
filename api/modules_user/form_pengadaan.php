@@ -61,55 +61,15 @@ try {
 ?>
 
 <!DOCTYPE html>
-<html class="light" lang="id">
+<html lang="id">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIDIK-TI | Procurement Request</title>
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary":           "#f59e0b",
-                        "primary-container": "#fff7ed",
-                        "primary-fixed":     "#ffed65",
-                        "surface":           "#f8fafc",
-                        "on-surface":        "#0f172a",
-                        "on-surface-variant":"#64748b",
-                        "outline-variant":   "#e2e8f0",
-                        "error":             "#ef4444",
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body":     ["Inter"],
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .fill-1 { font-variation-settings: 'FILL' 1; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f8fafc; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-        .live-dot { animation: blink 1.5s ease-in-out infinite; }
-    </style>
+    <?php 
+        $pageTitle = 'SIDIK-TI | Form Pengadaan';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0">
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0 transition-colors duration-300">
 
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 

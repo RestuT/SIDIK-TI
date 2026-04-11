@@ -19,6 +19,10 @@
   --color-surface-container: var(--surface-container);
   --color-surface-high: var(--surface-high);
 
+  --color-surface-container-lowest: var(--surface-lowest);
+  --color-surface-container-low: var(--surface-low);
+  --color-surface-container-high: var(--surface-high);
+
   /* Muted Highlights - Semantic */
   --color-highlight-indigo: var(--highlight-indigo);
   --color-highlight-emerald: var(--highlight-emerald);

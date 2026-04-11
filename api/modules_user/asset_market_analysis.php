@@ -30,52 +30,15 @@ try {
 } catch (Exception $e) { /* pakai default */ }
 ?>
 <!DOCTYPE html>
-<html class="light" lang="id">
+<html lang="id">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Asset Market Analysis | SIDIK-TI Intelligence</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary":                  "#3525cd",
-                        "primary-container":        "#4f46e5",
-                        "secondary":                "#0051d5",
-                        "surface":                  "#f7f9fb",
-                        "on-surface":               "#191c1e",
-                        "on-surface-variant":       "#464555",
-                        "surface-container-low":    "#f2f4f6",
-                        "surface-container-lowest": "#ffffff",
-                        "outline-variant":          "#c7c4d8",
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body":     ["Inter"],
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-          }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body { font-family: 'Inter', sans-serif; min-height: 100dvh; }
-        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .animate-float { animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-        .live-dot { animation: blink 1.5s ease-in-out infinite; }
-    </style>
+    <?php 
+        $pageTitle = 'SIDIK-TI | Asset Market Analysis';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
 </head>
-<body class="bg-surface text-on-surface selection:bg-primary/20 pb-24 md:pb-0">
+<body class="bg-surface text-on-surface selection:bg-primary/20 pb-24 md:pb-0 transition-colors duration-300">
 
     <!-- TopAppBar -->
     <header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50">

@@ -37,57 +37,15 @@ $total_records = count($submission_list);
 ?>
 
 <!DOCTYPE html>
-<html class="light" lang="id">
+<html lang="id">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIDIK-TI | Request Audit & History</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#4f46e5", // Indigo 600
-                        "primary-container": "#eef2ff",
-                        "procurement": "#f59e0b", // Amber 500
-                        "maintenance": "#10b981", // Emerald 500
-                        "surface": "#f8fafc",
-                        "on-surface": "#0f172a",
-                        "on-surface-variant": "#64748b",
-                        "outline-variant": "#e2e8f0",
-                        "error": "#ef4444",
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Inter"],
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .fill-1 { font-variation-settings: 'FILL' 1; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f8fafc; }
-        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        input:focus { outline: none; border: none; ring: 0; }
-    </style>
+    <?php 
+        $pageTitle = 'SIDIK-TI | Dashboard Audit';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0">
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0 transition-colors duration-300">
 
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 
