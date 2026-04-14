@@ -114,6 +114,7 @@ class AssetService extends BaseService {
                 }
             }
         }
+    }
 
     /**
      * Request asset disposal (penghapusan)
