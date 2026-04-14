@@ -3,6 +3,7 @@
   "description": "Asset Management & Procurement Tracking System",
   "type": "project",
   "require": {
+    "php": "^8.2",
     "kreait/firebase-php": "^7.0",
     "google/cloud-firestore": "^1.43",
     "vlucas/phpdotenv": "^5.5"
@@ -11,7 +12,9 @@
     "allow-plugins": {
       "ext-json": true
     },
-    "platform-check": false
+    "platform": {
+      "php": "8.2.0"
+    }
   },
   "autoload": {
     "psr-4": {
