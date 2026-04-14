@@ -1,11 +1,13 @@
 <?php
 ob_start();
-/**
- * SIDIK-TI - Web Portal Verifikasi Asset (Public / No Login)
- * Halaman ini diakses via pindaian QR Code pada stiker aset fisik.
- * HARUS menggunakan koneksi Firestore mandiri, TANPA database.php
- * karena halaman ini bersifat publik (tanpa sesi login).
- */
+require_once __DIR__ . '/../config/database.php';
+
+// Proteksi: Hasil scan sensus harus login
+if (!isset($_SESSION['user_id'])) {
+    $current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    header("Location: ../auth/login_user.php?redirect=" . urlencode($current_url));
+    exit();
+}
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 

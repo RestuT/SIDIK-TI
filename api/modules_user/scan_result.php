@@ -1,10 +1,13 @@
 <?php
 ob_start();
-/**
- * SIDIK-TI QR Scan Result Page
- * Halaman ini BISA diakses TANPA login — hanya membaca data tiket.
- * Digunakan sebagai tujuan URL di dalam QR Code pada cetak tiket.
- */
+require_once __DIR__ . '/../config/database.php';
+
+// Proteksi: Hasil scan tiket harus login
+if (!isset($_SESSION['user_id'])) {
+    $current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    header("Location: ../auth/login_user.php?redirect=" . urlencode($current_url));
+    exit();
+}
 
 // Bootstrap Firestore TANPA memerlukan session login
 require_once __DIR__ . '/../../vendor/autoload.php';

@@ -44,7 +44,15 @@ if (isset($_POST['login'])) {
             $_SESSION['role'] = $userData['role'];
             $_SESSION['full_name'] = $userData['full_name'] ?? 'Pegawai TI';
 
-            header("Location: ../modules_user/dashboard_user.php");
+            // Check for redirect parameter
+            $redirect = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
+            if (!empty($redirect)) {
+                $target = $redirect;
+            } else {
+                $target = "../modules_user/dashboard_user.php";
+            }
+
+            header("Location: $target");
             exit();
         } else {
             $error = "Kata sandi salah!";
@@ -168,6 +176,7 @@ if (isset($_POST['login'])) {
 
                     <form action="" class="space-y-6" method="POST">
                         <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                        <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($_GET['redirect'] ?? ''); ?>">
                         
                         <!-- Input Username -->
                         <div class="space-y-2">
