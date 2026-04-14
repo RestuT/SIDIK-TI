@@ -1,5 +1,7 @@
 <?php
 
+use App\Services\MaintenanceService;
+
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
 
@@ -24,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
         $department = $userData['dept'] ?? '-';
     }
 
-    use App\Services\MaintenanceService;
     $maintenanceService = new MaintenanceService($db);
 
     // 2. Submit Maintenance via Service

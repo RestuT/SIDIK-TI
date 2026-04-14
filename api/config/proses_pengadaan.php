@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
@@ -66,9 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     } catch (Exception $e) {
         die("Gagal memproses pengajuan: " . $e->getMessage());
     }
-} else {
-    echo "Sesi tidak valid. Silakan login kembali.";
-}
 } else {
     echo "Sesi tidak valid. Silakan login kembali.";
 }

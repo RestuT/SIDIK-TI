@@ -18,11 +18,6 @@
       "PHP_INI_SCAN_DIR": "/var/task/user/api"
     }
   },
-  "scripts": {
-    "build": "npm run tail:build",
-    "tail:build": "npx tailwindcss -i ./src/input.css -o ./api/public/css/style.css --minify",
-    "watch": "npx tailwindcss -i ./src/input.css -o ./api/public/css/style.css --watch"
-  },
   "routes": [
     { "src": "/public/(.*)", "dest": "/api/public/$1" },
     { "src": "/(.*).php", "dest": "/api/$1.php" },
