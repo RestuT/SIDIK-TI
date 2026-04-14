@@ -4,13 +4,7 @@
   "functions": {
     "api/**/*.php": {
       "runtime": "vercel-php@0.9.1",
-      "includeFiles": [
-        "api/**",
-        "src/**",
-        "includes/**",
-        "vendor/**",
-        ".env"
-      ]
+      "includeFiles": "{api,src,includes,vendor,.env}/**"
     }
   },
   "build": {
