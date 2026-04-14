@@ -10,7 +10,8 @@
   "config": {
     "allow-plugins": {
       "ext-json": true
-    }
+    },
+    "platform-check": false
   },
   "autoload": {
     "psr-4": {
