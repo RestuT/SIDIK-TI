@@ -1,6 +1,5 @@
 {
   "scripts": {
-    "build": "npm run tail:build",
     "tail:build": "npx tailwindcss -i ./src/input.css -o ./api/public/css/style.css --minify",
     "watch": "npx tailwindcss -i ./src/input.css -o ./api/public/css/style.css --watch"
   },
