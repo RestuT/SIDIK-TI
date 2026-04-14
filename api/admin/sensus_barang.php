@@ -11,299 +11,315 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// --- PAGINATION ---
-$page = max(1, (int)($_GET['page'] ?? 1));
-$pageSize = 25;
-$offset = ($page - 1) * $pageSize;
+// 1. Check Active Batch
+$active_batch = null;
+$tasks = [];
+$stats = ['Pending' => 0, 'Reported' => 0, 'Finalized' => 0];
 
-// Fetch Asset Assignments (Paginated)
-$assetsRef = $db->collection('asset_assignments');
-$documents = $assetsRef->orderBy('assigned_at', 'DESC')->offset($offset)->limit($pageSize + 1)->documents();
+try {
+    $batchDocs = $db->collection('sensus_batches')->where('status', '=', 'Active')->limit(1)->documents();
+    if (!$batchDocs->isEmpty()) {
+        foreach ($batchDocs as $b) {
+            $active_batch = $b->data();
+            $active_batch['id'] = $b->id();
+        }
 
-// For stats, we need a separate count or cached stats. 
-// For now, let's just count based on the current view or do a quick full count if it's not too heavy.
-// To keep it "light", we'll just show counts for the current page or fetched items.
-$assets = [];
-$all_fetched = [];
-foreach ($documents as $doc) {
-    if ($doc->exists()) {
-        $a = $doc->data();
-        $a['id'] = $doc->id();
-        $all_fetched[] = $a;
+        // Fetch all tasks for active batch
+        $taskDocs = $db->collection('sensus_tasks')->where('batch_id', '=', $active_batch['id'])->documents();
+        foreach ($taskDocs as $t) {
+            $data = $t->data();
+            $data['id'] = $t->id();
+            $tasks[] = $data;
+            if (isset($stats[$data['status']])) $stats[$data['status']]++;
+        }
     }
+} catch (Exception $e) {}
+
+// 2. Fetch Users to mapping for Hierarchical Grouping (Positions)
+$user_positions = [];
+try {
+    $uDocs = $db->collection('users')->documents();
+    foreach ($uDocs as $ud) {
+        $u = $ud->data();
+        $user_positions[$u['username']] = $u['jabatan'] ?? 'Staff';
+    }
+} catch (Exception $e) {}
+
+// Hierarchical Grouping Logic
+$grouped_tasks = [];
+foreach ($tasks as $task) {
+    $dept = $task['department'];
+    $user_id = $task['user_id'];
+    $jabatan = $user_positions[$user_id] ?? 'Staff';
+
+    if (!isset($grouped_tasks[$dept])) $grouped_tasks[$dept] = ['Kabid' => [], 'Staff' => [], 'Other' => []];
+
+    if (stripos($jabatan, 'Bidang') !== false) {
+        $category = 'Kabid';
+    } elseif (stripos($jabatan, 'Staff') !== false) {
+        $category = 'Staff';
+    } else {
+        $category = 'Other';
+    }
+
+    $grouped_tasks[$dept][$category][] = $task;
 }
-$assets = array_slice($all_fetched, 0, $pageSize);
-$hasMore = count($all_fetched) > $pageSize;
 
-// Stats Logic (Ideally these should be separate or cached)
-$stat_baik = 0;
-$stat_ringan = 0;
-$stat_berat = 0;
-
-function getCondition($asset) {
-    if (stripos($asset['category'] ?? '', 'Software') !== false) return 1;
-    $manual = (int)($asset['latest_condition_code'] ?? 1);
-    if (!isset($asset['assigned_at'])) return $manual;
-
-    $useful_life_months = 48; // PMK 72/2023 Hardware
-    $months_used = max(0, (time() - strtotime($asset['assigned_at'])) / (30.4375 * 24 * 3600));
-    $pct = min(100, ($months_used / $useful_life_months) * 100);
-    
-    $auto = 1;
-    if ($pct > 50 && $pct <= 75) $auto = 2;
-    if ($pct > 75) $auto = 3;
-    
-    return max($manual, $auto);
-}
-
-// Count stats based on FETCHED items (per page) to keep it light
-foreach ($assets as $a) {
-    $cond = getCondition($a);
-    if ($cond == 1) $stat_baik++;
-    elseif ($cond == 2) $stat_ringan++;
-    elseif ($cond == 3) $stat_berat++;
-}
+$pageTitle = 'SIDIK-TI | Manajemen Sensus';
+$base_url = '../';
 ?>
 
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <?php 
-        $pageTitle = 'SIDIK-TI | Sensus & Inspeksi Aset';
-        $base_url = '../';
-        include __DIR__ . '/../includes/head_meta.php'; 
-    ?>
+    <?php include __DIR__ . '/../includes/head_meta.php'; ?>
+    <style>
+        .bento-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .dept-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .dept-card:hover { transform: translateY(-4px); }
+    </style>
 </head>
-<body class="bg-background font-body text-on-surface antialiased min-h-screen">
-
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen">
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
-    <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
-        <!-- Header Bar -->
-        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-6 border-b border-outline/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-10">
+    <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen">
+        <header class="px-8 py-8 border-b border-outline/5 bg-white/50 backdrop-blur-xl sticky top-0 z-20 flex justify-between items-center">
             <div>
-                <h1 class="font-headline text-2xl md:text-3xl font-extrabold text-on-surface tracking-tight">Sensus & Inspeksi Aset</h1>
-                <p class="text-xs text-on-surface-variant font-medium mt-1">Lacak kondisi riil aset dan kalkulasi nilai depresiasi (Page <?php echo $page; ?>).</p>
+                <h1 class="text-3xl font-black tracking-tight italic uppercase">Manajemen <span class="text-primary italic">Sensus</span></h1>
+                <p class="text-xs text-on-surface-variant font-medium mt-1">Kelola periode inspeksi dan monitoring progres pelaporan hirarkis.</p>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="window.print()" class="px-5 py-2.5 bg-surface text-on-surface border border-outline/20 font-headline font-bold rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-sm">
-                    <span class="material-symbols-outlined text-lg">print</span> Print Report
+            
+            <?php if (!$active_batch): ?>
+                <button onclick="document.getElementById('modalStartBatch').classList.replace('hidden', 'flex')" 
+                        class="px-6 py-3 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">add_task</span> Mulai Batch Baru
                 </button>
-            </div>
+            <?php else: ?>
+                <div class="px-5 py-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-emerald-700">Batch Aktif: <?php echo htmlspecialchars($active_batch['batch_name']); ?></span>
+                </div>
+            <?php endif; ?>
         </header>
 
-        <div class="p-4 md:p-8 space-y-8">
-            <!-- Stats (Showing results for this page) -->
-            <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-surface p-6 rounded-3xl shadow-sm border border-emerald-100 hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="relative z-10 flex justify-between items-start">
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-100/50 text-emerald-600 flex justify-center items-center">
-                            <span class="material-symbols-outlined text-2xl">verified</span>
+        <div class="p-8 space-y-10">
+            <?php if ($active_batch): ?>
+                <!-- Stats Overview -->
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="obsidian-panel p-6 rounded-3xl border-outline/5 flex justify-between items-center group">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/40 mb-1">Total Aset</p>
+                            <h3 class="text-4xl font-black text-on-surface tracking-tighter"><?php echo count($tasks); ?></h3>
                         </div>
-                        <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-100">Page Stat</span>
-                    </div>
-                    <div class="relative z-10 mt-6">
-                        <h3 class="text-4xl font-black text-emerald-950 mb-1"><?php echo $stat_baik; ?></h3>
-                        <p class="text-sm font-bold text-emerald-700/70 uppercase tracking-widest">Kondisi Baik</p>
-                    </div>
-                </div>
-
-                <div class="bg-surface p-6 rounded-3xl shadow-sm border border-orange-100 hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="relative z-10 flex justify-between items-start">
-                        <div class="w-12 h-12 rounded-2xl bg-orange-100/50 text-orange-600 flex justify-center items-center">
-                            <span class="material-symbols-outlined text-2xl">build_circle</span>
+                        <div class="w-12 h-12 bg-surface-low rounded-2xl flex items-center justify-center text-on-surface-variant group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">inventory_2</span>
                         </div>
-                        <span class="px-3 py-1 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-orange-100">Page Stat</span>
                     </div>
-                    <div class="relative z-10 mt-6">
-                        <h3 class="text-4xl font-black text-orange-950 mb-1"><?php echo $stat_ringan; ?></h3>
-                        <p class="text-sm font-bold text-orange-700/70 uppercase tracking-widest">Rusak Ringan</p>
-                    </div>
-                </div>
-
-                <div class="bg-surface p-6 rounded-3xl shadow-sm border border-red-100 hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-50 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-                    <div class="relative z-10 flex justify-between items-start">
-                        <div class="w-12 h-12 rounded-2xl bg-red-100/50 text-red-600 flex justify-center items-center">
-                            <span class="material-symbols-outlined text-2xl">delete_forever</span>
+                    <div class="obsidian-panel p-6 rounded-3xl border-primary/20 flex justify-between items-center group bg-primary/5">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Sudah Melapor</p>
+                            <h3 class="text-4xl font-black text-primary tracking-tighter"><?php echo $stats['Reported'] + $stats['Finalized']; ?></h3>
                         </div>
-                        <span class="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-red-100">Page Stat</span>
+                        <div class="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">check_circle</span>
+                        </div>
                     </div>
-                    <div class="relative z-10 mt-6">
-                        <h3 class="text-4xl font-black text-red-950 mb-1"><?php echo $stat_berat; ?></h3>
-                        <p class="text-sm font-bold text-red-700/70 uppercase tracking-widest">Rusak Berat</p>
+                    <div class="obsidian-panel p-6 rounded-3xl border-orange-200 flex justify-between items-center group">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-orange-400/60 mb-1">Menunggu</p>
+                            <h3 class="text-4xl font-black text-orange-600 tracking-tighter"><?php echo $stats['Pending']; ?></h3>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">hourglass_empty</span>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- Table -->
-            <section class="bg-surface rounded-3xl border border-outline/10 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 border-b border-outline/10 text-[10px] text-on-surface-variant font-black uppercase tracking-widest">
-                                <th class="px-6 py-5">Kode / Item</th>
-                                <th class="px-6 py-5">Pengguna & Departemen</th>
-                                <th class="px-6 py-5 text-center">Status Kondisi</th>
-                                <th class="px-6 py-5 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-outline/5">
-                            <?php foreach($assets as $row): 
-                                $cond = getCondition($row);
-                                $statusAsset = $row['status'] ?? 'Active'; 
-                                
-                                if ($cond == 1) {
-                                    $colorClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
-                                    $label = "Baik";
-                                    $icon = "check_circle";
-                                } elseif ($cond == 2) {
-                                    $colorClass = "bg-orange-50 text-orange-700 border-orange-200";
-                                    $label = "Rusak Ringan";
-                                    $icon = "warning";
-                                } else {
-                                    $colorClass = "bg-red-50 text-red-700 border-red-200";
-                                    $label = "Rusak Berat";
-                                    $icon = "error";
-                                }
+                <!-- Hierarchical List -->
+                <section class="space-y-8">
+                    <h2 class="text-sm font-black uppercase tracking-[0.3em] text-on-surface-variant flex items-center gap-3">
+                        <span class="w-8 h-[1px] bg-outline/20"></span>
+                        Klaster Hirarki Bidang
+                        <span class="w-full h-[1px] bg-outline/20"></span>
+                    </h2>
 
-                                if ($statusAsset === 'Disposed') {
-                                    $colorClass = "bg-slate-100 text-slate-500 border-slate-300";
-                                    $label = "Sudah Dihapus";
-                                    $icon = "delete";
-                                }
-                            ?>
-                            <tr class="group hover:bg-slate-50/50 transition-colors">
-                                <td class="px-6 py-5">
+                    <div class="space-y-6">
+                        <?php foreach ($grouped_tasks as $dept => $categories): ?>
+                            <div class="bg-white rounded-[2.5rem] border border-outline/5 shadow-sm overflow-hidden dept-card">
+                                <div class="px-8 py-6 bg-slate-50/50 border-b border-outline/5 flex items-center justify-between">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 rounded-xl bg-slate-100 flex justify-center items-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                            <span class="material-symbols-outlined text-xl">
-                                                <?php echo in_array($row['category']??'', ['Laptop','Monitor']) ? 'laptop_mac' : 'devices'; ?>
-                                            </span>
+                                        <div class="w-10 h-10 bg-on-surface text-surface rounded-xl flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-xl">account_balance</span>
                                         </div>
-                                        <div>
-                                            <p class="font-bold text-on-surface flex items-center gap-2">
-                                                <?php echo htmlspecialchars($row['item_name']); ?>
-                                            </p>
-                                            <p class="text-xs font-mono text-on-surface-variant/60 uppercase tracking-widest mt-1"><?php echo htmlspecialchars($row['kode_barang'] ?? $row['serial_number'] ?? '-'); ?></p>
+                                        <h3 class="font-black text-lg uppercase italic tracking-tight"><?php echo htmlspecialchars($dept); ?></h3>
+                                    </div>
+                                    <span class="px-4 py-1.5 bg-white rounded-full text-[10px] font-black border border-outline/10 text-on-surface-variant uppercase tracking-widest">
+                                        <?php echo count($categories['Kabid']) + count($categories['Staff']) + count($categories['Other']); ?> Aset
+                                    </span>
+                                </div>
+                                
+                                <div class="p-8 space-y-8">
+                                    <!-- Kabid Cluster -->
+                                    <?php if (!empty($categories['Kabid'])): ?>
+                                        <div class="space-y-4">
+                                            <p class="text-[9px] font-black text-primary uppercase tracking-[0.2em] ml-4">Grup Kepala Bidang</p>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <?php foreach ($categories['Kabid'] as $task): ?>
+                                                    <?php renderAdminTaskCard($task); ?>
+                                                <?php endforeach; ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-5">
-                                    <p class="font-bold text-sm text-on-surface"><?php echo htmlspecialchars($row['user_name'] ?? 'Unknown'); ?></p>
-                                    <p class="text-xs text-on-surface-variant uppercase tracking-widest mt-0.5"><?php echo htmlspecialchars($row['department'] ?? 'Unknown Dept'); ?></p>
-                                </td>
-                                <td class="px-6 py-5 text-center">
-                                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border <?php echo $colorClass; ?>">
-                                        <span class="material-symbols-outlined text-sm"><?php echo $icon; ?></span>
-                                        <?php echo $label; ?>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-5 text-right space-x-2">
-                                    <?php if($statusAsset !== 'Disposed'): ?>
-                                        <button onclick="bukaModalSensus('<?php echo $row['id']; ?>', '<?php echo htmlspecialchars(addslashes($row['item_name'])); ?>')" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-primary hover:text-white text-slate-600 transition-colors rounded-xl font-bold text-xs uppercase tracking-widest">
-                                            <span class="material-symbols-outlined text-sm">fact_check</span> Inspeksi
-                                        </button>
-                                        
-                                        <?php if($cond == 3): ?>
-                                            <button onclick="bukaModalDisposal('<?php echo $row['id']; ?>', '<?php echo htmlspecialchars(addslashes($row['department']??'')); ?>')" class="inline-flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-600 hover:text-white text-red-600 border border-red-200 transition-colors rounded-xl font-bold text-xs uppercase tracking-widest">
-                                                <span class="material-symbols-outlined text-sm">recycling</span> Ajukan Disposal
-                                            </button>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Aset Tidak Aktif</span>
                                     <?php endif; ?>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <!-- Pagination Render -->
-                <?php renderPagination($page, $hasMore, 'sensus_barang.php'); ?>
-            </section>
-        </div>
 
-        <!-- MODALS (Sensus & Disposal) -->
-        <div id="modalSensus" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] p-6 backdrop-blur-sm transition-all">
-            <div class="bg-surface rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-                <button onclick="tutupModalSensus()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
-                    <span class="material-symbols-outlined text-sm">close</span>
-                </button>
-                <div class="mb-6 flex items-center gap-3">
-                    <div class="w-10 h-10 bg-primary/10 text-primary flex items-center justify-center rounded-xl">
-                        <span class="material-symbols-outlined">health_and_safety</span>
+                                    <!-- Staff Cluster -->
+                                    <?php if (!empty($categories['Staff'])): ?>
+                                        <div class="space-y-4">
+                                            <p class="text-[9px] font-black text-on-surface-variant/60 uppercase tracking-[0.2em] ml-4">Grup Pelaksana / Staff</p>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <?php foreach ($categories['Staff'] as $task): ?>
+                                                    <?php renderAdminTaskCard($task); ?>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-                    <h3 class="font-headline font-black text-xl italic text-on-surface">Form <span class="text-primary italic">Inspeksi</span></h3>
+                </section>
+            <?php else: ?>
+                <div class="flex flex-col items-center justify-center py-32 text-center obsidian-panel rounded-[3rem] border-dashed border-2">
+                    <div class="w-24 h-24 bg-surface-low rounded-[2rem] flex items-center justify-center mb-6 text-on-surface-variant/20">
+                        <span class="material-symbols-outlined text-5xl">inventory</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-on-surface italic uppercase">Belum Ada Batch Sensus</h2>
+                    <p class="text-on-surface-variant max-w-sm mt-3 font-medium">Buat batch sensus baru untuk mendeteksi aset aktif dan mulai pengumpulan laporan dari user.</p>
                 </div>
-
-                <form action="../config/proses_sensus.php" method="POST" class="space-y-5">
-                    <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
-                    <input type="hidden" name="asset_id" id="sensus_asset_id">
-                    <input type="hidden" name="action" value="inspect">
-                    <p class="text-sm font-bold text-on-surface-variant bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-2" id="sensus_asset_name"></p>
-                    <div>
-                        <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Persentase Kondisi Fisik (%)</label>
-                        <div class="relative">
-                            <input type="number" name="condition_pct" min="0" max="100" required class="w-full pl-6 pr-12 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none font-black text-2xl text-on-surface">
-                            <span class="absolute right-6 top-1/2 -translate-y-1/2 font-black text-xl text-slate-300">%</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Catatan</label>
-                        <textarea name="notes" rows="3" class="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none font-medium text-sm text-on-surface-variant"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-primary text-white font-black py-4 rounded-2xl shadow-lg">Simpan Evaluasi</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="modalDisposal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] p-6 backdrop-blur-sm transition-all">
-            <div class="bg-surface rounded-3xl max-w-md w-full p-8 shadow-2xl relative">
-                <button onclick="tutupModalDisposal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
-                    <span class="material-symbols-outlined text-sm">close</span>
-                </button>
-                <div class="mb-6 flex items-center gap-3">
-                    <div class="w-10 h-10 bg-red-100 text-red-600 flex items-center justify-center rounded-xl">
-                        <span class="material-symbols-outlined">warning</span>
-                    </div>
-                    <h3 class="font-headline font-black text-xl italic text-on-surface">Ajukan <span class="text-red-500 italic">Disposal</span></h3>
-                </div>
-                <form action="../config/proses_sensus.php" method="POST" class="space-y-5">
-                    <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
-                    <input type="hidden" name="asset_id" id="disposal_asset_id">
-                    <input type="hidden" name="department" id="disposal_dept">
-                    <input type="hidden" name="action" value="request_disposal">
-                    <div>
-                        <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2">Alasan Penghapusan</label>
-                        <textarea name="disposal_reason" required rows="3" class="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-red-500/20 outline-none font-medium text-sm text-on-surface-variant"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-red-600 text-white font-black py-4 rounded-2xl shadow-lg">Kirim Tiket Pengajuan</button>
-                </form>
-            </div>
+            <?php endif; ?>
         </div>
     </main>
 
+    <!-- Modal Finalize Task -->
+    <div id="modalFinalize" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] p-6 backdrop-blur-sm transition-all">
+        <div class="bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-2xl relative">
+            <button onclick="tutupModalFinalize()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="mb-8 flex flex-col items-center text-center">
+                <div class="w-16 h-16 bg-emerald-50 text-emerald-600 flex items-center justify-center rounded-3xl mb-4 border border-emerald-100">
+                    <span class="material-symbols-outlined text-3xl">verified</span>
+                </div>
+                <h3 class="font-headline font-black text-2xl italic uppercase text-on-surface">Validasi <span class="text-emerald-500 italic">Sensus</span></h3>
+                <p class="text-xs text-on-surface-variant mt-2" id="finalize_item_name"></p>
+            </div>
+
+            <form action="../config/proses_sensus.php" method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                <input type="hidden" name="action" value="finalize_task">
+                <input type="hidden" name="task_id" id="finalize_task_id">
+                <input type="hidden" name="asset_id" id="finalize_asset_id">
+
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Laporan User</p>
+                    <p class="text-sm font-bold text-slate-700" id="user_report_hint"></p>
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-3 ml-2">Final Kondisi Fisik (%)</label>
+                    <input type="number" name="final_pct" id="final_pct" min="0" max="100" required 
+                           class="w-full py-5 bg-slate-50 border-0 rounded-3xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-black text-3xl text-center text-emerald-600">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-3 ml-2">Kesimpulan Admin</label>
+                    <textarea name="final_notes" rows="3" required class="w-full p-5 bg-slate-50 border-0 rounded-3xl focus:ring-4 focus:ring-emerald-500/10 outline-none font-medium text-sm text-on-surface"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 text-white font-black py-5 rounded-3xl shadow-xl shadow-emerald-900/20 hover:scale-[1.02] transition-all uppercase tracking-widest text-xs">
+                    Selesaikan & Update Inventaris
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Start Batch -->
+    <div id="modalStartBatch" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[100] p-6 backdrop-blur-sm transition-all">
+        <div class="bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-2xl relative border border-outline/10">
+            <button onclick="document.getElementById('modalStartBatch').classList.replace('flex', 'hidden')" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="mb-8 flex flex-col items-center">
+                <div class="w-16 h-16 bg-primary/10 text-primary flex items-center justify-center rounded-3xl mb-4">
+                    <span class="material-symbols-outlined text-3xl">rocket_launch</span>
+                </div>
+                <h3 class="font-black text-2xl uppercase italic text-on-surface">Buka <span class="text-primary italic">Batch Sensus</span></h3>
+            </div>
+            <form action="../config/proses_sensus.php" method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                <input type="hidden" name="action" value="start_batch">
+                <div>
+                    <label class="block text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-3 ml-2">Nama Batch Sensus</label>
+                    <input type="text" name="batch_name" required placeholder="E.g. Sensus Semester 1 2026" 
+                           class="w-full p-5 bg-slate-50 border-0 rounded-3xl focus:ring-4 focus:ring-primary/10 outline-none font-bold text-sm text-on-surface">
+                </div>
+                <button type="submit" class="w-full bg-primary text-white font-black py-5 rounded-3xl shadow-xl shadow-primary/30 hover:scale-[1.02] transition-all uppercase tracking-[0.2em] text-xs">
+                    Deploy Batch Sekarang
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        function flexModal(id) {
-            const el = document.getElementById(id);
-            if(el.classList.contains('hidden')) el.classList.replace('hidden', 'flex');
-            else el.classList.replace('flex', 'hidden');
+        function bukaModalFinalize(taskId, assetId, name, reportPct, notes) {
+            document.getElementById('finalize_task_id').value = taskId;
+            document.getElementById('finalize_asset_id').value = assetId;
+            document.getElementById('finalize_item_name').innerText = name;
+            document.getElementById('user_report_hint').innerText = "Persentase: " + reportPct + "% | Catatan: " + notes;
+            document.getElementById('final_pct').value = reportPct;
+            document.getElementById('modalFinalize').classList.replace('hidden', 'flex');
         }
-        function bukaModalSensus(id, name) {
-            document.getElementById('sensus_asset_id').value = id;
-            document.getElementById('sensus_asset_name').innerText = "Target: " + name;
-            flexModal('modalSensus');
-        }
-        function tutupModalSensus() { flexModal('modalSensus'); }
-        function bukaModalDisposal(id, dept) {
-            document.getElementById('disposal_asset_id').value = id;
-            document.getElementById('disposal_dept').value = dept;
-            flexModal('modalDisposal');
-        }
-        function tutupModalDisposal() { flexModal('modalDisposal'); }
+        function tutupModalFinalize() { document.getElementById('modalFinalize').classList.replace('flex', 'hidden'); }
     </script>
 </body>
 </html>
+
+<?php
+/**
+ * Helper to render sub-cards for tasks in the admin list
+ */
+function renderAdminTaskCard($task) {
+    if ($task['status'] === 'Finalized') {
+        $statusClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
+    } elseif ($task['status'] === 'Reported') {
+        $statusClass = 'bg-indigo-50 text-primary border-primary/20 animate-pulse';
+    } else {
+        $statusClass = 'bg-slate-50 text-slate-400 border-slate-100';
+    }
+?>
+    <div class="p-6 bg-white border border-outline/5 rounded-3xl hover:border-primary/20 transition-all group flex items-start justify-between">
+        <div class="flex gap-4">
+            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary transition-all">
+                <span class="material-symbols-outlined">person</span>
+            </div>
+            <div>
+                <p class="font-bold text-sm text-on-surface"><?php echo htmlspecialchars($task['user_name']); ?></p>
+                <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mt-0.5"><?php echo htmlspecialchars($task['item_name']); ?></p>
+                <div class="mt-3 flex items-center gap-2">
+                    <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border <?php echo $statusClass; ?>">
+                        <?php echo $task['status']; ?>
+                    </span>
+                    <?php if ($task['status'] === 'Reported'): ?>
+                        <span class="text-[10px] font-black text-primary ml-2"><?php echo $task['report_pct']; ?>% Condition</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        
+        <?php if ($task['status'] === 'Reported'): ?>
+            <button onclick="bukaModalFinalize('<?php echo $task['id']; ?>', '<?php echo $task['asset_id']; ?>', '<?php echo htmlspecialchars(addslashes($task['item_name'])); ?>', '<?php echo $task['report_pct']; ?>', '<?php echo htmlspecialchars(addslashes($task['report_notes']??'')); ?>')" 
+                    class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-md">
+                <span class="material-symbols-outlined">edit_note</span>
+            </button>
+        <?php endif; ?>
+    </div>
+<?php } ?>

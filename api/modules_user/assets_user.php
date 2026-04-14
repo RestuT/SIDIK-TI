@@ -148,6 +148,51 @@ function calculateDepreciation($item_name, $category, $assigned_date, $inv_price
 
     <main class="max-w-7xl mx-auto px-6 md:px-10 py-12 space-y-12">
 
+        <?php
+        // Cek Sensus Aktif
+        $has_pending_sensus = false;
+        try {
+            $activeBatchDocs = $db->collection('sensus_batches')->where('status', '=', 'Active')->limit(1)->documents();
+            if (!$activeBatchDocs->isEmpty()) {
+                foreach ($activeBatchDocs as $b) {
+                    $bid = $b->id();
+                    $taskDocs = $db->collection('sensus_tasks')
+                                   ->where('batch_id', '=', $bid)
+                                   ->where('user_id', '=', $user_id)
+                                   ->where('status', '=', 'Pending')
+                                   ->limit(1)
+                                   ->documents();
+                    $has_pending_sensus = !$taskDocs->isEmpty();
+                }
+            }
+        } catch (Exception $e) {}
+
+        if ($has_pending_sensus):
+        ?>
+        <!-- Census Notification Alert -->
+        <section class="animate-in fade-in slide-in-from-top-4 duration-700">
+            <div class="relative overflow-hidden bg-gradient-to-r from-primary to-primary-container p-1 rounded-[2rem] shadow-2xl shadow-primary/20">
+                <div class="bg-surface/10 backdrop-blur-md px-8 py-6 rounded-[1.8rem] flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/20">
+                            <span class="material-symbols-outlined text-3xl live-dot">campaign</span>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-headline font-black text-xl italic uppercase">Sensus <span class="text-indigo-200">Aset Aktif</span></h3>
+                            <p class="text-white/70 text-sm font-medium">Ada tugas sensus mandiri yang menunggu laporan Anda. Mohon segera divalidasi.</p>
+                        </div>
+                    </div>
+                    <a href="sensus_dashboard_user.php" class="px-8 py-4 bg-white text-primary font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-opacity-90 transition-all shadow-xl active:scale-95">
+                        Mulai Laporan Sekarang
+                    </a>
+                </div>
+                <!-- Micro-decorations -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 -mr-16 -mt-16 rounded-full blur-2xl"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-indigo-400/10 -ml-12 -mb-12 rounded-full blur-2xl"></div>
+            </div>
+        </section>
+        <?php endif; ?>
+
         <!-- Page Header -->
         <section class="flex flex-col lg:flex-row lg:items-end justify-between gap-10 pb-6 border-b border-outline/5">
             <div class="space-y-4">
