@@ -3,6 +3,8 @@
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
 
+use App\Services\ProcurementService;
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     
     require_csrf_token();
@@ -26,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     $my_dept   = $userData['department'] ?? '';
     $user_name = $userData['full_name'] ?? '';
 
-    use App\Services\ProcurementService;
     $procurementService = new ProcurementService($db);
 
     // 2. Fetch System Settings

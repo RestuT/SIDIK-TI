@@ -1,6 +1,9 @@
 <?php
 ob_start();
 
+use App\Services\AssetService;
+use App\Services\MaintenanceService;
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/csrf_helper.php';
 require_once __DIR__ . '/../includes/pagination_helper.php';
@@ -72,8 +75,8 @@ try {
 } catch (Exception $e) {}
 
 // 6. INITIALIZE SERVICES
-use App\Services\AssetService;
 $assetService = new AssetService($db);
+$maintenanceService = new MaintenanceService($db);
 $system_settings = [
     'margin_pengadaan' => $margin_pengadaan,
     'nilai_sisa'       => $nilai_sisa_pct,

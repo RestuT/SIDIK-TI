@@ -1,8 +1,8 @@
-<?php
-ob_start();
-
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
+
+use App\Services\SensusService;
+use App\Services\AssetService;
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login_user.php");
@@ -11,14 +11,6 @@ if (!isset($_SESSION['user_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf_token();
-
-    $action = $_POST['action'] ?? '';
-    $asset_id = $_POST['asset_id'] ?? '';
-    $batch_id = $_POST['batch_id'] ?? '';
-    $task_id = $_POST['task_id'] ?? '';
-
-    use App\Services\SensusService;
-    use App\Services\AssetService;
 
     $sensusService = new SensusService($db);
     $assetService  = new AssetService($db);
@@ -49,14 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($_SESSION['role'] !== 'admin') die("Unauthorized");
         if (empty($task_id) || empty($asset_id)) die("Missing IDs");
 
-            'notes' => "[Sensus Final] " . $notes
-        ]);
+        $sensusService->finalizeTask($task_id, $asset_id, $_POST['notes'] ?? '');
 
-        // 3. Close Task
-        $db->collection('sensus_tasks')->document($task_id)->update([
-            ['path' => 'status', 'value' => 'Finalized'],
-            ['path' => 'finalized_at', 'value' => date('Y-m-d H:i:s')]
-        ]);
+        header("Location: ../admin/sensus_barang.php?status=task_finalized");
+        exit();
+    }
 
         header("Location: ../admin/sensus_barang.php?status=finalized");
         exit();

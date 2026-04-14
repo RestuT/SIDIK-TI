@@ -1,12 +1,13 @@
 <?php
 ob_start();
 
+use App\Services\AssetService;
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/csrf_helper.php';
 require_once __DIR__ . '/../includes/pagination_helper.php';
 
 // Initialize Services
-use App\Services\AssetService;
 $assetService = new AssetService($db);
 
 // Fetch Global Settings for Intelligence
@@ -22,6 +23,8 @@ try {
         switch ($doc->id()) {
             case 'margin_pengadaan': $margin_pengadaan = (float)$val; break;
             case 'nilai_sisa':       $nilai_sisa_pct   = (float)$val; break;
+            case 'pajak':            $pajak            = (float)$val; break;
+        }
     }
 } catch (Exception $e) { }
 
