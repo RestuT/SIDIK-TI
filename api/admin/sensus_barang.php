@@ -5,6 +5,42 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/csrf_helper.php';
 require_once __DIR__ . '/../includes/pagination_helper.php';
 
+// Initialize Services
+use App\Services\AssetService;
+$assetService = new AssetService($db);
+
+// Fetch Global Settings for Intelligence
+$margin_pengadaan = 5;
+$nilai_sisa_pct   = 10;
+$pajak            = 11;
+try {
+    $settings_docs = $db->collection('system_settings')->documents();
+    foreach ($settings_docs as $doc) {
+        if (!$doc->exists()) continue;
+        $val = $doc->data()['setting_value'] ?? null;
+        if ($val === null) continue;
+        switch ($doc->id()) {
+            case 'margin_pengadaan': $margin_pengadaan = (float)$val; break;
+            case 'nilai_sisa':       $nilai_sisa_pct   = (float)$val; break;
+    }
+} catch (Exception $e) { }
+
+$system_settings = [
+    'margin_pengadaan' => $margin_pengadaan,
+    'nilai_sisa'       => $nilai_sisa_pct,
+    'pajak'            => $pajak
+];
+
+// Inventory Base Prices
+$inventory_prices = [];
+try {
+    $inv_docs = $db->collection('inventory')->documents();
+    foreach ($inv_docs as $doc) {
+        if (!$doc->exists()) continue;
+        $inventory_prices[$doc->data()['item_name']] = (float)($doc->data()['price_reference'] ?? 0);
+    }
+} catch (Exception $e) {}
+
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../auth/login_admin.php");
@@ -269,16 +305,35 @@ $base_url = '../';
         </div>
     </div>
 
-    <script>
-        function bukaModalFinalize(taskId, assetId, name, reportPct, notes) {
-            document.getElementById('finalize_task_id').value = taskId;
-            document.getElementById('finalize_asset_id').value = assetId;
-            document.getElementById('finalize_item_name').innerText = name;
-            document.getElementById('user_report_hint').innerText = "Persentase: " + reportPct + "% | Catatan: " + notes;
-            document.getElementById('final_pct').value = reportPct;
-            document.getElementById('modalFinalize').classList.replace('hidden', 'flex');
-        }
         function tutupModalFinalize() { document.getElementById('modalFinalize').classList.replace('flex', 'hidden'); }
+
+        async function editMultiplier(assetId, currentVal) {
+            const newVal = prompt("Set Stress Factor (0.5 - 2.5):\n1.0 = Normal\n1.5 = Tinggi/Lapangan\n0.8 = Rendah/Standby", currentVal);
+            if (newVal === null) return;
+            
+            const num = parseFloat(newVal);
+            if (isNaN(num) || num < 0.1 || num > 5.0) {
+                alert("Masukkan angka yang valid (0.1 - 5.0)");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'update_multiplier');
+            formData.append('asset_id', assetId);
+            formData.append('multiplier', num);
+            formData.append('csrf_token', '<?php echo generate_csrf_token(); ?>');
+
+            try {
+                const res = await fetch('../config/proses_sensus.php', { method: 'POST', body: formData });
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    alert("Gagal mengupdate multiplier.");
+                }
+            } catch (e) {
+                alert("Error koneksi.");
+            }
+        }
     </script>
 </body>
 </html>
@@ -288,38 +343,95 @@ $base_url = '../';
  * Helper to render sub-cards for tasks in the admin list
  */
 function renderAdminTaskCard($task) {
-    if ($task['status'] === 'Finalized') {
+    global $inventory_prices, $system_settings, $assetService;
+    
+    $status = $task['status'] ?? 'Pending';
+    if ($status === 'Finalized') {
         $statusClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
-    } elseif ($task['status'] === 'Reported') {
+    } elseif ($status === 'Reported') {
         $statusClass = 'bg-indigo-50 text-primary border-primary/20 animate-pulse';
     } else {
         $statusClass = 'bg-slate-50 text-slate-400 border-slate-100';
     }
+
+    // Intelligence Calculation using Service
+    $dep_info = $assetService->calculateDepreciation(
+        $task['item_name'] ?? '',
+        $task['category'] ?? 'Hardware',
+        $task['assigned_at'] ?? date('Y-m-d H:i:s'),
+        $inventory_prices,
+        $system_settings,
+        null, // Use price from inventory map
+        (float)($task['multiplier'] ?? 1.0)
+    );
+    $util_pct = $dep_info ? $dep_info['pct_used'] : 0;
+    
+    // Comparison & Recommendation
+    $report_pct = (float)($task['report_pct'] ?? 100);
+    $phys_cond_code = 1;
+    if ($report_pct < 65) $phys_cond_code = 3;
+    elseif ($report_pct < 85) $phys_cond_code = 2;
+    
+    $recommendation = $assetService->getRecommendation($util_pct, $phys_cond_code);
 ?>
-    <div class="p-6 bg-white border border-outline/5 rounded-3xl hover:border-primary/20 transition-all group flex items-start justify-between">
-        <div class="flex gap-4">
-            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary transition-all">
-                <span class="material-symbols-outlined">person</span>
+    <div class="p-6 bg-white border border-outline/5 rounded-3xl hover:border-primary/20 transition-all group flex items-start justify-between relative overflow-hidden h-full">
+        <?php if($util_pct >= 90): ?>
+            <div class="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 -mr-12 -mt-12 rounded-full blur-2xl"></div>
+        <?php endif; ?>
+
+        <div class="flex gap-4 relative z-10 w-full">
+            <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary transition-all shrink-0">
+                <span class="material-symbols-outlined text-2xl">
+                    <?php
+                        $cat = $task['category'] ?? '';
+                        if(stripos($cat, 'Laptop') !== false) echo 'laptop_mac';
+                        elseif(stripos($cat, 'Printer') !== false) echo 'print';
+                        else echo 'devices';
+                    ?>
+                </span>
             </div>
-            <div>
-                <p class="font-bold text-sm text-on-surface"><?php echo htmlspecialchars($task['user_name']); ?></p>
-                <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mt-0.5"><?php echo htmlspecialchars($task['item_name']); ?></p>
-                <div class="mt-3 flex items-center gap-2">
-                    <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border <?php echo $statusClass; ?>">
-                        <?php echo $task['status']; ?>
+            <div class="flex-1 min-w-0">
+                <p class="font-bold text-sm text-on-surface truncate pr-8" title="<?php echo htmlspecialchars($task['item_name']); ?>"><?php echo htmlspecialchars($task['item_name']); ?></p>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40">User: <?php echo htmlspecialchars($task['user_name']); ?></span>
+                    <button onclick="editMultiplier('<?php echo $task['asset_id']; ?>', '<?php echo $task['multiplier'] ?? 1.0; ?>')" 
+                            class="text-[7px] font-black uppercase tracking-widest bg-primary/5 text-primary px-1.5 py-0.5 rounded border border-primary/10 hover:bg-primary hover:text-white transition-all">
+                        <?php echo number_format($task['multiplier'] ?? 1.0, 1); ?>x Stress
+                        <span class="material-symbols-outlined text-[8px] ml-1">edit</span>
+                    </button>
+                </div>
+
+                <div class="mt-4 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[8px] font-black uppercase tracking-[0.2em] text-on-surface-variant/30">Intelligence insight</span>
+                        <span class="text-[8px] font-black text-on-surface-variant/60 uppercase"><?php echo round($util_pct); ?>% Wear</span>
+                    </div>
+                    <div class="w-full bg-slate-50 rounded-full h-1 overflow-hidden">
+                        <div class="h-full rounded-full <?php echo $util_pct >= 90 ? 'bg-rose-500' : ($util_pct >= 75 ? 'bg-orange-500' : 'bg-emerald-500'); ?>" 
+                             style="width:<?php echo round($util_pct); ?>%"></div>
+                    </div>
+                    <!-- Recommendation Badge -->
+                    <div class="inline-flex flex-col items-start mt-1">
+                        <span class="px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-[0.1em] <?php echo $recommendation['class']; ?> border border-current/10">
+                            <?php echo $recommendation['label']; ?>
+                        </span>
+                        <span class="text-[6px] text-on-surface-variant/50 italic mt-0.5"><?php echo $recommendation['desc']; ?></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between">
+                    <span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase tracking-widest <?php echo $statusClass; ?>">
+                        <?php echo $status; ?>
                     </span>
-                    <?php if ($task['status'] === 'Reported'): ?>
-                        <span class="text-[10px] font-black text-primary ml-2"><?php echo $task['report_pct']; ?>% Condition</span>
+                    
+                    <?php if ($status === 'Reported'): ?>
+                        <button onclick="bukaModalFinalize('<?php echo $task['id']; ?>', '<?php echo $task['asset_id']; ?>', '<?php echo htmlspecialchars(addslashes($task['item_name'])); ?>', '<?php echo $task['report_pct']; ?>', '<?php echo htmlspecialchars(addslashes($task['report_notes']??'')); ?>')" 
+                                class="p-2 bg-primary/10 text-primary rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-base">edit_note</span>
+                        </button>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
-        
-        <?php if ($task['status'] === 'Reported'): ?>
-            <button onclick="bukaModalFinalize('<?php echo $task['id']; ?>', '<?php echo $task['asset_id']; ?>', '<?php echo htmlspecialchars(addslashes($task['item_name'])); ?>', '<?php echo $task['report_pct']; ?>', '<?php echo htmlspecialchars(addslashes($task['report_notes']??'')); ?>')" 
-                    class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-md">
-                <span class="material-symbols-outlined">edit_note</span>
-            </button>
-        <?php endif; ?>
     </div>
 <?php } ?>

@@ -95,6 +95,21 @@ try {
                             <option value="server" class="text-on-surface">Server (Umur 5 Tahun)</option>
                             <option value="software" class="text-on-surface">Software/Lisensi (Umur 3 Tahun)</option>
                         </select>
+
+                        <!-- Stress Factor Slider -->
+                        <div class="space-y-3 pt-2">
+                            <div class="flex justify-between items-center px-1">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-white/50">Stress Factor (Usage Intensity)</label>
+                                <span id="multiplierValue" class="text-sm font-black text-primary bg-white px-3 py-0.5 rounded-full">1.0x</span>
+                            </div>
+                            <input type="range" id="inputMultiplier" min="0.5" max="2.5" step="0.1" value="1.0" 
+                                oninput="updateMultiplier(this.value)"
+                                class="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white">
+                            <div class="flex justify-between items-center text-[8px] font-black uppercase tracking-widest text-white/30 px-1">
+                                <span>Low (Office)</span>
+                                <span>High (Field)</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Config Info Box -->
@@ -275,6 +290,7 @@ try {
     function calculateDepreciation() {
         const basePrice = parseFloat(document.getElementById('inputPrice').value) || 0;
         const type      = document.getElementById('inputType').value;
+        const multiplier = parseFloat(document.getElementById('inputMultiplier').value) || 1.0;
         const years     = usefulYears(type);
 
         // Harga beli = base × (1+markup) × (1+pajak)
@@ -283,10 +299,12 @@ try {
         const pajakAmount   = afterMarkup * (pajakPct / 100);
         const purchasePrice = afterMarkup * (1 + pajakPct / 100);
 
-        // Depresiasi garis lurus 1 tahun
+        // Depresiasi garis lurus 1 tahun DENGAN MULTIPLIER
+        // Efektif 1 tahun (12 bulan) menjadi (12 * multiplier) bulan
+        const effectiveMonths = 12 * multiplier;
         const salvage    = purchasePrice * (sisaPct / 100);
-        const depPerYear = (purchasePrice - salvage) / years;
-        const afterYear1 = purchasePrice - depPerYear;
+        const depPerMonth = (purchasePrice - salvage) / (years * 12);
+        const afterYear1 = purchasePrice - (depPerMonth * effectiveMonths);
         const dropPct    = ((purchasePrice - afterYear1) / purchasePrice * 100).toFixed(1);
 
         // Update result panel
@@ -336,6 +354,11 @@ try {
     }
 
     // Init
+    function updateMultiplier(val) {
+        document.getElementById('multiplierValue').textContent = parseFloat(val).toFixed(1) + 'x';
+        calculateDepreciation();
+    }
+
     calculateDepreciation();
     fetchLatestSettings();
     setInterval(fetchLatestSettings, 60000);

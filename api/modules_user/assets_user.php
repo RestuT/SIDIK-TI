@@ -71,50 +71,14 @@ try {
     }
 } catch (Exception $e) {}
 
-// =====================================================
-// HELPER: Hitung Depresiasi Garis Lurus (PMK 72/2023)
-// =====================================================
-function calculateDepreciation($item_name, $category, $assigned_date, $inv_prices, $margin_pct, $pajak_pct, $salvage_pct, $custom_price = null) {
-    if (stripos($category, 'Software') !== false || stripos($category, 'Aplikasi') !== false) {
-        return [
-            'type' => 'software',
-            'current' => 0, 
-            'purchase' => ($custom_price ?: 0), 
-            'salvage' => false, 
-            'pct_used' => 0,
-            'auto_condition' => 1
-        ];
-    }
-
-    $base_price = ($custom_price && $custom_price > 0) ? $custom_price : ($inv_prices[$item_name] ?? 0);
-    if ($base_price == 0 || !$assigned_date) return null;
-
-    $purchase_price = $base_price;
-    $salvage_value  = 0; 
-    $useful_life_months = 48; 
-
-    $assigned_time  = strtotime($assigned_date);
-    $now            = time();
-    $months_used    = max(0, ($now - $assigned_time) / (30.4375 * 24 * 3600));
-
-    $pct_used = min(100, ($months_used / $useful_life_months) * 100);
-    $auto_condition = 1;
-    if ($pct_used > 50 && $pct_used <= 75) $auto_condition = 2;
-    if ($pct_used > 75) $auto_condition = 3;
-
-    if ($months_used <= 0) {
-        return ['type' => 'hardware', 'current' => $purchase_price, 'purchase' => $purchase_price, 'salvage' => false, 'pct_used' => 0, 'auto_condition' => 1];
-    }
-
-    $depreciation_per_month = ($purchase_price - $salvage_value) / $useful_life_months;
-    $current_value          = $purchase_price - ($depreciation_per_month * $months_used);
-
-    if ($current_value <= $salvage_value || $months_used >= $useful_life_months) {
-        return ['type' => 'hardware', 'current' => $salvage_value, 'purchase' => $purchase_price, 'salvage' => true, 'pct_used' => 100, 'auto_condition' => 3];
-    }
-
-    return ['type' => 'hardware', 'current' => $current_value, 'purchase' => $purchase_price, 'salvage' => false, 'pct_used' => $pct_used, 'auto_condition' => $auto_condition];
-}
+// 6. INITIALIZE SERVICES
+use App\Services\AssetService;
+$assetService = new AssetService($db);
+$system_settings = [
+    'margin_pengadaan' => $margin_pengadaan,
+    'nilai_sisa'       => $nilai_sisa_pct,
+    'pajak'            => $pajak
+];
 ?>
 
 <!DOCTYPE html>
@@ -268,17 +232,19 @@ function calculateDepreciation($item_name, $category, $assigned_date, $inv_price
                         <?php if(count($asset_list) > 0): ?>
                             <?php foreach($asset_list as $row):
                                 $specific_price = isset($row['price_reference']) ? (float)$row['price_reference'] : null;
-                                $dep_info = calculateDepreciation(
+                                $multiplier     = isset($row['utilization_multiplier']) ? (float)$row['utilization_multiplier'] : 1.0;
+                                
+                                $dep_info = $assetService->calculateDepreciation(
                                     $row['item_name']   ?? '',
                                     $row['category']    ?? '',
                                     $row['assigned_at'] ?? '',
                                     $inventory_prices,
-                                    $margin_pengadaan,
-                                    $pajak,
-                                    $nilai_sisa_pct,
-                                    $specific_price
+                                    $system_settings,
+                                    $specific_price,
+                                    $multiplier
                                 );
                                 $pct_used = $dep_info ? $dep_info['pct_used'] : 0;
+                                $recommendation = $assetService->getRecommendation($pct_used, (int)($row['latest_condition_code'] ?? 1));
                             ?>
                             <tr class="group table-row-hover asset-row"
                                 data-item="<?php echo htmlspecialchars($row['item_name'] ?? ''); ?>"
@@ -381,13 +347,30 @@ function calculateDepreciation($item_name, $category, $assigned_date, $inv_price
                                     <?php endif; ?>
                                 </td>
 
-                                <td class="px-6 py-6">
-                                    <div class="flex flex-col items-center gap-2 min-w-[100px]">
+                                <td class="px-6 py-6 border-l border-outline/5 bg-surface-low/10">
+                                    <div class="flex flex-col items-center gap-3 min-w-[140px]">
+                                        <!-- Multiplier Tag -->
+                                        <?php if($multiplier != 1.0): ?>
+                                            <span class="text-[8px] font-black uppercase tracking-widest text-primary/60 bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10">Stress Factor: <?php echo number_format($multiplier, 1); ?>x</span>
+                                        <?php endif; ?>
+
+                                        <!-- Progress Bar with Alert Animation -->
                                         <div class="w-full bg-surface-low rounded-full h-1.5 overflow-hidden border border-outline/5 relative">
-                                            <div class="h-full rounded-full transition-all duration-1000 <?php echo $pct_used >= 100 ? 'bg-rose-500' : ($pct_used >= 75 ? 'bg-orange-500' : 'bg-emerald-500'); ?>"
+                                            <div class="h-full rounded-full transition-all duration-1000 <?php echo $pct_used >= 90 ? 'bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.6)] animate-pulse' : ($pct_used >= 75 ? 'bg-orange-500' : 'bg-emerald-500'); ?>"
                                                 style="width:<?php echo round($pct_used); ?>%"></div>
                                         </div>
-                                        <span class="text-[9px] font-black text-on-surface-variant uppercase tracking-widest"><?php echo round($pct_used); ?>% Wear</span>
+
+                                        <div class="flex flex-col items-center gap-1">
+                                            <span class="text-[9px] font-black text-on-surface uppercase tracking-widest leading-none"><?php echo round($pct_used); ?>% Wear</span>
+                                            
+                                            <!-- Intelligence Badge -->
+                                            <div class="flex flex-col items-center mt-1">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-widest <?php echo $recommendation['class']; ?> border border-current/10">
+                                                    <?php echo $recommendation['label']; ?>
+                                                </span>
+                                                <span class="text-[6px] text-on-surface-variant/40 italic font-medium mt-0.5 text-center leading-tight max-w-[100px]"><?php echo $recommendation['desc']; ?></span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
