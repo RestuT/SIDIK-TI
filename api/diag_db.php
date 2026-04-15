@@ -41,22 +41,38 @@ try {
     $cEmail = trim(getenv('FIREBASE_CLIENT_EMAIL') ?: '');
     $sAccountJson = trim(getenv('FIREBASE_SERVICE_ACCOUNT_JSON') ?: '');
 
+    $firestore = null;
     if ($sAccountJson) {
         $data = json_decode($sAccountJson, true);
         if (!$data) $diagnostics['error_logs'][] = "JSON Decode failed for FIREBASE_SERVICE_ACCOUNT_JSON";
-        else $factory = $factory->withServiceAccount($data);
+        else {
+            $firestore = new \Google\Cloud\Firestore\FirestoreClient([
+                'projectId' => $data['project_id'],
+                'keyFile' => $data,
+                'transport' => 'rest'
+            ]);
+        }
     } else if ($pId && $pKey && $cEmail) {
-        $factory = $factory->withServiceAccount([
-            'type' => 'service_account',
-            'project_id' => $pId,
-            'private_key' => $pKey,
-            'client_email' => $cEmail,
+        $firestore = new \Google\Cloud\Firestore\FirestoreClient([
+            'projectId' => $pId,
+            'keyFile' => [
+                'type' => 'service_account',
+                'project_id' => $pId,
+                'private_key' => $pKey,
+                'client_email' => $cEmail,
+            ],
+            'transport' => 'rest'
         ]);
     } else if (file_exists(__DIR__ . '/../firebase-auth.json')) {
-        $factory = $factory->withServiceAccount(__DIR__ . '/../firebase-auth.json');
+        $firestore = new \Google\Cloud\Firestore\FirestoreClient([
+            'keyFilePath' => __DIR__ . '/../firebase-auth.json',
+            'transport' => 'rest'
+        ]);
     }
     
-    $factory->createFirestore();
+    if ($firestore) {
+        $diagnostics['connection_status']['firestore_active'] = true;
+    }
 } catch (\Exception $e) {
     $diagnostics['error_logs'][] = "Firebase Error Trace: " . $e->getMessage();
 }

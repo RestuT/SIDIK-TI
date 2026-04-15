@@ -1,0 +1,25 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # 1. Redirect root to api/index.php
+    RewriteRule ^$ api/index.php [L]
+
+    # 2. Map major modules directly to the api/ directory
+    # This covers /admin, /auth, and /modules_user
+    RewriteRule ^(admin|auth|modules_user)/(.*)$ api/$1/$2 [L,QSA]
+
+    # 3. Handle specific PHP files at the root level by mapping them to api/
+    RewriteCond %{DOCUMENT_ROOT}/api/$1 -f
+    RewriteRule ^(.*\.php)$ api/$1 [L,QSA]
+
+    # 4. Handle assets and other direct file access
+    # If the file exists in the current directory, serve it
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # 5. Generic fallback for pretty URLs
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ api/index.php [L,QSA]
+</IfModule>

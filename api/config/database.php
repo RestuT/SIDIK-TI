@@ -45,29 +45,41 @@ try {
     $factory = (new Factory);
     $firebaseAvailable = false;
 
+    $firestore = null;
+
     if ($serviceAccountJson) {
         $serviceAccountData = json_decode($serviceAccountJson, true);
         if ($serviceAccountData === null) {
-             throw new Exception("FIREBASE_SERVICE_ACCOUNT_JSON is not a valid JSON string.");
+            throw new Exception("FIREBASE_SERVICE_ACCOUNT_JSON is not a valid JSON string.");
         }
-        $factory = $factory->withServiceAccount($serviceAccountData);
+        $firestore = new \Google\Cloud\Firestore\FirestoreClient([
+            'projectId' => $serviceAccountData['project_id'] ?? $projectId,
+            'keyFile' => $serviceAccountData,
+            'transport' => 'rest'
+        ]);
         $firebaseAvailable = true;
     } else if ($projectId && $privateKey && $clientEmail) {
-        $factory = $factory->withServiceAccount([
-            'type' => 'service_account',
-            'project_id' => $projectId,
-            'private_key' => $privateKey,
-            'client_email' => $clientEmail,
+        $firestore = new \Google\Cloud\Firestore\FirestoreClient([
+            'projectId' => $projectId,
+            'keyFile' => [
+                'type' => 'service_account',
+                'project_id' => $projectId,
+                'private_key' => $privateKey,
+                'client_email' => $clientEmail,
+            ],
+            'transport' => 'rest'
         ]);
         $firebaseAvailable = true;
     } else if (file_exists(__DIR__ . '/../../firebase-auth.json')) {
-        $factory = $factory->withServiceAccount(__DIR__ . '/../../firebase-auth.json');
+        $firestore = new \Google\Cloud\Firestore\FirestoreClient([
+            'keyFilePath' => __DIR__ . '/../../firebase-auth.json',
+            'transport' => 'rest'
+        ]);
         $firebaseAvailable = true;
     }
 
-    if ($firebaseAvailable) {
-        $firestore = $factory->createFirestore();
-        $db = $firestore->database();
+    if ($firebaseAvailable && $firestore) {
+        $db = $firestore;
     }
 } catch (\Exception $e) {
     // Silent failure for production, log to backend
@@ -75,10 +87,11 @@ try {
 }
 
 /**
- * 2. LOCAL STORAGE (MYSQL)
- * Used when running locally on XAMPP.
+ * 2. PRODUCTION STORAGE (MYSQL)
+ * Used when running on Biznet GIO Neo Web or locally on XAMPP.
  */
 if (!$isVercel) {
+    // Silakan ganti nilai di bawah ini dengan kredensial dari Dashboard Biznet Anda
     $db_host = getenv('DB_HOST') ?: 'localhost';
     $db_user = getenv('DB_USER') ?: 'root';
     $db_pass = getenv('DB_PASS') ?: '';
