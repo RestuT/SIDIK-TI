@@ -31,16 +31,31 @@ $diagnostics = [
 // Re-try initialization to capture error
 try {
     $factory = (new \Kreait\Firebase\Factory);
-    if (getenv('FIREBASE_SERVICE_ACCOUNT_JSON')) {
-        $data = json_decode(getenv('FIREBASE_SERVICE_ACCOUNT_JSON'), true);
+    
+    $pId = trim(getenv('FIREBASE_PROJECT_ID') ?: '');
+    $pKeyRaw = getenv('FIREBASE_PRIVATE_KEY') ?: '';
+    $pKey = str_replace('\\n', "\n", trim($pKeyRaw));
+    $cEmail = trim(getenv('FIREBASE_CLIENT_EMAIL') ?: '');
+    $sAccountJson = trim(getenv('FIREBASE_SERVICE_ACCOUNT_JSON') ?: '');
+
+    if ($sAccountJson) {
+        $data = json_decode($sAccountJson, true);
         if (!$data) $diagnostics['error_logs'][] = "JSON Decode failed for FIREBASE_SERVICE_ACCOUNT_JSON";
-        else $factory->withServiceAccount($data);
+        else $factory = $factory->withServiceAccount($data);
+    } else if ($pId && $pKey && $cEmail) {
+        $factory = $factory->withServiceAccount([
+            'type' => 'service_account',
+            'project_id' => $pId,
+            'private_key' => $pKey,
+            'client_email' => $cEmail,
+        ]);
     } else if (file_exists(__DIR__ . '/../firebase-auth.json')) {
-        $factory->withServiceAccount(__DIR__ . '/../firebase-auth.json');
+        $factory = $factory->withServiceAccount(__DIR__ . '/../firebase-auth.json');
     }
+    
     $factory->createFirestore();
 } catch (\Exception $e) {
-    $diagnostics['error_logs'][] = "Firebase Error: " . $e->getMessage();
+    $diagnostics['error_logs'][] = "Firebase Error Trace: " . $e->getMessage();
 }
 
 echo json_encode($diagnostics, JSON_PRETTY_PRINT);

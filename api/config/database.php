@@ -30,11 +30,13 @@ if (file_exists(__DIR__ . '/../../.env')) {
  * 1. CLOUD STORAGE (FIREBASE FIRESTORE)
  * Used when running on Vercel or if Firebase credentials are provided.
  */
-$projectId = getenv('FIREBASE_PROJECT_ID');
-$privateKey = str_replace('\\n', "\n", getenv('FIREBASE_PRIVATE_KEY') ?: '');
-$clientEmail = getenv('FIREBASE_CLIENT_EMAIL');
-$serviceAccountJson = getenv('FIREBASE_SERVICE_ACCOUNT_JSON');
-$databaseId = getenv('FIREBASE_DATABASE_ID') ?: '(default)';
+// CLOUD STORAGE (FIREBASE FIRESTORE)
+$projectId = trim(getenv('FIREBASE_PROJECT_ID') ?: '');
+$privateKeyRaw = getenv('FIREBASE_PRIVATE_KEY') ?: '';
+$privateKey = str_replace('\\n', "\n", trim($privateKeyRaw));
+$clientEmail = trim(getenv('FIREBASE_CLIENT_EMAIL') ?: '');
+$serviceAccountJson = trim(getenv('FIREBASE_SERVICE_ACCOUNT_JSON') ?: '');
+$databaseId = trim(getenv('FIREBASE_DATABASE_ID') ?: '(default)');
 
 try {
     $factory = (new Factory);
