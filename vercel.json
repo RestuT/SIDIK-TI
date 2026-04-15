@@ -6,17 +6,14 @@
       "includeFiles": "**"
     }
   },
-  "rewrites": [
-    { "source": "/public/(.*)", "destination": "/api/public/$1" },
-    { "source": "/scan/asset", "destination": "/api/modules_user/scan_asset.php" },
-    { "source": "/scan/result", "destination": "/api/modules_user/scan_result.php" },
-    { "source": "/admin/(.*)", "destination": "/api/admin/$1" },
-    { "source": "/auth/(.*)", "destination": "/api/auth/$1" },
-    { "source": "/modules_user/(.*)", "destination": "/api/modules_user/$1" },
-    { "source": "/(.*).php", "destination": "/api/$1.php" },
-    { "source": "/", "destination": "/api/index.php" }
+  "routes": [
+    { "src": "/public/(.*)", "dest": "/api/public/$1" },
+    { "src": "/admin/(.*)", "dest": "/api/admin/$1" },
+    { "src": "/auth/(.*)", "dest": "/api/auth/$1" },
+    { "src": "/modules_user/(.*)", "dest": "/api/modules_user/$1" },
+    { "src": "/(.*).php", "dest": "/api/$1.php" },
+    { "src": "/", "dest": "/api/index.php" }
   ],
-  "cleanUrls": true,
   "env": {
     "PHP_INI_SCAN_DIR": "/var/task/user/api"
   }
