@@ -1,25 +1,19 @@
 {
   "version": 2,
-  "outputDirectory": ".",
   "functions": {
     "api/**/*.php": {
-      "runtime": "vercel-php@0.9.0",
-      "includeFiles": "**"
-    }
-  },
-  "build": {
-    "env": {
-      "PHP_INI_SCAN_DIR": "/var/task/user/api"
+      "runtime": "vercel-php@0.7.1"
     }
   },
   "routes": [
     { "src": "/public/(.*)", "dest": "/api/public/$1" },
-    { "src": "/(.*).php", "dest": "/api/$1.php" },
     { "src": "/scan/asset", "dest": "/api/modules_user/scan_asset.php" },
     { "src": "/scan/result", "dest": "/api/modules_user/scan_result.php" },
     { "src": "/admin/(.*)", "dest": "/api/admin/$1" },
     { "src": "/auth/(.*)", "dest": "/api/auth/$1" },
     { "src": "/modules_user/(.*)", "dest": "/api/modules_user/$1" },
+    { "src": "/(.*).php", "dest": "/api/$1.php" },
     { "src": "/", "dest": "/api/index.php" }
-  ]
+  ],
+  "cleanUrls": true
 }
