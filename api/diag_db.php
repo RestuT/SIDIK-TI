@@ -30,6 +30,9 @@ $diagnostics = [
 
 // Re-try initialization to capture error
 try {
+    // FORCE REST BACKBACK for environments without gRPC (like Vercel)
+    putenv('GOOGLE_CLOUD_PHP_FIRESTORE_REST_ONLY=true');
+    
     $factory = (new \Kreait\Firebase\Factory);
     
     $pId = trim(getenv('FIREBASE_PROJECT_ID') ?: '');

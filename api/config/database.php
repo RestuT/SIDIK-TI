@@ -13,6 +13,9 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Kreait\Firebase\Factory;
 use Dotenv\Dotenv;
 
+// FORCE REST BACKBACK for environments without gRPC (like Vercel)
+putenv('GOOGLE_CLOUD_PHP_FIRESTORE_REST_ONLY=true');
+
 // Initialize variables
 $db = null;   // Firestore instance
 $conn = null; // MySQL connection
