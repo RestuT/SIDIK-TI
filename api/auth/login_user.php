@@ -43,13 +43,20 @@ if (isset($_POST['login'])) {
             $_SESSION['user_id'] = $userData['id']; 
             $_SESSION['role'] = $userData['role'];
             $_SESSION['full_name'] = $userData['full_name'] ?? 'Pegawai TI';
+            $_SESSION['department'] = $userData['department'] ?? 'General';
 
             // Check for redirect parameter
             $redirect = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
             if (!empty($redirect)) {
                 $target = $redirect;
             } else {
-                $target = "../modules_user/dashboard_user.php";
+                if ($_SESSION['role'] === 'technician') {
+                    $target = "../modules_technician/dashboard_technician.php";
+                } elseif ($_SESSION['role'] === 'head') {
+                    $target = "../modules_head/dashboard_head.php";
+                } else {
+                    $target = "../modules_user/dashboard_user.php";
+                }
             }
 
             header("Location: $target");
@@ -152,10 +159,8 @@ if (isset($_POST['login'])) {
                 <!-- Identitas Brand -->
                 <div class="flex flex-col items-center md:items-start space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg shadow-primary/20">
-                            <span class="material-symbols-outlined text-white text-3xl">hub</span>
-                        </div>
-                        <h1 class="font-headline font-extrabold text-2xl tracking-tight text-indigo-900">
+                        <img src="../assets/img/logo.png" alt="Logo" class="h-12 md:h-14 w-auto">
+                        <h1 class="font-headline font-extrabold text-3xl tracking-tight text-indigo-900">
                             SIDIK-TI
                         </h1>
                     </div>

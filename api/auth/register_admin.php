@@ -129,9 +129,7 @@ if (isset($_POST['register_admin'])) {
                 <!-- Identitas Brand -->
                 <div class="flex flex-col items-center md:items-start space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 border border-white/10">
-                            <span class="material-symbols-outlined text-white text-3xl">admin_panel_settings</span>
-                        </div>
+                        <img src="../assets/img/logo.png" alt="Logo" class="h-12 md:h-14 w-auto">
                         <h1 class="font-headline font-extrabold text-2xl tracking-tight text-primary">
                             SIDIK-TI <span class="text-secondary tracking-widest text-[10px] uppercase font-black ml-2 px-2 py-0.5 bg-secondary/10 rounded-full">Admin Console</span>
                         </h1>

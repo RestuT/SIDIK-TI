@@ -10,23 +10,104 @@ require_once __DIR__ . '/../includes/pagination_helper.php';
 // Initialize Services
 $assetService = new AssetService($db);
 
-// Fetch Global Settings for Intelligence
-$margin_pengadaan = 5;
+$margin_pengadaan = 10;
 $nilai_sisa_pct   = 10;
 $pajak            = 11;
-try {
-    $settings_docs = $db->collection('system_settings')->documents();
-    foreach ($settings_docs as $doc) {
-        if (!$doc->exists()) continue;
-        $val = $doc->data()['setting_value'] ?? null;
-        if ($val === null) continue;
-        switch ($doc->id()) {
-            case 'margin_pengadaan': $margin_pengadaan = (float)$val; break;
-            case 'nilai_sisa':       $nilai_sisa_pct   = (float)$val; break;
-            case 'pajak':            $pajak            = (float)$val; break;
+$inventory_prices = [];
+$active_batch = null;
+$tasks = [];
+$stats = ['Pending' => 0, 'Reported' => 0, 'Finalized' => 0];
+$user_positions = [];
+
+if ($db) {
+    try {
+        // 1. Fetch Global Settings
+        $settings_docs = $db->collection('system_settings')->documents();
+        foreach ($settings_docs as $doc) {
+            if (!$doc->exists()) continue;
+            $val = $doc->data()['setting_value'] ?? null;
+            if ($val === null) continue;
+            switch ($doc->id()) {
+                case 'margin_pengadaan': $margin_pengadaan = (float)$val; break;
+                case 'nilai_sisa':       $nilai_sisa_pct   = (float)$val; break;
+                case 'pajak':            $pajak            = (float)$val; break;
+            }
+        }
+        
+        // 2. Inventory Base Prices
+        $inv_docs = $db->collection('inventory')->documents();
+        foreach ($inv_docs as $doc) {
+            if (!$doc->exists()) continue;
+            $inventory_prices[$doc->data()['item_name']] = (float)($doc->data()['price_reference'] ?? 0);
+        }
+
+        // 3. Batch & Tasks
+        $batchDocs = $db->collection('sensus_batches')->where('status', '=', 'Active')->limit(1)->documents();
+        if (!$batchDocs->isEmpty()) {
+            foreach ($batchDocs as $b) {
+                $active_batch = $b->data();
+                $active_batch['id'] = $b->id();
+            }
+            $taskDocs = $db->collection('sensus_tasks')->where('batch_id', '=', $active_batch['id'])->documents();
+            foreach ($taskDocs as $t) {
+                $data = $t->data();
+                $data['id'] = $t->id();
+                $tasks[] = $data;
+                if (isset($stats[$data['status']])) $stats[$data['status']]++;
+            }
+        }
+
+        // 4. Users Mapping
+        $uDocs = $db->collection('users')->documents();
+        foreach ($uDocs as $ud) {
+            $u = $ud->data();
+            $user_positions[$u['username']] = $u['jabatan'] ?? 'Staff';
+        }
+    } catch (Exception $e) {
+        $db = null; // Fallback
+    }
+}
+
+if (!$db && $conn) {
+    // 1. Fetch Global Settings from MySQL
+    $res_settings = mysqli_query($conn, "SELECT * FROM system_settings");
+    if ($res_settings) {
+        while ($row = mysqli_fetch_assoc($res_settings)) {
+            if ($row['setting_key'] === 'margin_pengadaan') $margin_pengadaan = (float)$row['setting_value'];
+            if ($row['setting_key'] === 'pajak')            $pajak            = (float)$row['setting_value'];
+            if ($row['setting_key'] === 'nilai_sisa')       $nilai_sisa_pct   = (float)$row['setting_value'];
         }
     }
-} catch (Exception $e) { }
+
+    // 2. Inventory Base Prices from MySQL
+    $res_inv = mysqli_query($conn, "SELECT item_name, price_reference FROM inventory");
+    if ($res_inv) {
+        while ($row = mysqli_fetch_assoc($res_inv)) {
+            $inventory_prices[$row['item_name']] = (float)($row['price_reference'] ?? 0);
+        }
+    }
+
+    // 3. Batch & Tasks from MySQL
+    $res_batch = mysqli_query($conn, "SELECT * FROM sensus_batches WHERE status = 'Active' LIMIT 1");
+    if ($res_batch && $row_b = mysqli_fetch_assoc($res_batch)) {
+        $active_batch = $row_b;
+        $res_tasks = mysqli_query($conn, "SELECT * FROM sensus_tasks WHERE batch_id = " . intval($active_batch['id']));
+        if ($res_tasks) {
+            while ($t = mysqli_fetch_assoc($res_tasks)) {
+                $tasks[] = $t;
+                if (isset($stats[$t['status']])) $stats[$t['status']]++;
+            }
+        }
+    }
+
+    // 4. Users Mapping from MySQL
+    $res_users = mysqli_query($conn, "SELECT username, jabatan FROM users");
+    if ($res_users) {
+        while ($u = mysqli_fetch_assoc($res_users)) {
+            $user_positions[$u['username']] = $u['jabatan'] ?? 'Staff';
+        }
+    }
+}
 
 $system_settings = [
     'margin_pengadaan' => $margin_pengadaan,
@@ -34,55 +115,11 @@ $system_settings = [
     'pajak'            => $pajak
 ];
 
-// Inventory Base Prices
-$inventory_prices = [];
-try {
-    $inv_docs = $db->collection('inventory')->documents();
-    foreach ($inv_docs as $doc) {
-        if (!$doc->exists()) continue;
-        $inventory_prices[$doc->data()['item_name']] = (float)($doc->data()['price_reference'] ?? 0);
-    }
-} catch (Exception $e) {}
-
 // Proteksi Admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../auth/login_admin.php");
     exit();
 }
-
-// 1. Check Active Batch
-$active_batch = null;
-$tasks = [];
-$stats = ['Pending' => 0, 'Reported' => 0, 'Finalized' => 0];
-
-try {
-    $batchDocs = $db->collection('sensus_batches')->where('status', '=', 'Active')->limit(1)->documents();
-    if (!$batchDocs->isEmpty()) {
-        foreach ($batchDocs as $b) {
-            $active_batch = $b->data();
-            $active_batch['id'] = $b->id();
-        }
-
-        // Fetch all tasks for active batch
-        $taskDocs = $db->collection('sensus_tasks')->where('batch_id', '=', $active_batch['id'])->documents();
-        foreach ($taskDocs as $t) {
-            $data = $t->data();
-            $data['id'] = $t->id();
-            $tasks[] = $data;
-            if (isset($stats[$data['status']])) $stats[$data['status']]++;
-        }
-    }
-} catch (Exception $e) {}
-
-// 2. Fetch Users to mapping for Hierarchical Grouping (Positions)
-$user_positions = [];
-try {
-    $uDocs = $db->collection('users')->documents();
-    foreach ($uDocs as $ud) {
-        $u = $ud->data();
-        $user_positions[$u['username']] = $u['jabatan'] ?? 'Staff';
-    }
-} catch (Exception $e) {}
 
 // Hierarchical Grouping Logic
 $grouped_tasks = [];
@@ -145,7 +182,7 @@ $base_url = '../';
             <?php if ($active_batch): ?>
                 <!-- Stats Overview -->
                 <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="obsidian-panel p-6 rounded-3xl border-outline/5 flex justify-between items-center group">
+                    <div class="obsidian-panel p-6 rounded-3xl border-outline/5 flex justify-between items-center group bg-white shadow-sm border">
                         <div>
                             <p class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant/40 mb-1">Total Aset</p>
                             <h3 class="text-4xl font-black text-on-surface tracking-tighter"><?php echo count($tasks); ?></h3>
@@ -154,16 +191,16 @@ $base_url = '../';
                             <span class="material-symbols-outlined">inventory_2</span>
                         </div>
                     </div>
-                    <div class="obsidian-panel p-6 rounded-3xl border-primary/20 flex justify-between items-center group bg-primary/5">
+                    <div class="obsidian-panel p-6 rounded-3xl border-primary/20 flex justify-between items-center group bg-primary/5 shadow-sm border border-primary/10">
                         <div>
                             <p class="text-[10px] font-black uppercase tracking-widest text-primary/60 mb-1">Sudah Melapor</p>
-                            <h3 class="text-4xl font-black text-primary tracking-tighter"><?php echo $stats['Reported'] + $stats['Finalized']; ?></h3>
+                            <h3 class="text-4xl font-black text-primary tracking-tighter"><?php echo (int)($stats['Reported'] ?? 0) + (int)($stats['Finalized'] ?? 0); ?></h3>
                         </div>
                         <div class="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined">check_circle</span>
                         </div>
                     </div>
-                    <div class="obsidian-panel p-6 rounded-3xl border-orange-200 flex justify-between items-center group">
+                    <div class="obsidian-panel p-6 rounded-3xl border-orange-200 flex justify-between items-center group bg-white shadow-sm border border-orange-100">
                         <div>
                             <p class="text-[10px] font-black uppercase tracking-widest text-orange-400/60 mb-1">Menunggu</p>
                             <h3 class="text-4xl font-black text-orange-600 tracking-tighter"><?php echo $stats['Pending']; ?></h3>
@@ -227,7 +264,7 @@ $base_url = '../';
                     </div>
                 </section>
             <?php else: ?>
-                <div class="flex flex-col items-center justify-center py-32 text-center obsidian-panel rounded-[3rem] border-dashed border-2">
+                <div class="flex flex-col items-center justify-center py-32 text-center bg-white rounded-[3rem] border-dashed border-2">
                     <div class="w-24 h-24 bg-surface-low rounded-[2rem] flex items-center justify-center mb-6 text-on-surface-variant/20">
                         <span class="material-symbols-outlined text-5xl">inventory</span>
                     </div>
@@ -308,6 +345,7 @@ $base_url = '../';
         </div>
     </div>
 
+    <script>
         function tutupModalFinalize() { document.getElementById('modalFinalize').classList.replace('flex', 'hidden'); }
 
         async function editMultiplier(assetId, currentVal) {
@@ -336,6 +374,15 @@ $base_url = '../';
             } catch (e) {
                 alert("Error koneksi.");
             }
+        }
+
+        function bukaModalFinalize(taskId, assetId, name, reportPct, reportNotes) {
+            document.getElementById('finalize_task_id').value = taskId;
+            document.getElementById('finalize_asset_id').value = assetId;
+            document.getElementById('finalize_item_name').innerText = "Validasi Unit: " + name;
+            document.getElementById('user_report_hint').innerText = "User melaporkan kondisi " + reportPct + "%. Catatan: " + reportNotes;
+            document.getElementById('final_pct').value = reportPct;
+            document.getElementById('modalFinalize').classList.replace('hidden', 'flex');
         }
     </script>
 </body>
@@ -396,7 +443,7 @@ function renderAdminTaskCard($task) {
             <div class="flex-1 min-w-0">
                 <p class="font-bold text-sm text-on-surface truncate pr-8" title="<?php echo htmlspecialchars($task['item_name']); ?>"><?php echo htmlspecialchars($task['item_name']); ?></p>
                 <div class="flex items-center gap-2 mt-1">
-                    <span class="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40">User: <?php echo htmlspecialchars($task['user_name']); ?></span>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40">User: <?php echo htmlspecialchars($task['user_name'] ?? '-'); ?></span>
                     <button onclick="editMultiplier('<?php echo $task['asset_id']; ?>', '<?php echo $task['multiplier'] ?? 1.0; ?>')" 
                             class="text-[7px] font-black uppercase tracking-widest bg-primary/5 text-primary px-1.5 py-0.5 rounded border border-primary/10 hover:bg-primary hover:text-white transition-all">
                         <?php echo number_format($task['multiplier'] ?? 1.0, 1); ?>x Stress
@@ -428,7 +475,7 @@ function renderAdminTaskCard($task) {
                     </span>
                     
                     <?php if ($status === 'Reported'): ?>
-                        <button onclick="bukaModalFinalize('<?php echo $task['id']; ?>', '<?php echo $task['asset_id']; ?>', '<?php echo htmlspecialchars(addslashes($task['item_name'])); ?>', '<?php echo $task['report_pct']; ?>', '<?php echo htmlspecialchars(addslashes($task['report_notes']??'')); ?>')" 
+                        <button onclick="bukaModalFinalize('<?php echo $task['id']; ?>', '<?php echo $task['asset_id']; ?>', '<?php echo htmlspecialchars(addslashes($task['item_name'])); ?>', '<?php echo $task['report_pct'] ?? 100; ?>', '<?php echo htmlspecialchars(addslashes($task['report_notes'] ?? '')); ?>')" 
                                 class="p-2 bg-primary/10 text-primary rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all">
                             <span class="material-symbols-outlined text-base">edit_note</span>
                         </button>

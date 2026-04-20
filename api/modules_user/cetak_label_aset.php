@@ -10,13 +10,13 @@ if (!isset($_SESSION['user_id'])) {
 
 // Generate Full Domain for QR URL
 $current_domain = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
-$base_path = dirname(dirname($_SERVER['PHP_SELF'])); // Removes /modules_user
-// Clean base path if it ends with /api
+$script_name = $_SERVER['SCRIPT_NAME']; // e.g. /SIDIK-TI/api/modules_user/cetak_label_aset.php
+$base_path = rtrim(dirname(dirname($script_name)), '/\\'); // e.g. /SIDIK-TI/api
+// Check if base_path ends with /api, if so go up one level more
 if (substr($base_path, -4) === '/api') {
     $base_path = substr($base_path, 0, -4);
 }
-// For safety, let's hardcode the path structure relative to domain:
-$qr_scan_url = $current_domain . "/scan/asset?id="; 
+$qr_scan_url = $current_domain . $base_path . "/scan/asset?id="; 
 
 $asset_id = $_GET['id'] ?? '';
 if (empty($asset_id)) {
@@ -24,15 +24,26 @@ if (empty($asset_id)) {
 }
 
 $assetData = [];
-try {
-    $docSnap = $db->collection('asset_assignments')->document($asset_id)->snapshot();
-    if (!$docSnap->exists()) {
-        die("Aset tidak ditemukan.");
+if ($db) {
+    try {
+        $docSnap = $db->collection('asset_assignments')->document($asset_id)->snapshot();
+        if ($docSnap->exists()) {
+            $assetData = $docSnap->data();
+            $assetData['id'] = $docSnap->id();
+        } else { $db = null; }
+    } catch (Exception $e) { $db = null; }
+}
+
+if (!$db && $conn) {
+    $id_e = mysqli_real_escape_string($conn, $asset_id);
+    $res = mysqli_query($conn, "SELECT * FROM asset_assignments WHERE id = '$id_e' LIMIT 1");
+    if ($row = mysqli_fetch_assoc($res)) {
+        $assetData = $row;
     }
-    $assetData = $docSnap->data();
-    $assetData['id'] = $docSnap->id();
-} catch (Exception $e) {
-    die("Error mengambil data aset.");
+}
+
+if (empty($assetData)) {
+    die("Aset tidak ditemukan.");
 }
 
 // Persiapkan Informasi
@@ -119,9 +130,7 @@ $assignedAt = isset($assetData['assigned_at']) ? date('M Y', strtotime($assetDat
         <!-- Header Section (White Strip) -->
         <div class="bg-white px-6 py-4 flex flex-col items-center justify-center border-b border-slate-100 shrink-0">
             <div class="flex items-center gap-2 mb-1">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                    <span class="material-symbols-outlined text-[20px]">verified_user</span>
-                </div>
+                <img src="../assets/img/logo.png" alt="Logo" class="h-6 w-auto">
                 <span class="font-headline font-black text-[16px] uppercase tracking-tighter text-slate-800">SIDIK-TI</span>
             </div>
             <p class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em]">Smart Inventory</p>
@@ -188,10 +197,10 @@ $assignedAt = isset($assetData['assigned_at']) ? date('M Y', strtotime($assetDat
             var qr = new QRious({
                 element: document.getElementById('qrcode-canvas'),
                 value: '<?php echo $qrLink; ?>',
-                size: 200, // Ukuran di kanvas lebih besar agar jernih, nanti di downscale CSS (w-24 h-24)
-                level: 'H', // Error correction tinggi agar aman jika kotor
+                size: 200, 
+                level: 'H', 
                 background: 'white',
-                foreground: '#0f172a' // slate-900 (Gelap pekat)
+                foreground: '#0f172a' 
             });
         });
     </script>

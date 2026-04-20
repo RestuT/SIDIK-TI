@@ -11,9 +11,21 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Get user detail for Header
-$userRef = $db->collection('users')->document($user_id);
-$userSnap = $userRef->snapshot();
-$display_name = $userSnap->exists() ? ($userSnap->get('full_name') ?? 'User') : 'User';
+$display_name = 'User';
+if ($db) {
+    try {
+        $userSnap = $db->collection('users')->document($user_id)->snapshot();
+        $display_name = $userSnap->exists() ? ($userSnap->get('full_name') ?? 'User') : 'User';
+    } catch (Exception $e) { $db = null; }
+}
+
+if (!$db && $conn) {
+    $uid_e = mysqli_real_escape_string($conn, $user_id);
+    $res = mysqli_query($conn, "SELECT full_name FROM users WHERE id = '$uid_e' LIMIT 1");
+    if ($row = mysqli_fetch_assoc($res)) {
+        $display_name = $row['full_name'];
+    }
+}
 
 // Data statis FAQ
 $faqs = [

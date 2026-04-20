@@ -31,10 +31,12 @@
 // Fetch Global App Name from Firestore
 $brand_name = 'SIDIK-TI';
 try {
-    $settingsRef = $db->collection('system_settings')->document('app_name');
-    $settingsSnap = $settingsRef->snapshot();
-    if ($settingsSnap->exists()) {
-        $brand_name = $settingsSnap->get('setting_value') ?? 'SIDIK-TI';
+    if ($db) {
+        $settingsRef = $db->collection('system_settings')->document('app_name');
+        $settingsSnap = $settingsRef->snapshot();
+        if ($settingsSnap->exists()) {
+            $brand_name = $settingsSnap->get('setting_value') ?? 'SIDIK-TI';
+        }
     }
 } catch (Exception $e) {
     // Fallback if collection doesn't exist yet
@@ -59,6 +61,19 @@ try {
             <a class="<?php echo $current_page == 'knowledge_base.php' ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="knowledge_base.php">Panduan</a>
             <a class="<?php echo $current_page == 'dashboard_audit.php' ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="dashboard_audit.php">Requests</a>
             <a class="<?php echo $current_page == 'assets_user.php' ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="assets_user.php">Assets</a>
+            
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'user'): ?>
+                <?php 
+                    $target = 'dashboard_user.php';
+                    if ($_SESSION['role'] === 'admin') $target = '../admin/dashboard_admin.php';
+                    elseif ($_SESSION['role'] === 'technician') $target = '../modules_technician/dashboard_technician.php';
+                    elseif ($_SESSION['role'] === 'head') $target = '../modules_head/dashboard_head.php';
+                ?>
+                <a href="<?php echo $target; ?>" class="flex items-center gap-2 px-3 py-1 bg-primary text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary-container transition-all shadow-md shadow-primary/20">
+                    <span class="material-symbols-outlined text-sm">shield_person</span>
+                    Management
+                </a>
+            <?php endif; ?>
         </nav>
     </div>
 
@@ -82,10 +97,22 @@ try {
             </button>
             <!-- Dropdown -->
             <div class="absolute right-0 mt-3 w-48 bg-surface rounded-2xl shadow-xl border border-outline/10 p-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-300 z-50">
-                <a href="profile_user.php" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-low text-primary transition-all font-bold text-[10px] uppercase tracking-[0.15em] border-b border-outline/5 mb-1">
-                    <span class="material-symbols-outlined text-base">admin_panel_settings</span>
+                <a href="profile_user.php" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-low text-on-surface transition-all font-bold text-[10px] uppercase tracking-[0.15em] border-b border-outline/5 mb-1">
+                    <span class="material-symbols-outlined text-base">edit_note</span>
                     Edit Profil
                 </a>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'user'): ?>
+                    <?php 
+                        $target = 'dashboard_user.php';
+                        if ($_SESSION['role'] === 'admin') $target = '../admin/dashboard_admin.php';
+                        elseif ($_SESSION['role'] === 'technician') $target = '../modules_technician/dashboard_technician.php';
+                        elseif ($_SESSION['role'] === 'head') $target = '../modules_head/dashboard_head.php';
+                    ?>
+                    <a href="<?php echo $target; ?>" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary/10 text-primary transition-all font-bold text-[10px] uppercase tracking-[0.15em] border-b border-outline/5 mb-1">
+                        <span class="material-symbols-outlined text-base">admin_panel_settings</span>
+                        Management
+                    </a>
+                <?php endif; ?>
                 <a href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-rose-500/10 text-rose-500 transition-all font-bold text-[10px] uppercase tracking-[0.15em]">
                     <span class="material-symbols-outlined text-base">logout</span>
                     Keluar

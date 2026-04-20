@@ -9,47 +9,6 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Bootstrap Firestore TANPA memerlukan session login
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-use Kreait\Firebase\Factory;
-use Dotenv\Dotenv;
-
-// Load environment variables
-if (file_exists(__DIR__ . '/../../.env')) {
-    $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-    $dotenv->load();
-}
-
-// Inisialisasi Firestore
-$db = null;
-try {
-    $factory = new Factory;
-
-    $serviceAccountJson = getenv('FIREBASE_SERVICE_ACCOUNT_JSON');
-    $projectId          = getenv('FIREBASE_PROJECT_ID');
-    $privateKey         = str_replace('\\n', "\n", getenv('FIREBASE_PRIVATE_KEY') ?: '');
-    $clientEmail        = getenv('FIREBASE_CLIENT_EMAIL');
-
-    if ($serviceAccountJson) {
-        $factory = $factory->withServiceAccount(json_decode($serviceAccountJson, true));
-    } elseif ($projectId && $privateKey && $clientEmail) {
-        $factory = $factory->withServiceAccount([
-            'type'         => 'service_account',
-            'project_id'   => $projectId,
-            'private_key'  => $privateKey,
-            'client_email' => $clientEmail,
-        ]);
-    } elseif (file_exists(__DIR__ . '/../../firebase-auth.json')) {
-        $factory = $factory->withServiceAccount(__DIR__ . '/../../firebase-auth.json');
-    }
-
-    $firestore = $factory->createFirestore();
-    $db = $firestore->database();
-} catch (Exception $e) {
-    $db = null;
-}
-
 // Ambil ID tiket dari URL
 $ticket_id = $_GET['id'] ?? '';
 $data      = [];
@@ -58,27 +17,36 @@ $error     = null;
 
 if (empty($ticket_id)) {
     $error = "ID tiket tidak tersedia. Pastikan QR code dipindai dengan benar.";
-} elseif (!$db) {
-    $error = "Koneksi database tidak tersedia. Coba lagi beberapa saat.";
 } else {
-    try {
-        $submissionSnap = $db->collection('submissions')->document($ticket_id)->snapshot();
-        if (!$submissionSnap->exists()) {
-            $error = "Tiket tidak ditemukan dalam sistem. ID: " . htmlspecialchars($ticket_id);
-        } else {
-            $data       = $submissionSnap->data();
-            $data['id'] = $submissionSnap->id();
-
-            // Ambil profil user
-            if (!empty($data['user_id'])) {
-                $userSnap = $db->collection('users')->document($data['user_id'])->snapshot();
-                if ($userSnap->exists()) {
-                    $user_data = $userSnap->data();
+    if ($db) {
+        try {
+            $submissionSnap = $db->collection('submissions')->document($ticket_id)->snapshot();
+            if ($submissionSnap->exists()) {
+                $data       = $submissionSnap->data();
+                $data['id'] = $submissionSnap->id();
+                if (!empty($data['user_id'])) {
+                    $userSnap = $db->collection('users')->document($data['user_id'])->snapshot();
+                    if ($userSnap->exists()) { $user_data = $userSnap->data(); }
                 }
             }
+        } catch (Exception $e) { $db = null; }
+    }
+
+    if (!$db && $conn) {
+        $id_e = mysqli_real_escape_string($conn, $ticket_id);
+        $res = mysqli_query($conn, "SELECT s.*, u.full_name, u.jabatan, u.department as u_dept FROM submissions s LEFT JOIN users u ON s.user_id = u.id WHERE s.id = '$id_e' LIMIT 1");
+        if ($row = mysqli_fetch_assoc($res)) {
+            $data = $row;
+            $user_data = [
+                'full_name' => $row['full_name'],
+                'jabatan' => $row['jabatan'],
+                'department' => $row['u_dept']
+            ];
         }
-    } catch (Exception $e) {
-        $error = "Gagal memuat data: " . $e->getMessage();
+    }
+
+    if (empty($data)) {
+        $error = "Tiket tidak ditemukan dalam sistem. ID: " . htmlspecialchars($ticket_id);
     }
 }
 

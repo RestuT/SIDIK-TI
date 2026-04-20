@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
@@ -6,44 +6,51 @@ require_once __DIR__ . '/csrf_helper.php';
 use App\Services\ProcurementService;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
-    
     require_csrf_token();
 
-    // 1. Ambil Data dan Sanitasi Input
-    $user_id    = $_SESSION['user_id']; 
-    $judul      = $_POST['title'] ?? '';
-    $deskripsi  = $_POST['description'] ?? '';
-    $urgensi    = $_POST['urgency'] ?? '';
-    $qty        = max(1, (int)($_POST['qty'] ?? 1));
-    $base_price = (float)($_POST['base_price'] ?? 0);
+    $user_id = $_SESSION['user_id'];
+    $userData = [];
 
-    $current_year = date('Y');
-    
-    // Ambil departemen user
-    $userSnap = $db->collection('users')->document($user_id)->snapshot();
-    if (!$userSnap->exists()) {
-        die("User tidak ditemukan.");
+    if ($db && !is_numeric($user_id)) {
+        try {
+            $userSnap = $db->collection('users')->document($user_id)->snapshot();
+            if ($userSnap->exists()) $userData = $userSnap->data();
+        } catch (Exception $e) { $db = null; }
     }
-    $userData  = $userSnap->data();
-    $my_dept   = $userData['department'] ?? '';
+    
+    if (!$db && $conn) {
+        $res = mysqli_query($conn, "SELECT * FROM users WHERE id = '$user_id'");
+        if ($res) $userData = mysqli_fetch_assoc($res);
+    }
+
+    if (empty($userData)) die("User tidak ditemukan.");
+
+    $my_dept = $userData['department'] ?? '';
     $user_name = $userData['full_name'] ?? '';
 
-    $procurementService = new ProcurementService($db);
+    $procurementService = new ProcurementService($db, $conn);
+    $settings = ['margin_pengadaan' => 5, 'pajak' => 11];
 
-    // 2. Fetch System Settings
-    $settings = [
-        'margin_pengadaan' => 5,
-        'pajak'            => 11
-    ];
-    try {
-        $sys_docs = $db->collection('system_settings')->documents();
-        foreach ($sys_docs as $doc) {
-            if ($doc->id() === 'margin_pengadaan') $settings['margin_pengadaan'] = (float)$doc->get('setting_value');
-            if ($doc->id() === 'pajak')            $settings['pajak'] = (float)$doc->get('setting_value');
+    if ($db) {
+        try {
+            $sys_docs = $db->collection('system_settings')->documents();
+            foreach ($sys_docs as $doc) {
+                if ($doc->id() === 'margin_pengadaan') $settings['margin_pengadaan'] = (float)$doc->get('setting_value');
+                if ($doc->id() === 'pajak') $settings['pajak'] = (float)$doc->get('setting_value');
+            }
+        } catch (Exception $e) { $db = null; }
+    }
+    
+    if (!$db && $conn) {
+        $res = mysqli_query($conn, "SELECT * FROM system_settings");
+        if ($res) {
+            while ($row = mysqli_fetch_assoc($res)) {
+                if ($row['setting_key'] === 'margin_pengadaan') $settings['margin_pengadaan'] = (float)$row['setting_value'];
+                if ($row['setting_key'] === 'pajak') $settings['pajak'] = (float)$row['setting_value'];
+            }
         }
-    } catch (Exception $e) { }
+    }
 
-    // 3. Submit Procurement via Service
     try {
         $ticket_no = $procurementService->submitRequest($user_id, [
             'title'       => $_POST['title'] ?? '',
@@ -55,10 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
             'user_name'   => $user_name
         ], $_FILES['attachment'] ?? null, $settings);
 
-        // Fetch the auto_id for the redirect
-        $subDocs = $db->collection('submissions')->where('ticket_number', '==', $ticket_no)->documents();
         $auto_id = null;
-        foreach ($subDocs as $doc) { $auto_id = $doc->id(); break; }
+        if ($db) {
+            $subDocs = $db->collection('submissions')->where('ticket_number', '=', $ticket_no)->documents();
+            foreach ($subDocs as $doc) { $auto_id = $doc->id(); break; }
+        } else if ($conn) {
+            $res = mysqli_query($conn, "SELECT id FROM submissions WHERE ticket_number = '".mysqli_real_escape_string($conn, $ticket_no)."'");
+            if ($res) $row = mysqli_fetch_assoc($res);
+            $auto_id = $row['id'] ?? null;
+        }
 
         header("Location: ../modules_user/cetak_tiket_pengadaan.php?id=" . $auto_id);
         exit();
@@ -69,4 +81,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 } else {
     echo "Sesi tidak valid. Silakan login kembali.";
 }
-// Closing tag removed to prevent header output

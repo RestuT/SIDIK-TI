@@ -18,55 +18,89 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $pageSize = 25;
 $offset = ($page - 1) * $pageSize;
 
-// 1. Fetch Inventory from Firestore
-$inventoryRef = $db->collection('inventory');
-
-// Note: We fetch pageSize + 1 to check if there is a next page
-$query = $inventoryRef->orderBy('stock', 'ASC')->offset($offset)->limit($pageSize + 1);
-$documents = $query->documents();
-
 $inventory_data = [];
-$all_fetched = [];
-foreach ($documents as $doc) {
-    if ($doc->exists()) {
-        $data = $doc->data();
-        $data['id'] = $doc->id();
+$hasMore = false;
+$templates_data = [];
+$sys_margin = 10;
+$sys_pajak  = 11;
+
+if ($db) {
+    try {
+        // 1. Fetch Inventory from Firestore
+        $inventoryRef = $db->collection('inventory');
+        $query = $inventoryRef->orderBy('stock', 'ASC')->offset($offset)->limit($pageSize + 1);
+        $documents = $query->documents();
         
-        // Client-side search filtering (fallback for simpler implementation)
-        if (!empty($search_query)) {
-            if (stripos($data['item_name'], $search_query) === false && 
-                stripos($data['category'], $search_query) === false) {
-                continue;
+        $all_fetched = [];
+        foreach ($documents as $doc) {
+            if ($doc->exists()) {
+                $data = $doc->data();
+                $data['id'] = $doc->id();
+                
+                // Client-side search filtering
+                if (!empty($search_query)) {
+                    if (stripos($data['item_name'], $search_query) === false && 
+                        stripos($data['category'], $search_query) === false) {
+                        continue;
+                    }
+                }
+                $all_fetched[] = $data;
             }
         }
-        $all_fetched[] = $data;
+        $inventory_data = array_slice($all_fetched, 0, $pageSize);
+        $hasMore = count($all_fetched) > $pageSize;
+
+        // 2. Fetch Master Templates
+        $master_templates = $db->collection('procurement_templates')->orderBy('product_name', 'ASC')->documents();
+        foreach ($master_templates as $doc) {
+            $templates_data[] = $doc->data();
+        }
+
+        // 3. Fetch System Settings
+        $sys_docs = $db->collection('system_settings')->documents();
+        foreach ($sys_docs as $doc) {
+            if (!$doc->exists()) continue;
+            $val = $doc->data()['setting_value'] ?? null;
+            if ($val === null) continue;
+            if ($doc->id() === 'margin_pengadaan') $sys_margin = (float)$val;
+            if ($doc->id() === 'pajak')            $sys_pajak  = (float)$val;
+        }
+    } catch (Exception $e) {
+        $db = null; // Fallback
     }
 }
 
-// Check hasMore and slice to actual page size
-$inventory_data = array_slice($all_fetched, 0, $pageSize);
-$hasMore = count($all_fetched) > $pageSize;
-
-// 2. Fetch Master Templates
-$master_templates = $db->collection('procurement_templates')->orderBy('product_name', 'ASC')->documents();
-$templates_data = [];
-foreach ($master_templates as $doc) {
-    $templates_data[] = $doc->data();
-}
-
-// 3. Fetch System Settings (Margin & Pajak)
-$sys_margin = 5;
-$sys_pajak  = 11;
-try {
-    $sys_docs = $db->collection('system_settings')->documents();
-    foreach ($sys_docs as $doc) {
-        if (!$doc->exists()) continue;
-        $val = $doc->data()['setting_value'] ?? null;
-        if ($val === null) continue;
-        if ($doc->id() === 'margin_pengadaan') $sys_margin = (float)$val;
-        if ($doc->id() === 'pajak')            $sys_pajak  = (float)$val;
+if (!$db && $conn) {
+    // 1. Fetch Inventory from MySQL
+    $sql = "SELECT * FROM inventory WHERE 1=1";
+    if (!empty($search_query)) {
+        $q = mysqli_real_escape_string($conn, $search_query);
+        $sql .= " AND (item_name LIKE '%$q%' OR category LIKE '%$q%')";
     }
-} catch (Exception $e) { }
+    $sql .= " ORDER BY stock ASC LIMIT " . ($pageSize + 1) . " OFFSET " . $offset;
+    $res = mysqli_query($conn, $sql);
+    $all_fetched = [];
+    while ($row = mysqli_fetch_assoc($res)) {
+        $all_fetched[] = $row;
+    }
+    $inventory_data = array_slice($all_fetched, 0, $pageSize);
+    $hasMore = count($all_fetched) > $pageSize;
+
+    // 2. Fetch Master Templates from MySQL
+    $res_temp = mysqli_query($conn, "SELECT * FROM procurement_templates ORDER BY product_name ASC");
+    while ($row = mysqli_fetch_assoc($res_temp)) {
+        $templates_data[] = $row;
+    }
+
+    // 3. Fetch System Settings from MySQL
+    $res_settings = mysqli_query($conn, "SELECT * FROM system_settings");
+    if ($res_settings) {
+        while ($row = mysqli_fetch_assoc($res_settings)) {
+            if ($row['setting_key'] === 'margin_pengadaan') $sys_margin = (float)$row['setting_value'];
+            if ($row['setting_key'] === 'pajak')            $sys_pajak  = (float)$row['setting_value'];
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -136,7 +170,6 @@ try {
                     <div>
                         <?php 
                             $stat_low = 0;
-                            // Note: this only counts from current page. For global count, separate query needed.
                             foreach ($inventory_data as $inv) {
                                 if ($inv['stock'] <= ($inv['min_stock'] ?? 0)) $stat_low++;
                             }
@@ -187,7 +220,6 @@ try {
                         <tbody class="divide-y divide-outline-variant/10">
                             <?php foreach($inventory_data as $row): 
                                 $harga_dasar = $row['harga_master'] ?? $row['price_reference'] ?? 0;
-                                // Formula: base × (1 + markup/100) × (1 + pajak/100)
                                 $total_user = $harga_dasar * (1 + $sys_margin / 100) * (1 + $sys_pajak / 100);
                             ?>
                             <tr class="group hover:bg-surface-container-lowest transition-all"
@@ -387,9 +419,6 @@ try {
     </main>
 
     <script>
-    // =====================================================
-    // REAL-TIME: Poll settings tiap 30 detik & update harga
-    // =====================================================
     let liveMargin = <?php echo $sys_margin; ?>;
     let livePajak  = <?php echo $sys_pajak; ?>;
 
@@ -418,63 +447,61 @@ try {
         } catch (e) {}
     }
 
-    // Poll setiap 30 detik
     setInterval(pollSettings, 30000);
 
-    // ===================================================
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            const content = id === 'modalTambah' ? document.getElementById('modalContent') : document.getElementById('modalEditContent');
-            if(modal.classList.contains('hidden')) {
-                modal.classList.replace('hidden', 'flex');
-                setTimeout(() => {
-                    content.classList.replace('scale-95', 'scale-100');
-                    content.classList.remove('opacity-0');
-                }, 10);
-            } else {
-                content.classList.replace('scale-100', 'scale-95');
-                content.classList.add('opacity-0');
-                setTimeout(() => modal.classList.replace('flex', 'hidden'), 300);
-            }
-        }
-
-        function autoFillTemplate() {
-            const select = document.getElementById('selectTemplate');
-            const selectedOption = select.options[select.selectedIndex];
-            if(selectedOption.value !== "") {
-                const cat = selectedOption.getAttribute('data-cat');
-                const price = parseFloat(selectedOption.getAttribute('data-price'));
-                document.getElementById('disp_category').value = cat;
-                document.getElementById('disp_price').innerText = "Rp " + price.toLocaleString('id-ID');
-                document.getElementById('hidden_price').value = price;
-            } else {
-                document.getElementById('disp_category').value = "";
-                document.getElementById('disp_price').innerText = "Rp 0";
-                document.getElementById('hidden_price').value = "";
-            }
-        }
-
-        function bukaModalEdit(data) {
-            document.getElementById('edit_id').value = data.id;
-            document.getElementById('edit_name').value = data.item_name;
-            document.getElementById('edit_category').value = data.category;
-            document.getElementById('edit_satuan').value = data.satuan;
-            document.getElementById('edit_stock').value = data.stock;
-            document.getElementById('edit_min').value = data.min_stock;
-            document.getElementById('edit_price').value = data.harga_master ? data.harga_master : (data.price_reference ? data.price_reference : 0);
-            
-            const modal = document.getElementById('modalEdit');
-            const content = document.getElementById('modalEditContent');
+    function toggleModal(id) {
+        const modal = document.getElementById(id);
+        const content = id === 'modalTambah' ? document.getElementById('modalContent') : document.getElementById('modalEditContent');
+        if(modal.classList.contains('hidden')) {
             modal.classList.replace('hidden', 'flex');
             setTimeout(() => {
                 content.classList.replace('scale-95', 'scale-100');
                 content.classList.remove('opacity-0');
             }, 10);
+        } else {
+            content.classList.replace('scale-100', 'scale-95');
+            content.classList.add('opacity-0');
+            setTimeout(() => modal.classList.replace('flex', 'hidden'), 300);
         }
+    }
 
-        function tutupModalEdit() {
-            toggleModal('modalEdit');
+    function autoFillTemplate() {
+        const select = document.getElementById('selectTemplate');
+        const selectedOption = select.options[select.selectedIndex];
+        if(selectedOption.value !== "") {
+            const cat = selectedOption.getAttribute('data-cat');
+            const price = parseFloat(selectedOption.getAttribute('data-price'));
+            document.getElementById('disp_category').value = cat;
+            document.getElementById('disp_price').innerText = "Rp " + price.toLocaleString('id-ID');
+            document.getElementById('hidden_price').value = price;
+        } else {
+            document.getElementById('disp_category').value = "";
+            document.getElementById('disp_price').innerText = "Rp 0";
+            document.getElementById('hidden_price').value = "";
         }
+    }
+
+    function bukaModalEdit(data) {
+        document.getElementById('edit_id').value = data.id;
+        document.getElementById('edit_name').value = data.item_name;
+        document.getElementById('edit_category').value = data.category;
+        document.getElementById('edit_satuan').value = data.satuan;
+        document.getElementById('edit_stock').value = data.stock;
+        document.getElementById('edit_min').value = data.min_stock;
+        document.getElementById('edit_price').value = data.harga_master ? data.harga_master : (data.price_reference ? data.price_reference : 0);
+        
+        const modal = document.getElementById('modalEdit');
+        const content = document.getElementById('modalEditContent');
+        modal.classList.replace('hidden', 'flex');
+        setTimeout(() => {
+            content.classList.replace('scale-95', 'scale-100');
+            content.classList.remove('opacity-0');
+        }, 10);
+    }
+
+    function tutupModalEdit() {
+        toggleModal('modalEdit');
+    }
     </script>
 </body>
 </html>

@@ -31,7 +31,7 @@ CREATE TABLE `users` (
   `full_name` varchar(150) NOT NULL,
   `department` varchar(100) DEFAULT NULL,
   `jabatan` varchar(100) DEFAULT NULL,
-  `role` enum('user','admin','technician','staff') NOT NULL DEFAULT 'user',
+  `role` enum('user','admin','technician','staff','head') NOT NULL DEFAULT 'user',
   `two_fa_code` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)

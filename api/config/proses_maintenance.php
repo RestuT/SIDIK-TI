@@ -15,18 +15,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
     $deskripsi  = $_POST['deskripsi'] ?? '';
     
     // Fetch user info for denormalization
-    $userRef = $db->collection('users')->document($user_id);
-    $userSnap = $userRef->snapshot();
     $user_name = "Unknown";
     $department = "-";
-    
-    if ($userSnap->exists()) {
-        $userData = $userSnap->data();
-        $user_name = $userData['username'] ?? 'Unknown';
-        $department = $userData['dept'] ?? '-';
+
+    if ($db) {
+        try {
+            $userRef = $db->collection('users')->document($user_id);
+            $userSnap = $userRef->snapshot();
+            if ($userSnap->exists()) {
+                $userData = $userSnap->data();
+                $user_name = $userData['username'] ?? 'Unknown';
+                $department = $userData['dept'] ?? '-';
+            }
+        } catch (Exception $e) { $db = null; }
     }
 
-    $maintenanceService = new MaintenanceService($db);
+    if (!$db && $conn) {
+        $uid_e = mysqli_real_escape_string($conn, $user_id);
+        $res = mysqli_query($conn, "SELECT username, department FROM users WHERE id = '$uid_e' LIMIT 1");
+        if ($row = mysqli_fetch_assoc($res)) {
+            $user_name = $row['username'];
+            $department = $row['department'];
+        }
+    }
+
+    $maintenanceService = new MaintenanceService($db, $conn);
 
     // 2. Submit Maintenance via Service
     try {

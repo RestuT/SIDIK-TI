@@ -13,50 +13,97 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 if (isset($_GET['delete_id'])) {
     $id_to_delete = $_GET['delete_id'];
     
-    $subRef = $db->collection('submissions')->document($id_to_delete);
-    $snapshot = $subRef->snapshot();
-
-    if ($snapshot->exists() && $snapshot->get('status') === 'Selesai') {
-        $subRef->delete();
-        header("Location: dashboard_admin.php?msg=deleted");
-        exit();
-    } else {
-        header("Location: dashboard_admin.php?msg=error_status");
-        exit();
+    if ($db) {
+        $subRef = $db->collection('submissions')->document($id_to_delete);
+        $snapshot = $subRef->snapshot();
+        if ($snapshot->exists() && $snapshot->get('status') === 'Selesai') {
+            $subRef->delete();
+            header("Location: dashboard_admin.php?msg=deleted");
+            exit();
+        }
+    } else if ($conn) {
+        $check_sql = "SELECT status FROM submissions WHERE id = " . intval($id_to_delete);
+        $check_res = mysqli_query($conn, $check_sql);
+        $check_row = mysqli_fetch_assoc($check_res);
+        if ($check_row && $check_row['status'] === 'Selesai') {
+            mysqli_query($conn, "DELETE FROM submissions WHERE id = " . intval($id_to_delete));
+            header("Location: dashboard_admin.php?msg=deleted");
+            exit();
+        }
     }
+    
+    header("Location: dashboard_admin.php?msg=error_status");
+    exit();
 }
 
 // Ambil Statistik
-$submissionsRef = $db->collection('submissions');
-$stat_total = $submissionsRef->count();
-$stat_pending = $submissionsRef->where('status', '=', 'Menunggu')->count();
-$stat_process = $submissionsRef->where('status', '=', 'Proses')->count();
-$stat_done = $submissionsRef->where('status', '=', 'Selesai')->count();
+if ($db) {
+    try {
+        $submissionsRef = $db->collection('submissions');
+        $stat_total = $submissionsRef->count();
+        $stat_pending = $submissionsRef->where('status', '=', 'Menunggu')->count();
+        $stat_process = $submissionsRef->where('status', '=', 'Proses')->count();
+        $stat_done = $submissionsRef->where('status', '=', 'Selesai')->count();
+    } catch (Exception $e) {
+        $db = null; // Terpaksa fallback jika error saat query
+    }
+}
+
+if (!$db && $conn) {
+    $stat_total = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM submissions"))['c'] ?? 0;
+    $stat_pending = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM submissions WHERE status='Menunggu'"))['c'] ?? 0;
+    $stat_process = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM submissions WHERE status='Proses'"))['c'] ?? 0;
+    $stat_done = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM submissions WHERE status='Selesai'"))['c'] ?? 0;
+}
 
 // --- LOGIKA FILTERING ---
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $search_q = isset($_GET['q']) ? $_GET['q'] : '';
 
-$query = $submissionsRef;
-
-if (!empty($start_date)) {
-    $query = $query->where('created_at', '>=', $start_date . ' 00:00:00');
-}
-if (!empty($end_date)) {
-    $query = $query->where('created_at', '<=', $end_date . ' 23:59:59');
-}
-// Note: Firestore doesn't support built-in LIKE. For search_q, we'll fetch then filter or use index strategy.
-// For now, we'll fetch and do client-side filter for simplicity in migration.
-
-$all_submissions = $query->orderBy('created_at', 'DESC')->documents();
-
-// Ambil Ringkasan Anggaran untuk Dashboard
+$all_submissions = [];
+$budget_summary = [];
 $current_year = date('Y');
-$budget_summary = $db->collection('budget_config')
-    ->where('fiscal_year', '=', (int)$current_year)
-    ->documents();
-// Note: Sorting and limiting in Firestore requires indices.
+
+if ($db) {
+    $submissionsRef = $db->collection('submissions');
+    $query = $submissionsRef;
+    if (!empty($start_date)) {
+        $query = $query->where('created_at', '>=', $start_date . ' 00:00:00');
+    }
+    if (!empty($end_date)) {
+        $query = $query->where('created_at', '<=', $end_date . ' 23:59:59');
+    }
+    $all_submissions = $query->orderBy('created_at', 'DESC')->documents();
+    
+    $budget_summary = $db->collection('budget_config')
+        ->where('fiscal_year', '=', (int)$current_year)
+        ->documents();
+} else if ($conn) {
+    // Handle Submissions List with SQL
+    $sql = "SELECT s.*, u.full_name as user_name, u.department 
+            FROM submissions s 
+            LEFT JOIN users u ON s.user_id = u.id 
+            WHERE 1=1";
+    
+    if (!empty($start_date)) {
+        $sql .= " AND s.created_at >= '" . mysqli_real_escape_string($conn, $start_date) . " 00:00:00'";
+    }
+    if (!empty($end_date)) {
+        $sql .= " AND s.created_at <= '" . mysqli_real_escape_string($conn, $end_date) . " 23:59:59'";
+    }
+    if (!empty($search_q)) {
+        $q = mysqli_real_escape_string($conn, $search_q);
+        $sql .= " AND (s.ticket_number LIKE '%$q%' OR u.full_name LIKE '%$q%' OR s.title LIKE '%$q%')";
+    }
+    
+    $sql .= " ORDER BY s.created_at DESC";
+    $all_submissions = mysqli_query($conn, $sql);
+    
+    // Handle Budget Summary with SQL
+    $budget_sql = "SELECT * FROM budget_config WHERE fiscal_year = " . (int)$current_year;
+    $budget_summary = mysqli_query($conn, $budget_sql);
+}
 ?>
 
 <!DOCTYPE html>
@@ -274,8 +321,8 @@ $budget_summary = $db->collection('budget_config')
                 
                 <?php 
                 $budget_count = 0;
-                foreach($budget_summary as $doc): 
-                    $b = $doc->data();
+                foreach($budget_summary as $doc_or_row): 
+                    $b = ($db) ? $doc_or_row->data() : $doc_or_row;
                     $persen = ($b['total_limit'] > 0) ? ($b['used_amount'] / $b['total_limit']) * 100 : 0;
                     $color = "bg-primary";
                     if($persen > 80) $color = "bg-orange-500";
@@ -348,16 +395,20 @@ $budget_summary = $db->collection('budget_config')
                         <tbody class="divide-y divide-outline-variant/10">
                             <?php 
                             $count = 0;
-                            foreach($all_submissions as $doc): 
-                                $row = $doc->data();
-                                $row['id'] = $doc->id();
-                                
-                                // Client-side search filtering
-                                if (!empty($search_q)) {
-                                    $match = stripos($row['ticket_number'], $search_q) !== false || 
-                                             stripos($row['user_name'], $search_q) !== false || 
-                                             stripos($row['title'], $search_q) !== false;
-                                    if (!$match) continue;
+                            foreach($all_submissions as $doc_or_row): 
+                                if ($db) {
+                                    $row = $doc_or_row->data();
+                                    $row['id'] = $doc_or_row->id();
+                                    
+                                    // Client-side search filtering for Firestore
+                                    if (!empty($search_q)) {
+                                        $match = stripos($row['ticket_number'], $search_q) !== false || 
+                                                 stripos($row['user_name'], $search_q) !== false || 
+                                                 stripos($row['title'], $search_q) !== false;
+                                        if (!$match) continue;
+                                    }
+                                } else {
+                                    $row = $doc_or_row;
                                 }
                                 
                                 $count++;

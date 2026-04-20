@@ -1,3 +1,5 @@
+<?php
+
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/csrf_helper.php';
 
@@ -9,19 +11,23 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$action = $_POST['action'] ?? $_GET['action'] ?? '';
+$asset_id = $_POST['asset_id'] ?? $_GET['asset_id'] ?? '';
+$batch_id = $_POST['batch_id'] ?? $_GET['batch_id'] ?? '';
+$task_id = $_POST['task_id'] ?? $_GET['task_id'] ?? '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_csrf_token();
 
-    $sensusService = new SensusService($db);
-    $assetService  = new AssetService($db);
+    $sensusService = new SensusService($db, $conn);
+    $assetService  = new AssetService($db, $conn);
+    $now = date('Y-m-d H:i:s');
 
     // --- ACTION: START BATCH (Admin Only) ---
     if ($action === 'start_batch') {
         if ($_SESSION['role'] !== 'admin') die("Unauthorized");
-        
         $batch_name = $_POST['batch_name'] ?? ('Sensus ' . date('F Y'));
         $result = $sensusService->startBatch($batch_name, $_SESSION['user_id']);
-
         header("Location: ../admin/sensus_barang.php?status=batch_started&count=" . $result['count']);
         exit();
     }
@@ -29,9 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- ACTION: SUBMIT REPORT (User/Staff/Kabid/Admin) ---
     if ($action === 'submit_report') {
         if (empty($task_id)) die("Invalid Task ID");
-        
         $sensusService->submitReport($task_id, $_POST['condition_pct'], $_POST['notes'] ?? '');
-
         header("Location: ../modules_user/sensus_dashboard_user.php?status=reported");
         exit();
     }
@@ -40,70 +44,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'finalize_task') {
         if ($_SESSION['role'] !== 'admin') die("Unauthorized");
         if (empty($task_id) || empty($asset_id)) die("Missing IDs");
-
-        $sensusService->finalizeTask($task_id, $asset_id, $_POST['notes'] ?? '');
-
+        $sensusService->finalizeTask($task_id, $asset_id, $_POST['condition_pct'], $_POST['notes'] ?? '');
         header("Location: ../admin/sensus_barang.php?status=task_finalized");
         exit();
     }
 
-        header("Location: ../admin/sensus_barang.php?status=finalized");
-        exit();
-    }
-
-    if (empty($asset_id) && empty($batch_id) && empty($task_id)) {
-        die("Invalid Request Data");
-    }
-
-    $assetRef = $db->collection('asset_assignments')->document($asset_id);
-    $assetSnap = $assetRef->snapshot();
-
-    if (!$assetSnap->exists()) {
-        die("Aset tidak ditemukan.");
-    }
-
-    $assetData = $assetSnap->data();
-
-    // 1. ACTION: INSPECT (SENSUS)
+    // --- ACTION: INSPECT (SENSUS - Direct from Admin) ---
     if ($action === 'inspect') {
+        if (empty($asset_id)) die("Missing Asset ID");
         $pct = (float)$_POST['condition_pct'];
         $notes = $_POST['notes'] ?? '';
+        $code = ($pct >= 85) ? 1 : (($pct >= 65) ? 2 : 3);
+        $uid = $_SESSION['user_id'];
 
-        // Tentukan Label SOP
-        $code = 3; // Default Rusak Berat
-        if ($pct >= 85) {
-            $code = 1; // Baik
-        } elseif ($pct >= 65) {
-            $code = 2; // Rusak Ringan
+        if ($db && !is_numeric($asset_id)) {
+            $assetRef = $db->collection('asset_assignments')->document($asset_id);
+            $db->collection('asset_inspections')->add([
+                'asset_id' => $asset_id, 'inspection_date' => $now, 'condition_code' => $code,
+                'condition_pct' => $pct, 'inspector_id' => $uid, 'notes' => $notes
+            ]);
+            $assetRef->update([['path' => 'latest_condition_code', 'value' => $code], ['path' => 'latest_condition_pct', 'value' => $pct]]);
+        } else if ($conn) {
+            $notes_e = mysqli_real_escape_string($conn, $notes);
+            $uid_e = mysqli_real_escape_string($conn, $uid);
+            mysqli_query($conn, "INSERT INTO asset_inspections (asset_id, inspection_date, condition_code, condition_pct, inspector_id, notes) 
+                                 VALUES (".intval($asset_id).", '$now', $code, $pct, '$uid_e', '$notes_e')");
+            mysqli_query($conn, "UPDATE asset_assignments SET latest_condition_code=$code, latest_condition_pct=$pct WHERE id=".intval($asset_id));
         }
-
-        // Simpan log Sensus
-        $db->collection('asset_inspections')->add([
-            'asset_id' => $asset_id,
-            'inspection_date' => date('Y-m-d H:i:s'),
-            'condition_code' => $code,
-            'condition_pct' => $pct,
-            'inspector_id' => $_SESSION['user_id'],
-            'notes' => $notes
-        ]);
-
-        // Update Aset
-        $assetRef->update([
-            ['path' => 'latest_condition_code', 'value' => $code],
-            ['path' => 'latest_condition_pct', 'value' => $pct]
-        ]);
-
         header("Location: ../admin/sensus_barang.php?status=success_inspect");
         exit();
     }
 
-    // 2. ACTION: REQUEST DISPOSAL
+    // --- ACTION: REQUEST DISPOSAL ---
     if ($action === 'request_disposal') {
         if (empty($asset_id)) die("Missing Asset ID");
-        $assetSnap = $db->collection('asset_assignments')->document($asset_id)->snapshot();
-        if (!$assetSnap->exists()) die("Asset Not Found");
-        
-        $assetService->requestDisposal($asset_id, $_POST['disposal_reason'] ?? '', $assetSnap->data());
+        $assetData = [];
+        if ($db && !is_numeric($asset_id)) {
+            $assetSnap = $db->collection('asset_assignments')->document($asset_id)->snapshot();
+            if ($assetSnap->exists()) $assetData = $assetSnap->data();
+        } else if ($conn) {
+            $res = mysqli_query($conn, "SELECT * FROM asset_assignments WHERE id = ".intval($asset_id));
+            if ($res) $assetData = mysqli_fetch_assoc($res);
+        }
+        if (empty($assetData)) die("Asset Not Found");
+        $assetService->requestDisposal($asset_id, $_POST['disposal_reason'] ?? '', $assetData);
         header("Location: ../admin/sensus_barang.php?status=success_disposal");
         exit();
     }
@@ -121,6 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    header("Location: ../admin/sensus_barang.php");
+    header("Location: ../admin/sensus_barang.php?status=finalized");
     exit();
 }
+
+header("Location: ../admin/sensus_barang.php");
+exit();

@@ -31,11 +31,19 @@ function get_mobile_icon_style($page, $current) {
         <span class="material-symbols-outlined <?php echo get_mobile_icon_style('assets_user.php', $current_page); ?>">list_alt</span>
         <span class="font-headline text-[9px] font-bold uppercase tracking-wider mt-1">Assets</span>
     </a>
-    
-    <a class="<?php echo get_mobile_nav_style('profile_user.php', $current_page); ?>" href="profile_user.php">
-        <span class="material-symbols-outlined <?php echo get_mobile_icon_style('profile_user.php', $current_page); ?>">badge</span>
-        <span class="font-headline text-[9px] font-bold uppercase tracking-wider mt-1">Profile</span>
+
+    <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'user'): ?>
+    <?php 
+        $target = 'dashboard_user.php';
+        if ($_SESSION['role'] === 'admin') $target = '../admin/dashboard_admin.php';
+        elseif ($_SESSION['role'] === 'technician') $target = '../modules_technician/dashboard_technician.php';
+        elseif ($_SESSION['role'] === 'head') $target = '../modules_head/dashboard_head.php';
+    ?>
+    <a class="flex flex-col items-center justify-center text-primary px-3 py-2 bg-primary/5 rounded-2xl transition-all" href="<?php echo $target; ?>">
+        <span class="material-symbols-outlined">shield_person</span>
+        <span class="font-headline text-[9px] font-bold uppercase tracking-wider mt-1">Manage</span>
     </a>
+    <?php endif; ?>
 
 </nav>
 <style>

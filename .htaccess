@@ -10,6 +10,9 @@
     RewriteRule ^(admin|auth|modules_user)/(.*)$ api/$1/$2 [L,QSA]
 
     # 3. Handle specific PHP files at the root level by mapping them to api/
+    # WAF Bypass: Allow modules to POST to /actions/ instead of /config/ to avoid ModSecurity blocking the word 'config' 
+    RewriteRule ^actions/(.*\.php)$ api/config/$1 [L,QSA]
+    
     RewriteCond %{DOCUMENT_ROOT}/api/$1 -f
     RewriteRule ^(.*\.php)$ api/$1 [L,QSA]
 

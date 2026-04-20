@@ -19,40 +19,44 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 
 // Default values
-$margin_pengadaan = 5;   // markup / overhead (%)
-$pajak            = 11;  // PPN default 11%
-$nilai_sisa       = 10;  // salvage value (%)
+$margin_pengadaan = 5;
+$pajak            = 11;
+$nilai_sisa       = 10;
+$status           = 'ok';
 
-try {
-    $docs = $db->collection('system_settings')->documents();
-    foreach ($docs as $doc) {
-        if (!$doc->exists()) continue;
-        $val = $doc->data()['setting_value'] ?? null;
-        if ($val === null) continue;
-
-        switch ($doc->id()) {
-            case 'margin_pengadaan': $margin_pengadaan = (float)$val; break;
-            case 'pajak':            $pajak            = (float)$val; break;
-            case 'nilai_sisa':       $nilai_sisa       = (float)$val; break;
+if ($db) {
+    try {
+        $docs = $db->collection('system_settings')->documents();
+        foreach ($docs as $doc) {
+            if (!$doc->exists()) continue;
+            $val = $doc->data()['setting_value'] ?? null;
+            if ($val === null) continue;
+            switch ($doc->id()) {
+                case 'margin_pengadaan': $margin_pengadaan = (float)$val; break;
+                case 'pajak':            $pajak            = (float)$val; break;
+                case 'nilai_sisa':       $nilai_sisa       = (float)$val; break;
+            }
         }
-    }
-} catch (Exception $e) {
-    // Fallback ke default, tetap kembalikan JSON valid
-    echo json_encode([
-        'margin_pengadaan' => $margin_pengadaan,
-        'pajak'            => $pajak,
-        'nilai_sisa'       => $nilai_sisa,
-        'status'           => 'error',
-        '_fetched_at'      => time(),
-        '_error'           => 'Firestore unavailable, using defaults',
-    ]);
-    exit;
+    } catch (Exception $e) { $db = null; }
+}
+
+if (!$db && $conn) {
+    $res = mysqli_query($conn, "SELECT * FROM system_settings");
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            switch ($row['setting_key']) {
+                case 'margin_pengadaan': $margin_pengadaan = (float)$row['setting_value']; break;
+                case 'pajak':            $pajak            = (float)$row['setting_value']; break;
+                case 'nilai_sisa':       $nilai_sisa       = (float)$row['setting_value']; break;
+            }
+        }
+    } else { $status = 'error'; }
 }
 
 echo json_encode([
     'margin_pengadaan' => $margin_pengadaan,
     'pajak'            => $pajak,
     'nilai_sisa'       => $nilai_sisa,
-    'status'           => 'ok',
+    'status'           => $status,
     '_fetched_at'      => time(),
 ]);

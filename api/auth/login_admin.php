@@ -193,11 +193,9 @@ if (isset($_POST['verify_2fa'])) {
                 <!-- Identitas Brand -->
                 <div class="flex flex-col items-center md:items-start space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-900 to-primary flex items-center justify-center shadow-lg shadow-indigo-900/20">
-                            <span class="material-symbols-outlined text-white text-3xl">terminal</span>
-                        </div>
+                        <img src="../assets/img/logo.png" alt="Logo" class="h-12 md:h-14 w-auto">
                         <h1 class="font-headline font-extrabold text-2xl tracking-tight text-indigo-900">
-                            SIDIK-TI ADMIN
+                            SIDIK-TI <span class="opacity-40 font-normal">ADMIN</span>
                         </h1>
                     </div>
                     <div class="text-center md:text-left">
@@ -307,3 +305,5 @@ if (isset($_POST['verify_2fa'])) {
     </main>
 </body>
 </html>
+
+

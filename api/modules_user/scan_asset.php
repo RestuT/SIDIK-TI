@@ -9,45 +9,6 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-use Kreait\Firebase\Factory;
-use Dotenv\Dotenv;
-
-// Load .env jika ada (lokal)
-if (file_exists(__DIR__ . '/../../.env')) {
-    $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
-    $dotenv->load();
-}
-
-// Inisialisasi Firestore secara mandiri
-$db = null;
-try {
-    $factory = new Factory;
-    $serviceAccountJson = getenv('FIREBASE_SERVICE_ACCOUNT_JSON');
-    $projectId          = getenv('FIREBASE_PROJECT_ID');
-    $privateKey         = str_replace('\\n', "\n", getenv('FIREBASE_PRIVATE_KEY') ?: '');
-    $clientEmail        = getenv('FIREBASE_CLIENT_EMAIL');
-
-    if ($serviceAccountJson) {
-        $factory = $factory->withServiceAccount(json_decode($serviceAccountJson, true));
-    } elseif ($projectId && $privateKey && $clientEmail) {
-        $factory = $factory->withServiceAccount([
-            'type'         => 'service_account',
-            'project_id'   => $projectId,
-            'private_key'  => $privateKey,
-            'client_email' => $clientEmail,
-        ]);
-    } elseif (file_exists(__DIR__ . '/../../firebase-auth.json')) {
-        $factory = $factory->withServiceAccount(__DIR__ . '/../../firebase-auth.json');
-    }
-
-    $firestore = $factory->createFirestore();
-    $db = $firestore->database();
-} catch (Exception $e) {
-    $db = null;
-}
-
 // ----------------------------------------
 $asset_id = $_GET['id'] ?? '';
 $data = [];
@@ -64,21 +25,29 @@ function getConditionCode($start_date, $type, $man_code) {
     return 3;
 }
 
-if (!$db) {
-    $error = "Koneksi database tidak tersedia saat ini. Coba lagi beberapa saat.";
-} elseif (empty($asset_id)) {
+if (empty($asset_id)) {
     $error = "QR Code tidak mencantumkan ID Aset yang valid.";
 } else {
-    try {
-        $docSnap = $db->collection('asset_assignments')->document($asset_id)->snapshot();
-        if (!$docSnap->exists()) {
-            $error = "Aset tidak ditemukan dalam sistem (ID: " . htmlspecialchars($asset_id) . ").";
-        } else {
-            $data = $docSnap->data();
-            $data['id'] = $docSnap->id();
+    if ($db) {
+        try {
+            $docSnap = $db->collection('asset_assignments')->document($asset_id)->snapshot();
+            if ($docSnap->exists()) {
+                $data = $docSnap->data();
+                $data['id'] = $docSnap->id();
+            }
+        } catch (Exception $e) { $db = null; }
+    }
+
+    if (!$db && $conn) {
+        $id_e = mysqli_real_escape_string($conn, $asset_id);
+        $res = mysqli_query($conn, "SELECT * FROM asset_assignments WHERE id = '$id_e' LIMIT 1");
+        if ($row = mysqli_fetch_assoc($res)) {
+            $data = $row;
         }
-    } catch (Exception $e) {
-        $error = "Error memuat data: " . $e->getMessage();
+    }
+
+    if (empty($data)) {
+        $error = "Aset tidak ditemukan dalam sistem (ID: " . htmlspecialchars($asset_id) . ").";
     }
 }
 

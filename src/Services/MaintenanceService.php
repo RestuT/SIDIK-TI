@@ -20,12 +20,10 @@ class MaintenanceService extends BaseService {
      * Submit a maintenance request
      */
     public function submitRequest($userId, $data, $file) {
-        if (!$this->db) throw new \Exception("Database required");
-
         $ticketNo = "MNT-" . date('Ymd') . "-" . strtoupper(substr(uniqid(), -3));
         $attachmentUrl = $this->fileService->uploadAttachment($file, $ticketNo);
 
-        $addedDocRef = $this->db->collection('submissions')->add([
+        $payload = [
             'ticket_number'   => $ticketNo,
             'user_id'         => $userId,
             'user_name'       => $data['user_name'] ?? 'Unknown',
@@ -36,8 +34,34 @@ class MaintenanceService extends BaseService {
             'attachment_path' => $attachmentUrl,
             'status'          => 'Menunggu',
             'created_at'      => $this->now()
-        ]);
+        ];
 
-        return $addedDocRef->id();
+        if ($this->db) {
+            try {
+                $addedDocRef = $this->db->collection('submissions')->add($payload);
+                return $addedDocRef->id();
+            } catch (\Exception $e) {
+                if (!$this->conn) throw $e;
+                $this->db = null;
+            }
+        }
+
+        if ($this->conn) {
+            $cols = implode(", ", array_keys($payload));
+            $params = [];
+            foreach ($payload as $val) {
+                if ($val === null) $params[] = "NULL";
+                else $params[] = "'" . mysqli_real_escape_string($this->conn, $val) . "'";
+            }
+            $vals = implode(", ", $params);
+            
+            $sql = "INSERT INTO submissions ($cols) VALUES ($vals)";
+            if (mysqli_query($this->conn, $sql)) {
+                return mysqli_insert_id($this->conn);
+            }
+            throw new \Exception("Database error: " . mysqli_error($this->conn));
+        }
+
+        throw new \Exception("No database connection available");
     }
 }

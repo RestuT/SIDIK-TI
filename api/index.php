@@ -84,6 +84,7 @@
     <!-- TopAppBar -->
 <header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 shadow-sm shadow-indigo-500/5">
     <div class="flex items-center gap-3">
+        <img src="assets/img/logo.png" alt="Logo" class="h-8 md:h-10 w-auto">
         <span class="text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
     </div>
     <div class="hidden md:flex items-center space-x-8">
@@ -291,8 +292,11 @@
 <footer class="bg-surface-container-low py-12 px-6">
 <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
 <div class="space-y-4 text-center md:text-left">
-<span class="text-2xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
-<p class="text-on-surface-variant max-w-sm text-sm">Memberikan standar tertinggi dalam pemeliharaan infrastruktur digital Anda untuk keberlanjutan bisnis yang lebih baik.</p>
+    <div class="flex items-center justify-center md:justify-start gap-3">
+        <img src="assets/img/logo.png" alt="Logo" class="h-10 w-auto">
+        <span class="text-2xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
+    </div>
+    <p class="text-on-surface-variant max-w-sm text-sm">Memberikan standar tertinggi dalam pemeliharaan infrastruktur digital Anda untuk keberlanjutan bisnis yang lebih baik.</p>
 </div>
 <div class="text-on-surface-variant font-medium text-sm text-center md:text-right">
                 © 2026 IT Helpdesk System - Focused on Reliability.

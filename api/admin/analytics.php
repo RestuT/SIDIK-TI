@@ -9,63 +9,104 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-try {
-    // --- 1. DATA UNTUK PIE CHART (Maintenance vs Pengadaan) ---
-    $submissions_docs = $db->collection('submissions')->documents();
-    $service_counts = [];
-    foreach ($submissions_docs as $doc) {
-        $type = $doc->data()['type'] ?? 'Unknown';
-        $service_counts[$type] = ($service_counts[$type] ?? 0) + 1;
-    }
-    $service_labels = array_keys($service_counts);
-    $service_data = array_values($service_counts);
+$service_labels = [];
+$service_data = [];
+$asset_labels = [];
+$asset_data = [];
+$trend_labels = [];
+$trend_data = [];
+$stat_total_assets = 0;
+$stat_avg_completion = 0;
+$stat_pending = 0;
 
-    // --- 2. DATA UNTUK BAR CHART (Kategori Aset) ---
-    $assets_docs = $db->collection('asset_assignments')->documents();
-    $category_counts = [];
-    foreach ($assets_docs as $doc) {
-        $cat = $doc->data()['category'] ?? 'Unknown';
-        $category_counts[$cat] = ($category_counts[$cat] ?? 0) + 1;
-    }
-    $asset_labels = array_keys($category_counts);
-    $asset_data = array_values($category_counts);
+if ($db) {
+    try {
+        // --- 1. DATA UNTUK PIE CHART (Maintenance vs Pengadaan) ---
+        $submissions_docs = $db->collection('submissions')->documents();
+        $service_counts = [];
+        foreach ($submissions_docs as $doc) {
+            $type = $doc->data()['type'] ?? 'Unknown';
+            $service_counts[$type] = ($service_counts[$type] ?? 0) + 1;
+        }
+        $service_labels = array_keys($service_counts);
+        $service_data = array_values($service_counts);
 
-    // --- 3. DATA UNTUK LINE CHART (Tren 6 Bulan Terakhir) ---
-    $trend_data = [];
-    $trend_labels = [];
+        // --- 2. DATA UNTUK BAR CHART (Kategori Aset) ---
+        $assets_docs = $db->collection('asset_assignments')->documents();
+        $category_counts = [];
+        foreach ($assets_docs as $doc) {
+            $cat = $doc->data()['category'] ?? 'Unknown';
+            $category_counts[$cat] = ($category_counts[$cat] ?? 0) + 1;
+        }
+        $asset_labels = array_keys($category_counts);
+        $asset_data = array_values($category_counts);
+
+        // --- 3. DATA UNTUK LINE CHART (Tren 6 Bulan Terakhir) ---
+        for ($i = 5; $i >= 0; $i--) {
+            $month_label = date('M Y', strtotime("-$i months"));
+            $month_start = date('Y-m-d 00:00:00', strtotime("first day of -$i months"));
+            $month_end = date('Y-m-d 23:59:59', strtotime("last day of -$i months"));
+            
+            $count_trend = 0;
+            foreach ($submissions_docs as $doc) {
+                $created_at = $doc->data()['created_at'] ?? '';
+                if ($created_at >= $month_start && $created_at <= $month_end) {
+                    $count_trend++;
+                }
+            }
+            $trend_labels[] = $month_label;
+            $trend_data[] = $count_trend;
+        }
+
+        // --- 4. RINGKASAN STATISTIK ---
+        $stat_total_assets = count($assets_docs->rows());
+        foreach ($submissions_docs as $doc) {
+            $status = $doc->data()['status'] ?? '';
+            if ($status === 'Selesai') $stat_avg_completion++;
+            if ($status === 'Menunggu') $stat_pending++;
+        }
+    } catch (Exception $e) {
+        $db = null; // Fallback
+    }
+}
+
+if (!$db && $conn) {
+    // 1. Service Distribution (Pie)
+    $res_service = mysqli_query($conn, "SELECT type, COUNT(*) as c FROM submissions GROUP BY type");
+    if ($res_service) {
+        while ($row = mysqli_fetch_assoc($res_service)) {
+            $service_labels[] = $row['type'];
+            $service_data[] = (int)$row['c'];
+        }
+    }
+
+    // 2. Asset Composition (Bar)
+    $res_asset = mysqli_query($conn, "SELECT category, COUNT(*) as c FROM asset_assignments GROUP BY category");
+    if ($res_asset) {
+        while ($row = mysqli_fetch_assoc($res_asset)) {
+            $asset_labels[] = $row['category'];
+            $asset_data[] = (int)$row['c'];
+        }
+    }
+
+    // 3. Trend Line (6 Months)
     for ($i = 5; $i >= 0; $i--) {
         $month_label = date('M Y', strtotime("-$i months"));
-        $month_start = date('Y-m-d 00:00:00', strtotime("first day of -$i months"));
-        $month_end = date('Y-m-d 23:59:59', strtotime("last day of -$i months"));
+        $month_start = date('Y-m-01 00:00:00', strtotime("-$i months"));
+        $month_end = date('Y-m-t 23:59:59', strtotime("-$i months"));
         
-        // Firestore query for count in range
-        // Note: created_at is stored as string in some places, or timestamp. 
-        // Based on previous migrations, it's string.
-        $count = 0;
-        foreach ($submissions_docs as $doc) {
-            $created_at = $doc->data()['created_at'] ?? '';
-            if ($created_at >= $month_start && $created_at <= $month_end) {
-                $count++;
-            }
-        }
+        $sql_trend = "SELECT COUNT(*) as c FROM submissions WHERE created_at BETWEEN '$month_start' AND '$month_end'";
+        $res_trend = mysqli_query($conn, $sql_trend);
+        $row_trend = mysqli_fetch_assoc($res_trend);
         
         $trend_labels[] = $month_label;
-        $trend_data[] = $count;
+        $trend_data[] = (int)($row_trend['c'] ?? 0);
     }
 
-    // --- 4. RINGKASAN STATISTIK ---
-    $stat_total_assets = count($assets_docs->rows());
-    
-    $stat_avg_completion = 0;
-    $stat_pending = 0;
-    foreach ($submissions_docs as $doc) {
-        $status = $doc->data()['status'] ?? '';
-        if ($status === 'Selesai') $stat_avg_completion++;
-        if ($status === 'Menunggu') $stat_pending++;
-    }
-
-} catch (Exception $e) {
-    // Handle Error
+    // 4. Statistics
+    $stat_total_assets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM asset_assignments"))['c'] ?? 0;
+    $stat_avg_completion = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM submissions WHERE status = 'Selesai'"))['c'] ?? 0;
+    $stat_pending = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM submissions WHERE status = 'Menunggu'"))['c'] ?? 0;
 }
 ?>
 
@@ -115,20 +156,13 @@ try {
             vertical-align: middle;
         }
         .fill-1 { font-variation-settings: 'FILL' 1; }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
     </style>
 </head>
 <body class="bg-surface-container-low font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
     
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
-    <!-- Main Content Area -->
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
-        <!-- Header Bar -->
         <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-white/80 backdrop-blur-xl z-20">
             <div>
                 <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight italic uppercase leading-none">System <span class="text-primary italic md:text-3xl">Analytics</span></h1>
@@ -144,7 +178,6 @@ try {
         <div class="p-4 md:p-8 space-y-8 md:space-y-10">
             <!-- Stats Row -->
             <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Card 1 -->
                 <div class="bg-primary p-8 rounded-[2.5rem] text-white shadow-2xl shadow-primary/20 relative overflow-hidden group">
                     <div class="absolute -right-4 -bottom-4 opacity-10 rotate-12 transition-transform group-hover:rotate-0 duration-700">
                         <span class="material-symbols-outlined text-[120px]">inventory_2</span>
@@ -153,7 +186,6 @@ try {
                     <h3 class="text-5xl font-black italic tracking-tighter"><?php echo $stat_total_assets; ?></h3>
                 </div>
 
-                <!-- Card 2 -->
                 <div class="bg-white p-8 rounded-[2.5rem] border border-outline-variant/10 shadow-sm relative overflow-hidden group">
                     <div class="absolute -right-4 -top-4 opacity-5 rotate-12">
                         <span class="material-symbols-outlined text-[100px] text-emerald-600">task_alt</span>
@@ -162,7 +194,6 @@ try {
                     <h3 class="text-5xl font-black italic tracking-tighter text-emerald-600"><?php echo $stat_avg_completion; ?></h3>
                 </div>
 
-                <!-- Card 3 -->
                 <div class="bg-white p-8 rounded-[2.5rem] border border-outline-variant/10 shadow-sm relative overflow-hidden group">
                      <div class="absolute -right-4 -top-4 opacity-5 rotate-12">
                         <span class="material-symbols-outlined text-[100px] text-orange-600">hourglass_empty</span>
@@ -171,7 +202,6 @@ try {
                     <h3 class="text-5xl font-black italic tracking-tighter text-orange-600"><?php echo $stat_pending; ?></h3>
                 </div>
 
-                <!-- Card 4: Date Info -->
                 <div class="bg-indigo-50 p-8 rounded-[2.5rem] border border-indigo-100 flex flex-col justify-center">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="w-2 h-2 bg-indigo-600 rounded-full animate-ping"></span>
@@ -183,7 +213,6 @@ try {
 
             <!-- Charts Grid -->
             <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Trend Chart -->
                 <div class="bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-sm space-y-8">
                     <div>
                         <h4 class="font-headline text-xl font-black italic uppercase tracking-tighter">Volume <span class="text-primary italic">Request Trend</span></h4>
@@ -194,7 +223,6 @@ try {
                     </div>
                 </div>
 
-                <!-- Distribution Chart -->
                 <div class="bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-sm space-y-8">
                     <div>
                         <h4 class="font-headline text-xl font-black italic uppercase tracking-tighter">Service <span class="text-primary italic">Distribution</span></h4>
@@ -205,7 +233,6 @@ try {
                     </div>
                 </div>
 
-                <!-- Assets Bar Chart -->
                 <div class="lg:col-span-2 bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-sm space-y-8">
                     <div>
                         <h4 class="font-headline text-xl font-black italic uppercase tracking-tighter">Asset <span class="text-primary italic">Composition</span></h4>
@@ -220,12 +247,10 @@ try {
     </main>
 
     <script>
-        // Chart Defaults
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.font.size = 11;
         Chart.defaults.color = '#464555';
 
-        // 1. Trend Line Chart
         new Chart(document.getElementById('trendChart'), {
             type: 'line',
             data: {
@@ -255,7 +280,6 @@ try {
             }
         });
 
-        // 2. Service Pie Chart
         new Chart(document.getElementById('serviceChart'), {
             type: 'doughnut',
             data: {
@@ -277,7 +301,6 @@ try {
             }
         });
 
-        // 3. Asset Bar Chart
         new Chart(document.getElementById('assetChart'), {
             type: 'bar',
             data: {

@@ -36,7 +36,14 @@ if (isset($_POST['register'])) {
                 // 3. Enkripsi Password
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                // 4. Insert data
+                // 4. Tentukan Role berdasarkan Jabatan
+                $final_role = 'user';
+                $head_positions = ['Kepala Seksi', 'Kepala Bidang', 'Sekretaris'];
+                if (in_array($jabatan, $head_positions)) {
+                    $final_role = 'head';
+                }
+
+                // 5. Insert data
                 $saved = false;
                 if ($db) { // Firestore
                     $db->collection('users')->add([
@@ -45,7 +52,7 @@ if (isset($_POST['register'])) {
                         'full_name' => $fullname,
                         'department' => $dept,
                         'jabatan' => $jabatan,
-                        'role' => 'user', 
+                        'role' => $final_role, 
                         'created_at' => date('Y-m-d H:i:s')
                     ]);
                     $saved = true;
@@ -56,7 +63,7 @@ if (isset($_POST['register'])) {
                     $jabatan = mysqli_real_escape_string($conn, $jabatan);
                     
                     $sql = "INSERT INTO users (username, password, full_name, department, jabatan, role, created_at) 
-                            VALUES ('$username', '$hashed_password', '$fullname', '$dept', '$jabatan', 'user', NOW())";
+                            VALUES ('$username', '$hashed_password', '$fullname', '$dept', '$jabatan', '$final_role', NOW())";
                     if (mysqli_query($conn, $sql)) {
                         $saved = true;
                     }
@@ -145,10 +152,8 @@ try {
                 <!-- Identitas Brand -->
                 <div class="flex flex-col items-center md:items-start space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg shadow-primary/20">
-                            <span class="material-symbols-outlined text-white text-3xl">add_moderator</span>
-                        </div>
-                        <h1 class="font-headline font-extrabold text-2xl tracking-tight text-indigo-900">
+                        <img src="../assets/img/logo.png" alt="Logo" class="h-12 md:h-14 w-auto">
+                        <h1 class="font-headline font-extrabold text-3xl tracking-tight text-indigo-900">
                             SIDIK-TI
                         </h1>
                     </div>

@@ -48,7 +48,10 @@
     <header class="fixed top-0 w-full flex justify-between items-center px-4 md:px-6 h-16 bg-white/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50/50">
         <div class="flex items-center gap-2 md:gap-4">
             <a href="index.php" class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 transition-all rounded-xl md:rounded-full">arrow_back</a>
-            <span class="text-lg md:text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
+            <div class="flex items-center gap-2">
+                <img src="assets/img/logo.png" alt="Logo" class="h-8 md:h-10 w-auto">
+                <span class="text-lg md:text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
+            </div>
         </div>
         <div class="hidden md:flex items-center space-x-8">
             <span class="text-slate-400 font-bold font-plus-jakarta text-xs uppercase tracking-widest">Resource Acquisition Guidelines</span>

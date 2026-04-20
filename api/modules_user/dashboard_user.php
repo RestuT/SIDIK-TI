@@ -10,39 +10,43 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-
-// 1. Ambil Statistik Dashboard User dari Firestore
-$submissionsRef = $db->collection('submissions')->where('user_id', '=', $user_id);
-
-$stat_pending = $submissionsRef->where('status', '=', 'Menunggu')->count();
-// Ambil Data Profil
-$userRef = $db->collection('users')->document($user_id);
-$userSnap = $userRef->snapshot();
-$display_name = $userSnap->exists() ? ($userSnap->get('full_name') ?? 'User') : 'User';
-
-$submissionsRef = $db->collection('submissions')->where('user_id', '=', $user_id);
-
-$stat_pending = $submissionsRef->where('status', '=', 'Menunggu')->count();
-$stat_process = $submissionsRef->where('status', '=', 'Proses')->count();
-$stat_done = $submissionsRef->where('status', '=', 'Selesai')->count();
-
-// 2. Ambil data pengajuan terbaru (Limit 5)
-$all_submissions = $submissionsRef->orderBy('created_at', 'DESC')->limit(5)->documents();
-
-// Fetch Daftar Pengumuman IT Terkini
+$stat_pending = 0; $stat_process = 0; $stat_done = 0;
+$display_name = $_SESSION['full_name'] ?? 'User';
+$all_submissions = [];
 $announcements = [];
-try {
-    $announcementQuery = $db->collection('announcements')
-                            ->where('is_active', '=', true)
-                            ->orderBy('created_at', 'DESC')
-                            ->limit(3)
-                            ->documents();
-    foreach ($announcementQuery as $doc) {
-        $announcements[] = $doc->data();
+
+if ($db) {
+    try {
+        $submissionsRef = $db->collection('submissions')->where('user_id', '=', $user_id);
+        $stat_pending = $submissionsRef->where('status', '=', 'Menunggu')->count();
+        $stat_process = $submissionsRef->where('status', '=', 'Proses')->count();
+        $stat_done = $submissionsRef->where('status', '=', 'Selesai')->count();
+        $all_submissions_docs = $submissionsRef->orderBy('created_at', 'DESC')->limit(5)->documents();
+        foreach ($all_submissions_docs as $doc) {
+            $d = $doc->data(); $d['id'] = $doc->id();
+            $all_submissions[] = $d;
+        }
+        $userSnap = $db->collection('users')->document($user_id)->snapshot();
+        if ($userSnap->exists()) $display_name = $userSnap->get('full_name') ?? 'User';
+        $annQuery = $db->collection('announcements')->where('is_active', '=', true)->orderBy('created_at', 'DESC')->limit(3)->documents();
+        foreach ($annQuery as $doc) { $announcements[] = $doc->data(); }
+    } catch (Exception $e) { $db = null; }
+}
+
+if (!$db && $conn) {
+    $uid_e = mysqli_real_escape_string($conn, $user_id);
+    $res_stats = mysqli_query($conn, "SELECT status, COUNT(*) as c FROM submissions WHERE user_id = '$uid_e' GROUP BY status");
+    while ($row = mysqli_fetch_assoc($res_stats)) {
+        if ($row['status'] === 'Menunggu') $stat_pending = (int)$row['c'];
+        elseif ($row['status'] === 'Proses') $stat_process = (int)$row['c'];
+        elseif ($row['status'] === 'Selesai') $stat_done = (int)$row['c'];
     }
-} catch (Exception $e) {
-    // If index is missing or query fails, leave $announcements empty gracefully
-    error_log("Firestore Index Missing for Announcements: " . $e->getMessage());
+    $res_subs = mysqli_query($conn, "SELECT * FROM submissions WHERE user_id = '$uid_e' ORDER BY created_at DESC LIMIT 5");
+    while ($row = mysqli_fetch_assoc($res_subs)) { $all_submissions[] = $row; }
+    $res_user = mysqli_query($conn, "SELECT full_name FROM users WHERE id = '$uid_e' LIMIT 1");
+    if ($res_user && $u_row = mysqli_fetch_assoc($res_user)) $display_name = $u_row['full_name'];
+    $res_ann = mysqli_query($conn, "SELECT * FROM announcements WHERE is_active = 1 ORDER BY created_at DESC LIMIT 3");
+    while ($row = mysqli_fetch_assoc($res_ann)) { $announcements[] = $row; }
 }
 ?>
 
@@ -80,7 +84,6 @@ try {
 
         <!-- Bento Stats Grid -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Card 1 -->
             <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-transparent hover:border-primary/10 transition-all duration-500 group">
                 <div class="flex justify-between items-start mb-6">
                     <div class="p-4 bg-orange-50 text-orange-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
@@ -93,7 +96,6 @@ try {
                     <p class="text-on-surface-variant font-medium">Tiket Menunggu</p>
                 </div>
             </div>
-            <!-- Card 2 -->
             <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-transparent hover:border-primary/10 transition-all duration-500 group">
                 <div class="flex justify-between items-start mb-6">
                     <div class="p-4 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
@@ -106,7 +108,6 @@ try {
                     <p class="text-on-surface-variant font-medium">Sedang Diproses</p>
                 </div>
             </div>
-            <!-- Card 3 -->
             <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-transparent hover:border-primary/10 transition-all duration-500 group">
                 <div class="flex justify-between items-start mb-6">
                     <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
@@ -144,9 +145,7 @@ try {
                     <tbody class="divide-y divide-slate-100">
                         <?php 
                         $count = 0;
-                        foreach($all_submissions as $doc): 
-                            $row = $doc->data();
-                            $row['id'] = $doc->id();
+                        foreach($all_submissions as $row): 
                             $count++;
                         ?>
                             <tr class="group hover:bg-slate-50/50 transition-colors">
@@ -155,10 +154,10 @@ try {
                                 </td>
                                 <td class="px-6 py-6">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg <?php echo $row['type'] == 'Maintenance' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'; ?> flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-lg"><?php echo $row['type'] == 'Maintenance' ? 'build' : 'shopping_cart'; ?></span>
+                                        <div class="w-8 h-8 rounded-lg <?php echo ($row['type'] ?? '') == 'Maintenance' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'; ?> flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-lg"><?php echo ($row['type'] ?? '') == 'Maintenance' ? 'build' : 'shopping_cart'; ?></span>
                                         </div>
-                                        <span class="font-medium text-on-surface"><?php echo htmlspecialchars($row['title']); ?></span>
+                                        <span class="font-medium text-on-surface"><?php echo htmlspecialchars($row['title'] ?? ''); ?></span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-6 text-on-surface-variant"><?php echo date('d M Y', strtotime($row['created_at'])); ?></td>
@@ -178,7 +177,7 @@ try {
                                     </span>
                                 </td>
                                 <td class="px-6 py-6 text-right">
-                                    <a href="<?php echo $row['type'] == 'Maintenance' ? 'cetak_tiket_maintenance.php' : 'cetak_tiket_pengadaan.php'; ?>?id=<?php echo $row['id']; ?>" target="_blank" class="text-slate-400 hover:text-primary transition-colors">
+                                    <a href="<?php echo ($row['type'] ?? '') == 'Maintenance' ? 'cetak_tiket_maintenance.php' : 'cetak_tiket_pengadaan.php'; ?>?id=<?php echo $row['id']; ?>" target="_blank" class="text-slate-400 hover:text-primary transition-colors">
                                         <span class="material-symbols-outlined">print</span>
                                     </a>
                                 </td>
@@ -220,8 +219,8 @@ try {
                                 <div class="w-2 h-2 rounded-full <?php echo isset($ann['urgency']) && $ann['urgency'] === 'Tinggi' ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-primary'; ?> mt-2 flex-shrink-0"></div>
                                 <div class="space-y-1 w-full relative">
                                     <p class="font-bold text-on-surface text-sm break-words"><?php echo htmlspecialchars($ann['title']); ?></p>
-                                    <p class="text-on-surface-variant text-[11px] leading-snug break-words pr-2"><?php echo htmlspecialchars($ann['content']); ?></p>
-                                    <p class="text-slate-400 text-[9px] font-bold uppercase tracking-wider mt-1"><?php echo date('d M Y | H:i', strtotime($ann['created_at'])); ?></p>
+                                    <p class="text-on-surface-variant text-[11px] leading-snug break-words pr-2"><?php echo htmlspecialchars($ann['content'] ?? ''); ?></p>
+                                    <p class="text-slate-400 text-[9px] font-bold uppercase tracking-wider mt-1"><?php echo isset($ann['created_at']) ? date('d M Y | H:i', strtotime($ann['created_at'])) : ''; ?></p>
                                 </div>
                             </li>
                         <?php endforeach; ?>

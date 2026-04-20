@@ -11,13 +11,6 @@ class AssetService extends BaseService {
 
     /**
      * Hitung Depresiasi & Utilisasi (PMK 72/2023 with Stress Factor)
-     * 
-     * @param string $item_name
-     * @param string $category
-     * @param string $assigned_date Y-m-d H:i:s
-     * @param array $inv_prices
-     * @param float $multiplier Stress Factor (default 1.0)
-     * @return array metadata depresiasi
      */
     public function calculateDepreciation($item_name, $category, $assigned_date, $inv_prices, $settings, $custom_price = null, $multiplier = 1.0) {
         if (stripos($category, 'Software') !== false || stripos($category, 'Aplikasi') !== false) {
@@ -92,27 +85,26 @@ class AssetService extends BaseService {
      * Update asset multiplier
      */
     public function updateMultiplier($asset_id, $multiplier) {
-        if (!$this->db) throw new \Exception("Database required");
         $multiplier = (float)$multiplier;
         if ($multiplier < 0.1) $multiplier = 0.1;
 
-        // 1. Update Asset
-        $this->db->collection('asset_assignments')->document($asset_id)->update([
-            ['path' => 'utilization_multiplier', 'value' => $multiplier]
-        ]);
-
-        // 2. Update Active Sensus Tasks
-        $batches = $this->db->collection('sensus_batches')->where('status', '=', 'Active')->documents();
-        foreach ($batches as $b) {
-            $tasks = $this->db->collection('sensus_tasks')
-                             ->where('batch_id', '=', $b->id())
-                             ->where('asset_id', '=', $asset_id)
-                             ->documents();
-            foreach ($tasks as $t) {
-                if ($t->exists()) {
-                    $t->reference()->update([['path' => 'multiplier', 'value' => $multiplier]]);
-                }
+        if ($this->db && !is_numeric($asset_id)) {
+            // Firestore
+            $this->db->collection('asset_assignments')->document($asset_id)->update([
+                ['path' => 'utilization_multiplier', 'value' => $multiplier]
+            ]);
+            $batches = $this->db->collection('sensus_batches')->where('status', '=', 'Active')->documents();
+            foreach ($batches as $b) {
+                $tasks = $this->db->collection('sensus_tasks')->where('batch_id', '=', $b->id())->where('asset_id', '=', $asset_id)->documents();
+                foreach ($tasks as $t) { $t->reference()->update([['path' => 'multiplier', 'value' => $multiplier]]); }
             }
+        } else if ($this->conn) {
+            // MySQL
+            $m = (float)$multiplier;
+            \mysqli_query($this->conn, "UPDATE asset_assignments SET utilization_multiplier = $m WHERE id = " . \intval($asset_id));
+            \mysqli_query($this->conn, "UPDATE sensus_tasks SET multiplier = $m WHERE asset_id = " . \intval($asset_id) . " AND status = 'Pending'");
+        } else {
+            throw new \Exception("Database required");
         }
     }
 
@@ -120,50 +112,60 @@ class AssetService extends BaseService {
      * Request asset disposal (penghapusan)
      */
     public function requestDisposal($assetId, $reason, $assetData) {
-        if (!$this->db) throw new \Exception("Database required");
+        $reason_esc = \mysqli_real_escape_string($this->conn, $reason);
+        $now = $this->now();
 
-        // 1. Update status asset
-        $this->db->collection('asset_assignments')->document($assetId)->update([
-            ['path' => 'status', 'value' => 'Pending Disposal']
-        ]);
-
-        // 2. Create submission ticket
-        $ticketCounterRef = $this->db->collection('system_counters')->document('submissions');
-        return $this->db->runTransaction(function ($transaction) use ($ticketCounterRef, $assetData, $reason, $assetId) {
-            $counterSnap = $transaction->snapshot($ticketCounterRef);
-            $current_val = $counterSnap->exists() ? ($counterSnap->get('latest') ?? 0) : 0;
-            $new_val = $current_val + 1;
-
-            $transaction->set($ticketCounterRef, ['latest' => $new_val], ['merge' => true]);
-            $ticket_number = 'DIS-' . date('Y') . '-' . str_pad($new_val, 4, '0', STR_PAD_LEFT);
-
-            $newDocRef = $this->db->collection('submissions')->newDocument();
-            $transaction->set($newDocRef, [
-                'ticket_number' => $ticket_number,
-                'user_id' => $assetData['user_id'] ?? 'Admin',
-                'type' => 'Penghapusan',
-                'title' => 'Penggantian: ' . $assetData['item_name'],
-                'description' => "Penghapusan unit SN: " . ($assetData['serial_number'] ?? '-') . ". Alasan: " . $reason,
-                'status' => 'Menunggu',
-                'urgency' => 'Tinggi',
-                'created_at' => $this->now(),
-                'estimasi' => $assetData['price_reference'] ?? 0,
-                'department' => $assetData['department'] ?? 'Unknown',
-                'attachment_path' => '',
-                'disposal_asset_id' => $assetId
-            ]);
+        if ($this->db && !is_numeric($assetId)) {
+            $this->db->collection('asset_assignments')->document($assetId)->update([['path' => 'status', 'value' => 'Pending Disposal']]);
+            $ticketCounterRef = $this->db->collection('system_counters')->document('submissions');
+            return $this->db->runTransaction(function ($transaction) use ($ticketCounterRef, $assetData, $reason, $assetId) {
+                $counterSnap = $transaction->snapshot($ticketCounterRef);
+                $new_val = ($counterSnap->exists() ? ($counterSnap->get('latest') ?? 0) : 0) + 1;
+                $transaction->set($ticketCounterRef, ['latest' => $new_val], ['merge' => true]);
+                $ticket_number = 'DIS-' . date('Y') . '-' . str_pad($new_val, 4, '0', STR_PAD_LEFT);
+                $transaction->set($this->db->collection('submissions')->newDocument(), [
+                    'ticket_number' => $ticket_number, 'user_id' => $assetData['user_id'] ?? 'Admin',
+                    'type' => 'Penghapusan', 'title' => 'Penggantian: ' . $assetData['item_name'],
+                    'description' => "Penghapusan unit SN: " . ($assetData['serial_number'] ?? '-') . ". Alasan: " . $reason,
+                    'status' => 'Menunggu', 'urgency' => 'Tinggi', 'created_at' => $this->now(),
+                    'estimasi' => $assetData['price_reference'] ?? 0, 'department' => $assetData['department'] ?? 'Unknown',
+                    'attachment_path' => '', 'disposal_asset_id' => $assetId
+                ]);
+                return $ticket_number;
+            });
+        } else if ($this->conn) {
+            mysqli_query($this->conn, "UPDATE asset_assignments SET status = 'Pending Disposal' WHERE id = " . intval($assetId));
+            $res_count = mysqli_query($this->conn, "SELECT COUNT(*) as c FROM submissions WHERE type = 'Penghapusan'");
+            $count = mysqli_fetch_assoc($res_count)['c'] + 1;
+            $ticket_number = 'DIS-' . date('Y') . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+            $user_id = mysqli_real_escape_string($this->conn, $assetData['user_id'] ?? 'Admin');
+            $item_name = mysqli_real_escape_string($this->conn, $assetData['item_name']);
+            $sn = mysqli_real_escape_string($this->conn, $assetData['serial_number'] ?? '-');
+            $dept = mysqli_real_escape_string($this->conn, $assetData['department'] ?? 'Unknown');
+            $price = (float)($assetData['price_reference'] ?? 0);
+            
+            $sql = "INSERT INTO submissions (ticket_number, user_id, type, title, description, status, urgency, created_at, estimasi, department, disposal_asset_id) 
+                    VALUES ('$ticket_number', '$user_id', 'Penghapusan', 'Penggantian: $item_name', 'Penghapusan unit SN: $sn. Alasan: $reason_esc', 'Menunggu', 'Tinggi', '$now', $price, '$dept', $assetId)";
+            mysqli_query($this->conn, $sql);
             return $ticket_number;
-        });
+        }
+        throw new \Exception("Database required");
     }
 
     /**
      * Finalize disposal by Admin
      */
     public function finalizeDisposal($assetId) {
-        if (!$this->db) throw new \Exception("Database required");
-        $this->db->collection('asset_assignments')->document($assetId)->update([
-            ['path' => 'status', 'value' => 'Disposed'],
-            ['path' => 'disposed_at', 'value' => $this->now()]
-        ]);
+        $now = $this->now();
+        if ($this->db && !is_numeric($assetId)) {
+            $this->db->collection('asset_assignments')->document($assetId)->update([
+                ['path' => 'status', 'value' => 'Disposed'],
+                ['path' => 'disposed_at', 'value' => $now]
+            ]);
+        } else if ($this->conn) {
+            mysqli_query($this->conn, "UPDATE asset_assignments SET status = 'Disposed', disposed_at = '$now' WHERE id = " . intval($assetId));
+        } else {
+            throw new \Exception("Database required");
+        }
     }
 }

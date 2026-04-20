@@ -58,10 +58,12 @@ html.dark table td, html.dark .divide-outline-variant\/10 > * { border-color: rg
 // Fetch Global App Name from Firestore
 $brand_name = 'SIDIK-TI';
 try {
-    $settingsRef  = $db->collection('system_settings')->document('app_name');
-    $settingsSnap = $settingsRef->snapshot();
-    if ($settingsSnap->exists()) {
-        $brand_name = $settingsSnap->get('setting_value') ?? 'SIDIK-TI';
+    if ($db) {
+        $settingsRef  = $db->collection('system_settings')->document('app_name');
+        $settingsSnap = $settingsRef->snapshot();
+        if ($settingsSnap->exists()) {
+            $brand_name = $settingsSnap->get('setting_value') ?? 'SIDIK-TI';
+        }
     }
 } catch (Exception $e) { /* fallback */ }
 ?>

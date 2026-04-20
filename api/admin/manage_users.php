@@ -12,30 +12,55 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 $search_q = isset($_GET['q']) ? $_GET['q'] : '';
 
-// Fetch all users with role 'user'
-$usersRef = $db->collection('users')->where('role', '=', 'user');
-$users_docs = $usersRef->documents();
-
 $user_list = [];
-foreach ($users_docs as $doc) {
-    $u = $doc->data();
-    $u['id'] = $doc->id();
-    
-    // Client-side filtering
-    if (!empty($search_q)) {
-        $match = stripos($u['full_name'] ?? '', $search_q) !== false || 
-                 stripos($u['department'] ?? '', $search_q) !== false || 
-                 stripos($u['jabatan'] ?? '', $search_q) !== false;
-        if (!$match) continue;
+
+if ($db) {
+    try {
+        // Fetch all users with role 'user', 'technician', or 'staff'
+        $users_docs = $db->collection('users')->documents();
+
+        foreach ($users_docs as $doc) {
+            $u = $doc->data();
+            $u['id'] = $doc->id();
+            
+            // Only include relevant roles
+            if (!in_array($u['role'] ?? '', ['user', 'technician', 'staff', 'head'])) continue;
+
+            // Client-side filtering
+            if (!empty($search_q)) {
+                $match = stripos($u['full_name'] ?? '', $search_q) !== false || 
+                         stripos($u['department'] ?? '', $search_q) !== false || 
+                         stripos($u['jabatan'] ?? '', $search_q) !== false;
+                if (!$match) continue;
+            }
+            
+            $user_list[] = $u;
+        }
+
+        // Sort by full_name ASC
+        usort($user_list, function($a, $b) {
+            return strcmp($a['full_name'] ?? '', $b['full_name'] ?? '');
+        });
+    } catch (Exception $e) {
+        $db = null; // Fallback if Firestore query fails
     }
-    
-    $user_list[] = $u;
 }
 
-// Sort by full_name ASC
-usort($user_list, function($a, $b) {
-    return strcmp($a['full_name'] ?? '', $b['full_name'] ?? '');
-});
+if (!$db && $conn) {
+    // Fetch from MySQL
+    $sql = "SELECT id, full_name, department, jabatan, username, role FROM users WHERE role IN ('user', 'technician', 'staff', 'head')";
+    if (!empty($search_q)) {
+        $q = mysqli_real_escape_string($conn, $search_q);
+        $sql .= " AND (full_name LIKE '%$q%' OR department LIKE '%$q%' OR jabatan LIKE '%$q%')";
+    }
+    $sql .= " ORDER BY full_name ASC";
+    $res = mysqli_query($conn, $sql);
+    if ($res) {
+        while($u = mysqli_fetch_assoc($res)) {
+            $user_list[] = $u;
+        }
+    }
+}
 
 $active_count = count($user_list);
 ?>
@@ -137,10 +162,14 @@ $active_count = count($user_list);
                 <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">User <span class="text-primary italic">Directory</span></h1>
                 <p class="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Manajemen Akses &amp; Personalia Karyawan</p>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
+                <a href="add_technician.php" class="px-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary-container transition-all flex items-center gap-2 shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined text-sm">person_add</span>
+                    Tambah Teknisi
+                </a>
                 <div class="bg-primary-fixed/20 px-3 py-2 md:px-4 md:py-2 rounded-2xl border border-primary-fixed/30 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary text-sm fill-1">verified_user</span>
-                    <span class="text-[10px] font-black text-primary uppercase tracking-widest"><?php echo $active_count; ?> Active</span>
+                    <span class="text-[10px] font-black text-primary uppercase tracking-widest"><?php echo $active_count; ?> Registered</span>
                 </div>
             </div>
         </header>
@@ -209,9 +238,19 @@ $active_count = count($user_list);
                                         </div>
                                     </td>
                                     <td class="px-8 py-6">
-                                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/10 group-hover:border-primary/20 transition-all">
-                                            <span class="material-symbols-outlined text-primary text-sm">key</span>
-                                            <span class="text-[10px] font-black text-on-surface-variant font-mono"><?php echo htmlspecialchars($row['username'] ?? ''); ?></span>
+                                        <div class="flex items-center gap-3">
+                                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/10 group-hover:border-primary/20 transition-all">
+                                                <span class="material-symbols-outlined text-primary text-sm">key</span>
+                                                <span class="text-[10px] font-black text-on-surface-variant font-mono"><?php echo htmlspecialchars($row['username'] ?? ''); ?></span>
+                                            </div>
+                                            <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border
+                                                    if(($row['role'] ?? '') == 'technician') echo 'bg-amber-50 text-amber-600 border-amber-200';
+                                                    elseif(($row['role'] ?? '') == 'staff') echo 'bg-blue-50 text-blue-600 border-blue-200';
+                                                    elseif(($row['role'] ?? '') == 'head') echo 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                                                    else echo 'bg-slate-50 text-slate-500 border-slate-200';
+                                                ?>">
+                                                <?php echo $row['role'] ?? 'user'; ?>
+                                            </span>
                                         </div>
                                     </td>
                                     <td class="px-8 py-6 text-center">

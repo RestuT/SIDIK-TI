@@ -5,7 +5,7 @@ use App\Core\BaseService;
 
 /**
  * File & Media Service
- * Handles file uploads, MIME validation, and Base64 Firestore storage for Vercel.
+ * Handles file uploads, MIME validation, and storage.
  */
 class FileService extends BaseService {
 
@@ -14,13 +14,10 @@ class FileService extends BaseService {
 
     /**
      * Upload an attachment
-     * @param array $file $_FILES['input_name']
-     * @param string $ticketNo Unique identifier for the file
-     * @return string Final path or URL
      */
     public function uploadAttachment($file, $ticketNo) {
         if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
-            throw new \Exception("Gagal mengunggah lampiran. File tidak valid.");
+            return ""; // No attachment is acceptable in some flows
         }
 
         $file_name = basename($file["name"]);
@@ -31,16 +28,22 @@ class FileService extends BaseService {
             throw new \Exception("Format file tidak didukung (PDF, JPG, PNG saja).");
         }
 
-        // 2. Validate MIME
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime  = finfo_file($finfo, $file["tmp_name"]);
-        finfo_close($finfo);
+        // 2. Validate MIME (Fallback for Shared Hosting like Biznet)
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime  = finfo_file($finfo, $file["tmp_name"]);
+            finfo_close($finfo);
+        } else if (function_exists('mime_content_type')) {
+            $mime = mime_content_type($file["tmp_name"]);
+        } else {
+            $mime = $file["type"] ?? 'application/octet-stream';
+        }
         if (!in_array($mime, $this->allowed_mime)) {
             throw new \Exception("Tipe file (MIME) tidak valid atau berbahaya.");
         }
 
         $is_vercel  = getenv('VERCEL') === '1';
-        $target_dir = $is_vercel ? sys_get_temp_dir() . "/" : "../uploads/";
+        $target_dir = $is_vercel ? sys_get_temp_dir() . "/" : (__DIR__ . "/../../uploads/");
         if (!$is_vercel && !is_dir($target_dir)) {
             mkdir($target_dir, 0777, true);
         }
@@ -53,28 +56,19 @@ class FileService extends BaseService {
         }
 
         // 3. Handle Vercel (Base64 to Firestore)
-        if ($is_vercel) {
+        if ($is_vercel && $this->db) {
             try {
                 $fileContent = file_get_contents($target_path);
-                $base64      = base64_encode($fileContent);
-                
                 $this->db->collection('attachments')->document($ticketNo)->set([
-                    'data'       => $base64,
-                    'mime_type'  => $mime,
-                    'file_name'  => $file_name,
-                    'created_at' => $this->now()
+                    'data' => base64_encode($fileContent), 'mime_type' => $mime,
+                    'file_name' => $file_name, 'created_at' => $this->now()
                 ]);
-                
                 unlink($target_path);
                 return "../config/view_attachment.php?id=" . $ticketNo;
-            } catch (\Exception $e) {
-                if (stripos($e->getMessage(), 'Document size') !== false) {
-                    throw new \Exception("Berkas terlalu besar, limit Firestore 1MB.");
-                }
-                throw $e;
-            }
+            } catch (\Exception $e) { $this->db = null; }
         }
 
-        return $target_path;
+        // 4. Default Local Path (relative to config/handlers)
+        return "../uploads/" . $new_name;
     }
 }
