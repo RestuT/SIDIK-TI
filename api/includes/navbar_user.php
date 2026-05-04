@@ -46,8 +46,9 @@ try {
 <!-- Universal Headless Navbar for User Modules -->
 <header class="flex justify-between items-center px-6 lg:px-10 py-5 w-full sticky top-0 bg-surface/70 backdrop-blur-xl z-50 border-b border-outline/5 transition-all">
     <div class="flex items-center gap-6">
-        <a href="dashboard_user.php" class="flex items-center gap-2 group">
-            <span class="text-xl font-extrabold tracking-tight text-primary group-hover:scale-105 transition-transform"><?php echo htmlspecialchars($brand_name); ?></span>
+        <a href="dashboard_user.php" class="flex items-center gap-3 group">
+            <img src="<?php echo $base_url ?? '../'; ?>assets/img/logo.png" alt="Logo" class="h-12 md:h-14 w-auto group-hover:scale-105 transition-transform drop-shadow-md">
+            <span class="text-xl md:text-2xl font-extrabold tracking-tight text-primary group-hover:scale-105 transition-transform"><?php echo htmlspecialchars($brand_name); ?></span>
         </a>
     </div>
 
@@ -91,12 +92,12 @@ try {
             <span class="material-symbols-outlined theme-icon-g text-lg">light_mode</span>
         </button>
 
-        <div class="relative group">
-            <button class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary transition-all hover:bg-primary/20 hover:scale-105">
+        <div class="relative" id="profileDropdownContainer">
+            <button onclick="toggleProfileDropdown()" class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary transition-all hover:bg-primary/20 hover:scale-105">
                 <span class="material-symbols-outlined text-lg">account_circle</span>
             </button>
             <!-- Dropdown -->
-            <div class="absolute right-0 mt-3 w-48 bg-surface rounded-2xl shadow-xl border border-outline/10 p-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-300 z-50">
+            <div id="profileDropdownMenu" class="absolute right-0 mt-3 w-48 bg-surface rounded-2xl shadow-xl border border-outline/10 p-2 opacity-0 translate-y-2 pointer-events-none transition-all duration-300 z-50">
                 <a href="profile_user.php" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-low text-on-surface transition-all font-bold text-[10px] uppercase tracking-[0.15em] border-b border-outline/5 mb-1">
                     <span class="material-symbols-outlined text-base">edit_note</span>
                     Edit Profil
@@ -121,3 +122,27 @@ try {
         </div>
     </div>
 </header>
+
+<script>
+function toggleProfileDropdown() {
+    const menu = document.getElementById('profileDropdownMenu');
+    if (menu.classList.contains('opacity-0')) {
+        menu.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+        menu.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    } else {
+        menu.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+        menu.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('profileDropdownContainer');
+    const menu = document.getElementById('profileDropdownMenu');
+    if (container && !container.contains(event.target)) {
+        if (!menu.classList.contains('opacity-0')) {
+            menu.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+            menu.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+        }
+    }
+});
+</script>

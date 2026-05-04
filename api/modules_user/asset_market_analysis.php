@@ -15,19 +15,34 @@ $back_url = $is_admin ? '../admin/inventory.php' : 'assets_user.php';
 $margin_pengadaan = 5;
 $pajak            = 11;
 $nilai_sisa       = 10;
-try {
-    $sys_docs = $db->collection('system_settings')->documents();
-    foreach ($sys_docs as $doc) {
-        if (!$doc->exists()) continue;
-        $val = $doc->data()['setting_value'] ?? null;
-        if ($val === null) continue;
-        switch ($doc->id()) {
-            case 'margin_pengadaan': $margin_pengadaan = (float)$val; break;
-            case 'pajak':            $pajak            = (float)$val; break;
-            case 'nilai_sisa':       $nilai_sisa       = (float)$val; break;
+if ($db) {
+    try {
+        $sys_docs = $db->collection('system_settings')->documents();
+        foreach ($sys_docs as $doc) {
+            if (!$doc->exists()) continue;
+            $val = $doc->data()['setting_value'] ?? null;
+            if ($val === null) continue;
+            switch ($doc->id()) {
+                case 'margin_pengadaan': $margin_pengadaan = (float)$val; break;
+                case 'pajak':            $pajak            = (float)$val; break;
+                case 'nilai_sisa':       $nilai_sisa       = (float)$val; break;
+            }
+        }
+    } catch (Exception $e) { $db = null; }
+}
+
+if (!$db && isset($conn) && $conn) {
+    $res = mysqli_query($conn, "SELECT * FROM system_settings");
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            switch ($row['setting_key']) {
+                case 'margin_pengadaan': $margin_pengadaan = (float)$row['setting_value']; break;
+                case 'pajak':            $pajak            = (float)$row['setting_value']; break;
+                case 'nilai_sisa':       $nilai_sisa       = (float)$row['setting_value']; break;
+            }
         }
     }
-} catch (Exception $e) { /* pakai default */ }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">

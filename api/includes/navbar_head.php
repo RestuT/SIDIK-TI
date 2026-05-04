@@ -56,7 +56,10 @@ $dept_name = $_SESSION['department'] ?? 'Department';
         <button id="mobile-menu-btn" class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">
             <span class="material-symbols-outlined text-xl">menu</span>
         </button>
-        <span class="font-headline text-base font-black text-emerald-600 dark:text-emerald-400">Head View</span>
+        <div class="flex items-center gap-3">
+            <img src="<?php echo $base_url ?? '../'; ?>assets/img/logo.png" alt="Logo" class="h-10 w-auto drop-shadow-md">
+            <span class="font-headline text-lg font-black text-emerald-600 dark:text-emerald-400"><?php echo htmlspecialchars($brand_name); ?></span>
+        </div>
     </div>
     <div class="flex items-center gap-2">
         <div class="bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5 rounded-full">
@@ -68,13 +71,11 @@ $dept_name = $_SESSION['department'] ?? 'Department';
 <!-- SIDEBAR NAVIGATION -->
 <aside id="head-sidebar" class="fixed top-0 left-0 h-full z-50 w-72 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 transition-transform duration-300 -translate-x-full lg:translate-x-0">
     <!-- Brand -->
-    <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
-        <div class="w-10 h-10 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
-            <span class="material-symbols-outlined text-white">leaderboard</span>
-        </div>
+    <div class="flex items-center gap-4 px-6 py-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <img src="<?php echo $base_url ?? '../'; ?>assets/img/logo.png" alt="Logo" class="h-14 w-auto drop-shadow-md">
         <div class="flex flex-col min-w-0">
             <span class="text-xs font-black text-emerald-600 uppercase tracking-widest leading-none">Management</span>
-            <span class="text-xl font-black text-slate-800 dark:text-white tracking-tight truncate"><?php echo htmlspecialchars($brand_name); ?></span>
+            <span class="text-3xl font-black text-slate-800 dark:text-white tracking-tight truncate"><?php echo htmlspecialchars($brand_name); ?></span>
         </div>
     </div>
 

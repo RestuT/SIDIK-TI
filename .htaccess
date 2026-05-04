@@ -1,3 +1,42 @@
+# === KONFIGURASI KEAMANAN IP (ADMIN & USER) ===
+<IfModule mod_setenvif.c>
+    # --- DAFTAR RUTE YANG DIBATASI (ADMIN & USER) ---
+    # Rute Admin
+    SetEnvIfNoCase Request_URI "/api/admin" IS_PROTECTED_ROUTE
+    SetEnvIfNoCase Request_URI "/api/auth/login_admin" IS_PROTECTED_ROUTE
+    SetEnvIfNoCase Request_URI "/admin" IS_PROTECTED_ROUTE
+    SetEnvIfNoCase Request_URI "/auth/login_admin" IS_PROTECTED_ROUTE
+    
+    # Rute User
+    SetEnvIfNoCase Request_URI "/api/modules_user" IS_PROTECTED_ROUTE
+    SetEnvIfNoCase Request_URI "/api/auth/login_user" IS_PROTECTED_ROUTE
+    SetEnvIfNoCase Request_URI "/modules_user" IS_PROTECTED_ROUTE
+    SetEnvIfNoCase Request_URI "/auth/login_user" IS_PROTECTED_ROUTE
+
+    # --- DAFTAR IP WIFI YANG DIIZINKAN ---
+    SetEnvIf X-Forwarded-For "154\.19\.39\.185" ALLOWED_IP
+    SetEnvIf X-Forwarded-For "182\.10\.130\.247" ALLOWED_IP
+    SetEnvIf X-Forwarded-For "103\.254\.164\.213" ALLOWED_IP 
+    
+    SetEnvIf Remote_Addr "154\.19\.39\.185" ALLOWED_IP
+    SetEnvIf Remote_Addr "182\.10\.130\.247" ALLOWED_IP
+    SetEnvIf Remote_Addr "103\.254\.164\.213" ALLOWED_IP
+    SetEnvIf Remote_Addr "127\.0\.0\.1" ALLOWED_IP
+    SetEnvIf Remote_Addr "::1" ALLOWED_IP
+
+    # --- EKSEKUSI BLOKIR (Sistem Apache Modern) ---
+    <RequireAll>
+        # Izinkan jika IP Cocok (Admin) ATAU rute bukan rute Admin (Public)
+        <RequireAny>
+            Require env ALLOWED_IP
+            Require not env IS_PROTECTED_ROUTE
+        </RequireAny>
+    </RequireAll>
+</IfModule>
+# ==========================================================
+# ==========================================
+# ==========================================
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
@@ -6,8 +45,8 @@
     RewriteRule ^$ api/index.php [L]
 
     # 2. Map major modules directly to the api/ directory
-    # This covers /admin, /auth, and /modules_user
-    RewriteRule ^(admin|auth|modules_user)/(.*)$ api/$1/$2 [L,QSA]
+    # This covers /admin, /auth, /modules_user, and /assets
+    RewriteRule ^(admin|auth|modules_user|assets)/(.*)$ api/$1/$2 [L,QSA]
 
     # 3. Handle specific PHP files at the root level by mapping them to api/
     # WAF Bypass: Allow modules to POST to /actions/ instead of /config/ to avoid ModSecurity blocking the word 'config' 

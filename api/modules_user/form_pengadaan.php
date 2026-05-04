@@ -177,7 +177,7 @@ if (!$db && $conn) {
                         </div>
                         <input type="hidden" name="estimasi" id="estimasi" value="0">
                     </div>
-                    <button type="submit" name="submit_pengadaan" class="w-full bg-on-surface text-white font-headline font-black py-5 rounded-2xl shadow-xl hover:bg-primary hover:-translate-y-1 transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3">Kirim Pengajuan Pengadaan</button>
+                    <button type="submit" id="btn-submit" name="submit_pengadaan" class="w-full bg-on-surface text-white font-headline font-black py-5 rounded-2xl shadow-xl hover:bg-primary hover:-translate-y-1 transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3">Kirim Pengajuan Pengadaan</button>
                 </form>
             </div>
         </div>
@@ -206,9 +206,22 @@ if (!$db && $conn) {
         document.getElementById('display_estimasi').textContent = fmt(total);
         document.getElementById('estimasi').value = Math.round(total);
         const warn = document.getElementById('budget-warning');
-        const header = document.querySelector('#estimasi-panel .bg-primary');
-        if (total > sisaBudget && sisaBudget > 0) { warn.classList.remove('hidden'); header.classList.replace('bg-primary', 'bg-red-600'); }
-        else { warn.classList.add('hidden'); header.classList.replace('bg-red-600', 'bg-primary'); }
+        const header = document.querySelector('#estimasi-panel .bg-primary') || document.querySelector('#estimasi-panel .bg-red-600');
+        const btnSubmit = document.getElementById('btn-submit');
+        if (total > sisaBudget) { 
+            warn.classList.remove('hidden'); 
+            header.classList.replace('bg-primary', 'bg-red-600'); 
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+            btnSubmit.classList.remove('hover:bg-primary', 'hover:-translate-y-1', 'active:scale-[0.98]');
+        }
+        else { 
+            warn.classList.add('hidden'); 
+            header.classList.replace('bg-red-600', 'bg-primary'); 
+            btnSubmit.disabled = false;
+            btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnSubmit.classList.add('hover:bg-primary', 'hover:-translate-y-1', 'active:scale-[0.98]');
+        }
     }
     function syncAndCalculate() { calculateEstimasi(); }
     function applyTemplate() {

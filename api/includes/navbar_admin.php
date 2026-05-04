@@ -82,11 +82,9 @@ try {
                        flex items-center justify-center active:scale-95 transition-all">
             <span class="material-symbols-outlined text-xl">menu</span>
         </button>
-        <div class="flex items-center gap-2">
-            <div class="w-7 h-7 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-lg flex items-center justify-center shadow-sm">
-                <span class="material-symbols-outlined text-white text-sm">terminal</span>
-            </div>
-            <span class="font-headline text-base font-black text-indigo-600 dark:text-indigo-400 tracking-tight">
+        <div class="flex items-center gap-3">
+            <img src="<?php echo $base_url ?? '../'; ?>assets/img/logo.png" alt="Logo" class="h-10 w-auto drop-shadow-md">
+            <span class="font-headline text-lg font-black text-indigo-600 dark:text-indigo-400 tracking-tight">
                 <?php echo htmlspecialchars($brand_name); ?>
             </span>
         </div>
@@ -144,11 +142,9 @@ try {
     </div>
 
     <!-- Brand Header -->
-    <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
-        <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 shrink-0">
-            <span class="material-symbols-outlined text-white">terminal</span>
-        </div>
-        <span class="text-xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight truncate">
+    <div class="flex items-center gap-4 px-6 py-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <img src="<?php echo $base_url ?? '../'; ?>assets/img/logo.png" alt="Logo" class="h-14 w-auto drop-shadow-md">
+        <span class="text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight truncate">
             <?php echo htmlspecialchars($brand_name); ?>
         </span>
     </div>
