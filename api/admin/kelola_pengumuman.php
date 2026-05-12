@@ -156,7 +156,7 @@ if (!$db && $conn) {
                         <h2 class="flex items-center gap-3 font-headline text-lg font-black text-on-surface uppercase tracking-tight mb-8">
                             <span class="material-symbols-outlined text-primary fill-1">add_alert</span> Buat Baru
                         </h2>
-                        <form action="kelola_pengumuman.php" method="POST" class="space-y-6">
+                        <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" class="space-y-6">
                             <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                             <div class="space-y-2">
                                 <label class="block text-[10px] font-black text-outline uppercase tracking-[0.2em] ml-2">Judul</label>
@@ -203,7 +203,7 @@ if (!$db && $conn) {
                                     ?>
                                         <tr class="group hover:bg-surface-variant/5 transition-all">
                                             <td class="px-6 py-6 w-24 text-center align-top">
-                                                <form action="kelola_pengumuman.php" method="POST">
+                                                <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST">
                                                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                                                     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                                     <input type="hidden" name="current_status" value="<?php echo $isActive ? '1' : '0'; ?>">
@@ -225,7 +225,7 @@ if (!$db && $conn) {
                                                 </span>
                                             </td>
                                             <td class="px-6 py-6 text-right align-top">
-                                                <form action="kelola_pengumuman.php" method="POST" onsubmit="return confirm('Hapus permanen?');">
+                                                <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" onsubmit="return confirm('Hapus permanen?');">
                                                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                                                     <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
                                                     <button type="submit" name="delete_pengumuman" class="w-10 h-10 inline-flex items-center justify-center bg-error/5 text-error rounded-xl hover:bg-error hover:text-white transition-all">

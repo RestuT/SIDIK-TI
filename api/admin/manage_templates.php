@@ -129,7 +129,7 @@ if (!$db && $conn) {
                 <h2 class="flex items-center gap-3 font-headline text-lg font-black text-on-surface uppercase tracking-tight mb-8">
                     <span class="material-symbols-outlined text-primary">add_circle</span> Registrasi Master Template Baru
                 </h2>
-                <form action="" method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <div class="lg:col-span-3 space-y-6">
                         <div class="space-y-2">

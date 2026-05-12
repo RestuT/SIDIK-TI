@@ -121,7 +121,7 @@ if (!$db && $conn) {
         <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-10">
             <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight">Inventory Management</h1>
             <div class="flex items-center gap-4">
-                <form action="" method="GET" class="relative group flex-1 sm:flex-none">
+                <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="GET" class="relative group flex-1 sm:flex-none">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
                         <span class="material-symbols-outlined text-xl">search</span>
                     </div>
@@ -286,7 +286,7 @@ if (!$db && $conn) {
                     </button>
                 </div>
 
-                <form action="../config/proses_inventory_lengkap.php" method="POST" class="space-y-6 relative">
+                <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_inventory_lengkap.php'); ?>" method="POST" class="space-y-6 relative">
                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     
                     <div class="space-y-2">
@@ -365,7 +365,7 @@ if (!$db && $conn) {
                     </button>
                 </div>
 
-                <form action="../config/proses_inventory_lengkap.php" method="POST" class="space-y-6 relative">
+                <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_inventory_lengkap.php'); ?>" method="POST" class="space-y-6 relative">
                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <input type="hidden" name="item_id" id="edit_id">
                     

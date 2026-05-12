@@ -16,12 +16,14 @@
     # --- DAFTAR IP WIFI YANG DIIZINKAN ---
     SetEnvIf X-Forwarded-For "154\.19\.39\.185" ALLOWED_IP
     SetEnvIf X-Forwarded-For "182\.10\.130\.247" ALLOWED_IP
-    SetEnvIf X-Forwarded-For "103\.254\.164\.213" ALLOWED_IP 
+    SetEnvIf X-Forwarded-For "103\.254\.164\.213" ALLOWED_IP
+    SetEnvIf X-Forwarded-For "182\.10\.131\.225" ALLOWED_IP
     
     SetEnvIf Remote_Addr "154\.19\.39\.185" ALLOWED_IP
     SetEnvIf Remote_Addr "182\.10\.130\.247" ALLOWED_IP
     SetEnvIf Remote_Addr "103\.254\.164\.213" ALLOWED_IP
     SetEnvIf Remote_Addr "127\.0\.0\.1" ALLOWED_IP
+    SetEnvIf Remote_Addr "182\.10\.131\.225" ALLOWED_IP
     SetEnvIf Remote_Addr "::1" ALLOWED_IP
 
     # --- EKSEKUSI BLOKIR (Sistem Apache Modern) ---

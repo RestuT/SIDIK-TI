@@ -80,6 +80,23 @@ if (isset($_POST['update_tech'])) {
     <title>Process Maintenance - #<?php echo htmlspecialchars($data['ticket_number']); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <script>
+        // Inject base tag to preserve relative link resolution
+        if (!document.querySelector('base')) {
+            var base = document.createElement('base');
+            base.href = window.location.href.split('?')[0];
+            document.head.appendChild(base);
+        }
+        // Mask URL to Pretty Path
+        if (window.history.replaceState) {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            if (path.includes('/api/')) {
+                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+            }
+        }
+    </script>
 </head>
 <body class="bg-slate-50 font-sans antialiased min-h-screen">
     <?php include __DIR__ . '/../includes/navbar_technician.php'; ?>
@@ -116,7 +133,7 @@ if (isset($_POST['update_tech'])) {
                         </section>
                     </div>
                     <div class="bg-slate-50 p-8 rounded-[35px] border border-slate-100 h-fit">
-                        <form action="" method="POST" class="space-y-6">
+                        <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" class="space-y-6">
                             <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                             <div>
                                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Status Pengerjaan</label>
@@ -142,3 +159,4 @@ if (isset($_POST['update_tech'])) {
     </main>
 </body>
 </html>
+

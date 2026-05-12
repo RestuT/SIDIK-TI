@@ -106,7 +106,7 @@ if (!$db && $conn) {
                     <span class="material-symbols-outlined text-primary text-2xl">account_circle</span>
                     <h2 class="font-headline text-xl font-bold">Profil Admin</h2>
                 </div>
-                <form action="" method="POST" class="bg-white rounded-[3rem] p-10 border border-outline-variant/10 shadow-sm space-y-8">
+                <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" class="bg-white rounded-[3rem] p-10 border border-outline-variant/10 shadow-sm space-y-8">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Nama Lengkap</label>

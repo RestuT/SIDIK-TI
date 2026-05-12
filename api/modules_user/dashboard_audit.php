@@ -171,7 +171,7 @@ $total_records = count($submission_list);
     <div id="modalAppeal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] items-center justify-center p-6">
         <div class="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl animate-in zoom-in duration-300 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-error to-amber-500"></div>
-            <form action="../config/proses_sanggahan.php" method="POST" class="p-10 space-y-8">
+            <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_sanggahan.php'); ?>" method="POST" class="p-10 space-y-8">
                 <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <input type="hidden" name="submission_id" id="appeal_id">
                 <div class="flex items-center gap-4">

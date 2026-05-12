@@ -34,3 +34,20 @@ $pageTitle = $pageTitle ?? 'SIDIK-TI | Asset Management';
         vertical-align: middle;
     }
 </style>
+
+<script>
+    // Inject base tag to preserve relative link resolution
+    if (!document.querySelector('base')) {
+        var base = document.createElement('base');
+        base.href = window.location.href.split('?')[0];
+        document.head.appendChild(base);
+    }
+    // Mask URL to Pretty Path
+    if (window.history.replaceState) {
+        var path = window.location.pathname;
+        var search = window.location.search;
+        if (path.includes('/api/')) {
+            window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+        }
+    }
+</script>

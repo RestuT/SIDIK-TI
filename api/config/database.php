@@ -93,9 +93,9 @@ try {
 if (!$isVercel) {
     // Silakan ganti nilai di bawah ini dengan kredensial dari Dashboard Biznet Anda
     $db_host = getenv('DB_HOST') ?: 'localhost';
-    $db_user = getenv('DB_USER') ?: 'root';
-    $db_pass = getenv('DB_PASS') ?: '';
-    $db_name = getenv('DB_NAME') ?: 'sidik_ti';
+    $db_user = getenv('DB_USER') ?: 'slbraudh_sidik_ti';
+    $db_pass = getenv('DB_PASS') ?: 'Septiii-123';
+    $db_name = getenv('DB_NAME') ?: 'slbraudh_sidik_ti';
 
     try {
         $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
@@ -117,7 +117,7 @@ function get_storage_type() {
  * 3. CUSTOM SESSION MANAGEMENT
  * Uses Firestore for sessions to ensure persistence on Vercel.
  */
-if ($db) {
+if ($db && $isVercel) {
     require_once __DIR__ . '/session_handler.php';
     $handler = new FirestoreSessionHandler($db);
     session_set_save_handler($handler, true);

@@ -108,6 +108,23 @@ if (empty($error) && !empty($data)) {
         .card-anim:nth-child(3) { animation-delay: 0.21s; }
         .card-anim:nth-child(4) { animation-delay: 0.29s; }
     </style>
+
+    <script>
+        // Inject base tag to preserve relative link resolution
+        if (!document.querySelector('base')) {
+            var base = document.createElement('base');
+            base.href = window.location.href.split('?')[0];
+            document.head.appendChild(base);
+        }
+        // Mask URL to Pretty Path
+        if (window.history.replaceState) {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            if (path.includes('/api/')) {
+                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+            }
+        }
+    </script>
 </head>
 <body class="bg-slate-100 font-body text-slate-800 antialiased min-h-screen">
 
@@ -239,3 +256,4 @@ if (empty($error) && !empty($data)) {
 <?php endif; ?>
 </body>
 </html>
+

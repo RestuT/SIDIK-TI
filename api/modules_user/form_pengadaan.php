@@ -125,7 +125,7 @@ if (!$db && $conn) {
             </div>
 
             <div class="lg:col-span-7">
-                <form action="../actions/proses_pengadaan.php" method="POST" enctype="multipart/form-data" class="bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-2xl shadow-slate-200/50 space-y-8 relative overflow-hidden">
+                <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_pengadaan.php'); ?>" method="POST" enctype="multipart/form-data" class="bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-2xl shadow-slate-200/50 space-y-8 relative overflow-hidden">
                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <input type="hidden" name="qty" id="qty_hidden" value="1">
                     <input type="hidden" name="base_price" id="base_price_hidden" value="0">

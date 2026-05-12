@@ -150,6 +150,23 @@ $active_count = count($user_list);
         }
         .fill-1 { font-variation-settings: 'FILL' 1; }
     </style>
+
+    <script>
+        // Inject base tag to preserve relative link resolution
+        if (!document.querySelector('base')) {
+            var base = document.createElement('base');
+            base.href = window.location.href.split('?')[0];
+            document.head.appendChild(base);
+        }
+        // Mask URL to Pretty Path
+        if (window.history.replaceState) {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            if (path.includes('/api/')) {
+                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+            }
+        }
+    </script>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
 
@@ -188,7 +205,7 @@ $active_count = count($user_list);
                 <div class="p-4 md:p-8 border-b border-outline-variant/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <h2 class="font-headline text-lg md:text-xl font-black text-on-surface italic uppercase tracking-tighter">Registered <span class="text-primary italic">Personalities</span></h2>
                     
-                    <form action="" method="GET" class="relative group w-full sm:w-auto">
+                    <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="GET" class="relative group w-full sm:w-auto">
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
                         <input name="q" value="<?php echo htmlspecialchars($search_q); ?>" type="text" placeholder="Temukan nama..." class="pl-10 pr-10 py-2 bg-surface-container-low dark:bg-slate-800 border-0 rounded-xl text-xs font-bold text-on-surface dark:text-white outline-none focus:ring-2 focus:ring-primary/20 transition-all w-full sm:w-64">
                         <?php if(!empty($search_q)): ?>
@@ -281,3 +298,4 @@ $active_count = count($user_list);
 
 </body>
 </html>
+

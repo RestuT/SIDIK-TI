@@ -108,6 +108,23 @@ $assignedAt = isset($assetData['assigned_at']) ? date('M Y', strtotime($assetDat
             }
         }
     </style>
+
+    <script>
+        // Inject base tag to preserve relative link resolution
+        if (!document.querySelector('base')) {
+            var base = document.createElement('base');
+            base.href = window.location.href.split('?')[0];
+            document.head.appendChild(base);
+        }
+        // Mask URL to Pretty Path
+        if (window.history.replaceState) {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            if (path.includes('/api/')) {
+                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+            }
+        }
+    </script>
 </head>
 <body class="font-body text-slate-800 antialiased min-h-screen flex flex-col items-center justify-center p-8">
 
@@ -206,3 +223,4 @@ $assignedAt = isset($assetData['assigned_at']) ? date('M Y', strtotime($assetDat
     </script>
 </body>
 </html>
+

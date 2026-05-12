@@ -107,7 +107,7 @@ if (!$db && $conn) {
             <?php endif; ?>
 
             <section class="space-y-6">
-                <form action="" method="POST" class="bg-white rounded-[2rem] p-8 md:p-10 border border-slate-200 shadow-sm space-y-8">
+                <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" class="bg-white rounded-[2rem] p-8 md:p-10 border border-slate-200 shadow-sm space-y-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1 flex items-center gap-1">

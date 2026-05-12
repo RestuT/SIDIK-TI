@@ -76,7 +76,7 @@ if (!$db && $conn) {
                         <h2 class="flex items-center gap-3 font-headline text-lg font-black text-on-surface uppercase tracking-tight mb-8">
                             <span class="material-symbols-outlined text-primary fill-1">add_business</span> Registrasi Unit
                         </h2>
-                        <form action="../config/proses_department.php" method="POST" class="space-y-6">
+                        <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_department.php'); ?>" method="POST" class="space-y-6">
                             <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                             <div class="space-y-2">
                                 <label class="block text-[10px] font-black text-outline uppercase tracking-[0.2em] ml-2">Identitas Departemen</label>

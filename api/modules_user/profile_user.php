@@ -106,7 +106,7 @@ $department = $user_data['department'] ?? '-';
                     <p class="text-primary font-bold text-sm uppercase tracking-wider"><?php echo htmlspecialchars($department); ?></p>
                 </div>
             </div>
-            <form action="profile_user.php" method="POST" class="p-8 space-y-8 relative z-10">
+            <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" class="p-8 space-y-8 relative z-10">
                 <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-2">

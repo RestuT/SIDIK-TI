@@ -54,7 +54,7 @@ if (!$db && $conn) {
             </div>
 
             <div class="lg:col-span-7">
-                <form action="../actions/proses_maintenance.php" method="POST" enctype="multipart/form-data" class="bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-2xl shadow-indigo-900/5 space-y-8 relative overflow-hidden">
+                <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_maintenance.php'); ?>" method="POST" enctype="multipart/form-data" class="bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-2xl shadow-indigo-900/5 space-y-8 relative overflow-hidden">
                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-primary to-primary-container"></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

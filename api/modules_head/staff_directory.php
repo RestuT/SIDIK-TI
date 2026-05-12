@@ -45,6 +45,23 @@ if (!$db && $conn) {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script>
+        // Inject base tag to preserve relative link resolution
+        if (!document.querySelector('base')) {
+            var base = document.createElement('base');
+            base.href = window.location.href.split('?')[0];
+            document.head.appendChild(base);
+        }
+        // Mask URL to Pretty Path
+        if (window.history.replaceState) {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            if (path.includes('/api/')) {
+                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+            }
+        }
+    </script>
 </head>
 <body class="bg-slate-50 font-body text-slate-800 antialiased head-layout">
 
@@ -58,7 +75,7 @@ if (!$db && $conn) {
                 </h1>
                 <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Personalia Departemen <?php echo htmlspecialchars($dept); ?></p>
             </div>
-            <form action="" method="GET" class="relative group w-full md:w-64">
+            <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="GET" class="relative group w-full md:w-64">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
                 <input name="q" value="<?php echo htmlspecialchars($search_q); ?>" type="text" placeholder="Cari nama staff..." 
                     class="pl-10 pr-4 py-2 bg-slate-100 border-0 rounded-xl text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all w-full">
@@ -117,3 +134,4 @@ if (!$db && $conn) {
     </main>
 </body>
 </html>
+

@@ -129,7 +129,7 @@ $base_url = '../';
                 <h3 class="font-headline font-black text-2xl italic uppercase text-on-surface">Laporan <span class="text-primary italic">Kondisi</span></h3>
                 <p class="text-xs text-on-surface-variant mt-2" id="task_item_name"></p>
             </div>
-            <form action="../config/proses_sensus.php" method="POST" class="space-y-6">
+            <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_sensus.php'); ?>" method="POST" class="space-y-6">
                 <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                 <input type="hidden" name="task_id" id="task_id">
                 <input type="hidden" name="action" value="submit_report">

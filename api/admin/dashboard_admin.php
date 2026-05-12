@@ -191,6 +191,23 @@ if ($db) {
         }
         .fill-1 { font-variation-settings: 'FILL' 1; }
     </style>
+    <script>
+
+        // Inject base tag to preserve relative link resolution
+        if (!document.querySelector('base')) {
+            var base = document.createElement('base');
+            base.href = window.location.href.split('?')[0];
+            document.head.appendChild(base);
+        }
+        // Mask URL to Pretty Path
+        if (window.history.replaceState) {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            if (path.includes('/api/')) {
+                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+            }
+        }
+    </script>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
     
@@ -200,7 +217,7 @@ if ($db) {
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
         <!-- Top Search Bar -->
         <header class="flex flex-col md:flex-row md:items-center gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-40">
-            <form action="" method="GET" class="flex-1">
+            <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="GET" class="flex-1">
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline group-focus-within:text-primary transition-colors">
                         <span class="material-symbols-outlined">search</span>
@@ -361,7 +378,7 @@ if ($db) {
                     <h2 class="font-headline text-xl font-black text-on-surface italic uppercase tracking-tighter">Antrean Tiket <span class="text-primary italic">Terbaru</span></h2>
                     
                     <!-- Date Filter Form -->
-                    <form action="" method="GET" class="flex flex-wrap items-center gap-4">
+                    <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="GET" class="flex flex-wrap items-center gap-4">
                         <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-outline-variant/20 shadow-sm">
                             <span class="material-symbols-outlined text-xs text-outline font-black">calendar_today</span>
                             <input type="date" name="start_date" value="<?php echo $start_date; ?>" 

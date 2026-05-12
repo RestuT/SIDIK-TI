@@ -113,6 +113,23 @@ if (!$db && $conn) {
             },
         }
     </script>
+    <script>
+
+        // Inject base tag to preserve relative link resolution
+        if (!document.querySelector('base')) {
+            var base = document.createElement('base');
+            base.href = window.location.href.split('?')[0];
+            document.head.appendChild(base);
+        }
+        // Mask URL to Pretty Path
+        if (window.history.replaceState) {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            if (path.includes('/api/')) {
+                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+            }
+        }
+    </script>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen tech-layout">
 
@@ -125,7 +142,7 @@ if (!$db && $conn) {
                 <h1 class="font-headline text-2xl font-black text-on-surface tracking-tight italic uppercase">Technician <span class="text-primary italic">Dashboard</span></h1>
                 <p class="text-[10px] text-outline font-black uppercase tracking-widest leading-none mt-1">Mengelola Tugas Lapangan & Servis</p>
             </div>
-            <form action="" method="GET" class="relative group w-full md:w-64">
+            <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="GET" class="relative group w-full md:w-64">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
                 <input name="q" value="<?php echo htmlspecialchars($search_q); ?>" type="text" placeholder="Cari tiket..." class="pl-10 pr-4 py-2 bg-surface-container-low border-0 rounded-xl text-xs font-bold text-on-surface outline-none focus:ring-2 focus:ring-primary/20 transition-all w-full">
             </form>

@@ -102,7 +102,7 @@ if (!$db && $conn) {
                         <h2 class="flex items-center gap-3 font-headline text-lg font-black text-on-surface uppercase tracking-tight mb-8">
                             <span class="material-symbols-outlined text-primary fill-1">payments</span> Set Alokasi Pagu
                         </h2>
-                        <form action="" method="POST" class="space-y-6">
+                        <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" class="space-y-6">
                             <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                             <input type="hidden" name="fiscal_year" value="<?php echo $current_year; ?>">
                             <div class="space-y-2">

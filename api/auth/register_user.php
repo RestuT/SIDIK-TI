@@ -143,6 +143,23 @@ try {
         }
     </script>
     <?php include_once __DIR__ . '/../includes/firebase_js.php'; ?>
+
+    <script>
+        // Inject base tag to preserve relative link resolution
+        if (!document.querySelector('base')) {
+            var base = document.createElement('base');
+            base.href = window.location.href.split('?')[0];
+            document.head.appendChild(base);
+        }
+        // Mask URL to Pretty Path
+        if (window.history.replaceState) {
+            var path = window.location.pathname;
+            var search = window.location.search;
+            if (path.includes('/api/')) {
+                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
+            }
+        }
+    </script>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden">
     <main class="min-h-screen flex flex-col md:flex-row items-stretch">
@@ -172,7 +189,7 @@ try {
                         </div>
                     <?php endif; ?>
 
-                    <form action="" method="POST" class="space-y-6">
+                    <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST" class="space-y-6">
                         <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -282,3 +299,4 @@ try {
     </main>
 </body>
 </html>
+
