@@ -121,15 +121,15 @@ $system_settings = [
         .dark #asset-tbody td { color: #e2e8f0; }
     </style>
 </head>
-<body class="selection:bg-primary/30 pb-24 md:pb-0">
+<body class="selection:bg-primary/30 dark:bg-slate-950 pb-24 md:pb-0 transition-colors duration-300">
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
     <main class="max-w-7xl mx-auto px-6 md:px-10 py-12 space-y-12">
         <?php if ($has_pending_sensus): ?>
         <section class="animate-in fade-in slide-in-from-top-4 duration-700">
-            <div class="relative overflow-hidden bg-gradient-to-r from-primary to-primary-container p-1 rounded-[2rem] shadow-2xl shadow-primary/20">
-                <div class="bg-surface/10 backdrop-blur-md px-8 py-6 rounded-[1.8rem] flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="relative overflow-hidden bg-gradient-to-r from-primary to-primary-container dark:from-indigo-900 dark:to-slate-800 p-1 rounded-[2rem] shadow-2xl shadow-primary/20 dark:shadow-none">
+                <div class="bg-surface/10 dark:bg-slate-900/50 backdrop-blur-md px-8 py-6 rounded-[1.8rem] flex flex-col md:flex-row items-center justify-between gap-6">
                     <div class="flex items-center gap-5">
-                        <div class="w-14 h-14 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/20">
+                        <div class="w-14 h-14 bg-white/20 dark:bg-indigo-500/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white dark:text-indigo-400 border border-white/20 dark:border-indigo-500/30">
                             <span class="material-symbols-outlined text-3xl live-dot">campaign</span>
                         </div>
                         <div>
@@ -137,67 +137,67 @@ $system_settings = [
                             <p class="text-white/70 text-sm font-medium">Ada tugas sensus mandiri yang menunggu laporan Anda. Mohon segera divalidasi.</p>
                         </div>
                     </div>
-                    <a href="sensus_dashboard_user.php" class="px-8 py-4 bg-white text-primary font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-opacity-90 transition-all shadow-xl active:scale-95">Mulai Laporan Sekarang</a>
+                    <a href="sensus_dashboard_user.php" class="px-8 py-4 bg-white dark:bg-indigo-600 text-primary dark:text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:bg-opacity-90 dark:hover:bg-indigo-500 transition-all shadow-xl active:scale-95">Mulai Laporan Sekarang</a>
                 </div>
             </div>
         </section>
         <?php endif; ?>
 
-        <section class="flex flex-col lg:flex-row lg:items-end justify-between gap-10 pb-6 border-b border-outline/5">
+        <section class="flex flex-col lg:flex-row lg:items-end justify-between gap-10 pb-6 border-b border-outline/5 dark:border-slate-800">
             <div class="space-y-4">
-                <div class="inline-flex items-center gap-2 px-3 py-1 bg-highlight-indigo text-primary rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-highlight-indigo dark:bg-indigo-500/10 text-primary dark:text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/10 dark:border-indigo-500/20">
                     <span class="material-symbols-outlined text-[14px]">auto_graph</span>
                     Asset Intelligence
                 </div>
-                <h1 class="text-5xl md:text-6xl font-extrabold text-on-surface tracking-tighter leading-none italic uppercase">Aset <span class="text-primary italic">Saya</span></h1>
-                <p class="text-on-surface-variant max-w-lg font-medium text-sm leading-relaxed">Kelola dan pantau perangkat IT di bawah tanggung jawab Anda dengan valuasi real-time.</p>
+                <h1 class="text-5xl md:text-6xl font-extrabold text-on-surface dark:text-white tracking-tighter leading-none italic uppercase">Aset <span class="text-primary dark:text-indigo-400 italic">Saya</span></h1>
+                <p class="text-on-surface-variant dark:text-slate-400 max-w-lg font-medium text-sm leading-relaxed">Kelola dan pantau perangkat IT di bawah tanggung jawab Anda dengan valuasi real-time.</p>
             </div>
             <div class="flex flex-wrap items-center gap-5">
-                <div class="flex items-center gap-3 px-5 py-3 rounded-2xl glass-card border-none bg-surface-low">
+                <div class="flex items-center gap-3 px-5 py-3 rounded-2xl glass-card border-none bg-surface-low dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 live-dot"></span>
-                    <span class="text-[10px] font-black text-on-surface uppercase tracking-widest" id="sync-status">Live Valuation Enabled</span>
+                    <span class="text-[10px] font-black text-on-surface dark:text-slate-300 uppercase tracking-widest" id="sync-status">Live Valuation Enabled</span>
                 </div>
-                <a href="asset_market_analysis.php" class="inline-flex items-center gap-4 px-6 py-4 rounded-3xl obsidian-panel hover:bg-surface-low transition-all group border-primary/10">
-                    <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                <a href="asset_market_analysis.php" class="inline-flex items-center gap-4 px-6 py-4 rounded-3xl obsidian-panel bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 hover:bg-surface-low dark:hover:bg-slate-800 transition-all group border-primary/10 dark:border-indigo-500/20">
+                    <div class="w-10 h-10 rounded-xl bg-primary/10 dark:bg-indigo-500/20 text-primary dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-xl">analytics</span>
                     </div>
                     <div>
-                        <span class="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest block leading-none mb-1 text-left">Market Insight</span>
-                        <span class="text-sm font-bold text-on-surface">Analisis Harga</span>
+                        <span class="text-[10px] font-black text-on-surface-variant/40 dark:text-slate-500 uppercase tracking-widest block leading-none mb-1 text-left">Market Insight</span>
+                        <span class="text-sm font-bold text-on-surface dark:text-slate-200">Analisis Harga</span>
                     </div>
                 </a>
             </div>
         </section>
 
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            <div class="p-8 rounded-[2rem] obsidian-panel transition-all group relative overflow-hidden">
-                <div class="w-14 h-14 bg-highlight-indigo text-primary rounded-2xl flex items-center justify-center mb-6">
+            <div class="p-8 rounded-[2rem] obsidian-panel bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-all group relative overflow-hidden">
+                <div class="w-14 h-14 bg-highlight-indigo dark:bg-indigo-500/10 text-primary dark:text-indigo-400 rounded-2xl flex items-center justify-center mb-6">
                     <span class="material-symbols-outlined text-3xl">inventory_2</span>
                 </div>
-                <h3 class="text-4xl font-black text-on-surface tracking-tighter"><?php echo $stat_total; ?></h3>
-                <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mt-2">Total Aset</p>
+                <h3 class="text-4xl font-black text-on-surface dark:text-white tracking-tighter"><?php echo $stat_total; ?></h3>
+                <p class="text-[10px] font-black text-on-surface-variant dark:text-slate-500 uppercase tracking-[0.2em] mt-2">Total Aset</p>
             </div>
-            <div class="p-8 rounded-[2rem] obsidian-panel border-emerald-500/10 transition-all group relative overflow-hidden">
-                <div class="w-14 h-14 bg-highlight-emerald text-emerald-500 rounded-2xl flex items-center justify-center mb-6">
+            <div class="p-8 rounded-[2rem] obsidian-panel bg-white dark:bg-slate-900 border border-slate-200 dark:border-emerald-500/20 shadow-sm transition-all group relative overflow-hidden">
+                <div class="w-14 h-14 bg-highlight-emerald dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-6">
                     <span class="material-symbols-outlined text-3xl">verified</span>
                 </div>
-                <h3 class="text-4xl font-black text-on-surface tracking-tighter"><?php echo $stat_active; ?></h3>
-                <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mt-2">Kondisi Baik</p>
+                <h3 class="text-4xl font-black text-on-surface dark:text-white tracking-tighter"><?php echo $stat_active; ?></h3>
+                <p class="text-[10px] font-black text-on-surface-variant dark:text-slate-500 uppercase tracking-[0.2em] mt-2">Kondisi Baik</p>
             </div>
-            <div class="p-8 rounded-[2rem] obsidian-panel border-orange-500/10 transition-all group relative overflow-hidden">
-                <div class="w-14 h-14 bg-highlight-orange text-orange-500 rounded-2xl flex items-center justify-center mb-6">
+            <div class="p-8 rounded-[2rem] obsidian-panel bg-white dark:bg-slate-900 border border-slate-200 dark:border-orange-500/20 shadow-sm transition-all group relative overflow-hidden">
+                <div class="w-14 h-14 bg-highlight-orange dark:bg-orange-500/10 text-orange-500 dark:text-orange-400 rounded-2xl flex items-center justify-center mb-6">
                     <span class="material-symbols-outlined text-3xl">hardware</span>
                 </div>
-                <h3 class="text-4xl font-black text-on-surface tracking-tighter"><?php echo $stat_maintenance; ?></h3>
-                <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mt-2">Maintenance</p>
+                <h3 class="text-4xl font-black text-on-surface dark:text-white tracking-tighter"><?php echo $stat_maintenance; ?></h3>
+                <p class="text-[10px] font-black text-on-surface-variant dark:text-slate-500 uppercase tracking-[0.2em] mt-2">Maintenance</p>
             </div>
         </section>
 
-        <section class="obsidian-panel rounded-[2.5rem] overflow-hidden border-outline/5">
+        <section class="obsidian-panel bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse min-w-[900px]">
                     <thead>
-                        <tr class="text-on-surface-variant text-[10px] uppercase tracking-[0.2em] border-b border-outline/5 bg-surface-low/30 dark:bg-white/5 dark:border-white/10">
+                        <tr class="text-on-surface-variant dark:text-slate-400 text-[10px] uppercase tracking-[0.2em] border-b border-outline/5 dark:border-slate-800 bg-surface-low/30 dark:bg-slate-800/50">
                             <th class="px-6 py-5 font-black">Perangkat</th>
                             <th class="px-6 py-5 font-black">Details</th>
                             <th class="px-6 py-5 font-black">Status & Actions</th>
@@ -206,7 +206,7 @@ $system_settings = [
                             <th class="px-6 py-5 font-black text-center">Utilisasi</th>
                         </tr>
                     </thead>
-                    <tbody id="asset-tbody" class="divide-y divide-outline/5">
+                    <tbody id="asset-tbody" class="divide-y divide-outline/5 dark:divide-slate-800">
                         <?php if(count($asset_list) > 0): ?>
                             <?php foreach($asset_list as $row):
                                 $specific_price = isset($row['price_reference']) ? (float)$row['price_reference'] : null;
@@ -218,7 +218,7 @@ $system_settings = [
                             <tr class="group table-row-hover asset-row" data-item="<?php echo htmlspecialchars($row['item_name'] ?? ''); ?>" data-cat="<?php echo htmlspecialchars($row['category'] ?? ''); ?>" data-date="<?php echo htmlspecialchars($row['assigned_at'] ?? ''); ?>" data-base="<?php echo $specific_price ?? ($inventory_prices[$row['item_name'] ?? ''] ?? 0); ?>">
                                 <td class="px-6 py-6">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 rounded-xl bg-highlight-indigo flex items-center justify-center text-primary group-hover:scale-105 transition-transform border border-primary/5 shadow-inner">
+                                        <div class="w-12 h-12 rounded-xl bg-highlight-indigo dark:bg-indigo-500/10 flex items-center justify-center text-primary dark:text-indigo-400 group-hover:scale-105 transition-transform border border-primary/5 dark:border-indigo-500/20 shadow-inner">
                                             <span class="material-symbols-outlined text-2xl">
                                                 <?php
                                                     $cat = $row['category'] ?? '';
@@ -232,15 +232,15 @@ $system_settings = [
                                             </span>
                                         </div>
                                         <div>
-                                            <span class="font-bold text-on-surface text-sm block truncate max-w-[180px]" title="<?php echo htmlspecialchars($row['item_name'] ?? ''); ?>"><?php echo htmlspecialchars($row['item_name'] ?? ''); ?></span>
-                                            <span class="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40 mt-1 block">ID: <?php echo htmlspecialchars($row['id'] ?? '-'); ?></span>
+                                            <span class="font-bold text-on-surface dark:text-slate-200 text-sm block truncate max-w-[180px]" title="<?php echo htmlspecialchars($row['item_name'] ?? ''); ?>"><?php echo htmlspecialchars($row['item_name'] ?? ''); ?></span>
+                                            <span class="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40 dark:text-slate-500 mt-1 block">ID: <?php echo htmlspecialchars($row['id'] ?? '-'); ?></span>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-6">
                                     <div class="flex flex-col">
-                                        <span class="text-on-surface font-semibold text-xs"><?php echo htmlspecialchars($row['category'] ?? ''); ?></span>
-                                        <span class="text-[10px] font-mono text-on-surface-variant opacity-60 mt-1 uppercase tracking-widest">SN: <?php echo htmlspecialchars($row['serial_number'] ?? '-'); ?></span>
+                                        <span class="text-on-surface dark:text-slate-300 font-semibold text-xs"><?php echo htmlspecialchars($row['category'] ?? ''); ?></span>
+                                        <span class="text-[10px] font-mono text-on-surface-variant dark:text-slate-500 opacity-60 mt-1 uppercase tracking-widest">SN: <?php echo htmlspecialchars($row['serial_number'] ?? '-'); ?></span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-6">
@@ -249,47 +249,47 @@ $system_settings = [
                                         $rowStatus = $row['status'] ?? '';
                                         $condCode = max((int)($row['latest_condition_code'] ?? 1), (int)($dep_info['auto_condition'] ?? 1));
                                         if($rowStatus == 'Disposed' || $rowStatus == 'Pending Disposal') {
-                                            $statusClass = "bg-surface-high/10 text-on-surface-variant/40 border-outline/5";
+                                            $statusClass = "bg-surface-high/10 text-on-surface-variant/40 border-outline/5 dark:bg-slate-800 dark:text-slate-500";
                                             $kondisiLabel = "Dihapus";
                                         } else {
-                                            if($condCode == 1) { $statusClass = "bg-highlight-emerald text-emerald-500 border-emerald-500/10"; $kondisiLabel = "Optimal"; }
-                                            elseif($condCode == 2) { $statusClass = "bg-highlight-orange text-orange-500 border-orange-500/10"; $kondisiLabel = "Atensi"; }
-                                            else { $statusClass = "bg-highlight-rose text-rose-500 border-rose-500/10"; $kondisiLabel = "Rusak"; }
+                                            if($condCode == 1) { $statusClass = "bg-highlight-emerald dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/10 dark:border-emerald-500/20"; $kondisiLabel = "Optimal"; }
+                                            elseif($condCode == 2) { $statusClass = "bg-highlight-orange dark:bg-orange-500/10 text-orange-500 dark:text-orange-400 border-orange-500/10 dark:border-orange-500/20"; $kondisiLabel = "Atensi"; }
+                                            else { $statusClass = "bg-highlight-rose dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 border-rose-500/10 dark:border-rose-500/20"; $kondisiLabel = "Rusak"; }
                                         }
                                         ?>
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black border uppercase tracking-widest leading-none <?php echo $statusClass; ?>"><?php echo $kondisiLabel; ?></span>
                                         <div class="flex items-center gap-2">
-                                            <a href="cetak_label_aset.php?id=<?php echo urlencode($row['id'] ?? ''); ?>" target="_blank" class="w-8 h-8 flex items-center justify-center bg-highlight-indigo text-primary rounded-lg hover:bg-primary hover:text-white transition-all border border-primary/5" title="Label QR"><span class="material-symbols-outlined text-base">qr_code_2</span></a>
+                                            <a href="cetak_label_aset.php?id=<?php echo urlencode($row['id'] ?? ''); ?>" target="_blank" class="w-8 h-8 flex items-center justify-center bg-highlight-indigo dark:bg-indigo-500/10 text-primary dark:text-indigo-400 rounded-lg hover:bg-primary dark:hover:bg-indigo-600 hover:text-white transition-all border border-primary/5 dark:border-indigo-500/20" title="Label QR"><span class="material-symbols-outlined text-base">qr_code_2</span></a>
                                             <?php if($rowStatus !== 'Disposed' && $rowStatus !== 'Pending Disposal' && $rowStatus !== 'Maintenance'): ?>
                                                 <?php if($condCode == 3): ?>
-                                                    <a href="form_maintenance.php?prefill_asset=<?php echo urlencode($row['id'] ?? ''); ?>&action=disposal" class="px-3 py-1.5 bg-highlight-rose text-rose-500 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all">Disposal</a>
+                                                    <a href="form_maintenance.php?prefill_asset=<?php echo urlencode($row['id'] ?? ''); ?>&action=disposal" class="px-3 py-1.5 bg-highlight-rose dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-rose-500 dark:hover:bg-rose-600 hover:text-white transition-all">Disposal</a>
                                                 <?php elseif($condCode == 2): ?>
-                                                    <a href="form_maintenance.php?prefill_asset=<?php echo urlencode($row['id'] ?? ''); ?>&action=maintenance" class="px-3 py-1.5 bg-highlight-orange text-orange-500 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all">Repair</a>
+                                                    <a href="form_maintenance.php?prefill_asset=<?php echo urlencode($row['id'] ?? ''); ?>&action=maintenance" class="px-3 py-1.5 bg-highlight-orange dark:bg-orange-500/10 text-orange-500 dark:text-orange-400 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all">Repair</a>
                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-6 text-right">
-                                    <?php if($dep_info): ?><span class="font-bold text-on-surface text-sm">Rp<?php echo number_format($dep_info['purchase'], 0, ',', '.'); ?></span><?php else: ?><span class="text-on-surface-variant/20 italic text-xs">N/A</span><?php endif; ?>
+                                    <?php if($dep_info): ?><span class="font-bold text-on-surface dark:text-slate-300 text-sm">Rp<?php echo number_format($dep_info['purchase'], 0, ',', '.'); ?></span><?php else: ?><span class="text-on-surface-variant/20 dark:text-slate-600 italic text-xs">N/A</span><?php endif; ?>
                                 </td>
                                 <td class="px-6 py-6 text-right">
                                     <?php if($dep_info): ?>
                                         <?php if($dep_info['salvage']): ?>
-                                            <div class="flex flex-col items-end"><span class="font-black text-rose-500 text-sm">Rp<?php echo number_format($dep_info['current'], 0, ',', '.'); ?></span><span class="text-[8px] font-black uppercase tracking-widest text-rose-400 opacity-60 mt-0.5">Nilai Residu</span></div>
+                                            <div class="flex flex-col items-end"><span class="font-black text-rose-500 dark:text-rose-400 text-sm">Rp<?php echo number_format($dep_info['current'], 0, ',', '.'); ?></span><span class="text-[8px] font-black uppercase tracking-widest text-rose-400 dark:text-rose-500 opacity-60 mt-0.5">Nilai Residu</span></div>
                                         <?php else: ?>
-                                            <span class="font-black text-primary text-sm">Rp<?php echo number_format($dep_info['current'], 0, ',', '.'); ?></span>
+                                            <span class="font-black text-primary dark:text-indigo-400 text-sm">Rp<?php echo number_format($dep_info['current'], 0, ',', '.'); ?></span>
                                         <?php endif; ?>
-                                    <?php else: ?><span class="text-on-surface-variant/20 italic text-xs">N/A</span><?php endif; ?>
+                                    <?php else: ?><span class="text-on-surface-variant/20 dark:text-slate-600 italic text-xs">N/A</span><?php endif; ?>
                                 </td>
-                                <td class="px-6 py-6 border-l border-outline/5 bg-surface-low/10">
+                                <td class="px-6 py-6 border-l border-outline/5 dark:border-slate-800 bg-surface-low/10 dark:bg-slate-800/30">
                                     <div class="flex flex-col items-center gap-3 min-w-[140px]">
-                                        <?php if($multiplier != 1.0): ?><span class="text-[8px] font-black uppercase tracking-widest text-primary/60 bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10">Stress Factor: <?php echo number_format($multiplier, 1); ?>x</span><?php endif; ?>
-                                        <div class="w-full bg-surface-low rounded-full h-1.5 overflow-hidden border border-outline/5 relative">
+                                        <?php if($multiplier != 1.0): ?><span class="text-[8px] font-black uppercase tracking-widest text-primary/60 dark:text-indigo-400/80 bg-primary/5 dark:bg-indigo-500/10 px-2 py-0.5 rounded-md border border-primary/10 dark:border-indigo-500/20">Stress Factor: <?php echo number_format($multiplier, 1); ?>x</span><?php endif; ?>
+                                        <div class="w-full bg-surface-low dark:bg-slate-700 rounded-full h-1.5 overflow-hidden border border-outline/5 dark:border-slate-600 relative">
                                             <div class="h-full rounded-full transition-all duration-1000 <?php echo $pct_used >= 90 ? 'bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.6)] animate-pulse' : ($pct_used >= 75 ? 'bg-orange-500' : 'bg-emerald-500'); ?>" style="width:<?php echo round($pct_used); ?>%"></div>
                                         </div>
                                         <div class="flex flex-col items-center gap-1">
-                                            <span class="text-[9px] font-black text-on-surface uppercase tracking-widest leading-none"><?php echo round($pct_used); ?>% Wear</span>
+                                            <span class="text-[9px] font-black text-on-surface dark:text-slate-300 uppercase tracking-widest leading-none"><?php echo round($pct_used); ?>% Wear</span>
                                             <div class="flex flex-col items-center mt-1">
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-widest <?php echo $recommendation['class']; ?> border border-current/10"><?php echo $recommendation['label']; ?></span>
                                                 <span class="text-[6px] text-on-surface-variant/40 italic font-medium mt-0.5 text-center leading-tight max-w-[100px]"><?php echo $recommendation['desc']; ?></span>
@@ -300,12 +300,12 @@ $system_settings = [
                             </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <tr><td colspan="6" class="px-6 py-32 text-center"><div class="flex flex-col items-center gap-4 text-on-surface-variant/20"><span class="material-symbols-outlined text-7xl">inventory</span><p class="font-black text-lg uppercase tracking-[0.2em]">No Assets Data</p></div></td></tr>
+                            <tr><td colspan="6" class="px-6 py-32 text-center"><div class="flex flex-col items-center gap-4 text-on-surface-variant/20 dark:text-slate-600"><span class="material-symbols-outlined text-7xl">inventory</span><p class="font-black text-lg uppercase tracking-[0.2em]">No Assets Data</p></div></td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            <div class="p-6 border-t border-outline/5 bg-surface-low/20"><?php renderPagination($page, $hasMore, 'assets_user.php'); ?></div>
+            <div class="p-6 border-t border-outline/5 dark:border-slate-800 bg-surface-low/20 dark:bg-slate-800/30"><?php renderPagination($page, $hasMore, 'assets_user.php'); ?></div>
         </section>
     </main>
     <?php include __DIR__ . '/../includes/bottom_nav_user.php'; ?>

@@ -88,7 +88,7 @@ if (!$db && $conn) {
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
-        <header class="flex items-center justify-between px-4 md:px-8 py-6 border-b border-slate-200 bg-white sticky top-0 z-10">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-30">
             <div>
                 <h1 class="font-headline text-2xl font-black text-slate-900 italic uppercase">Valuasi <span class="text-primary italic">&amp; Depresiasi</span></h1>
                 <p class="text-xs text-slate-500 font-medium mt-1">Konfigurasi nilai buku, perpajakan, dan masa susut aset instansi.</p>

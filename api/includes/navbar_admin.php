@@ -143,8 +143,8 @@ try {
 
     <!-- Brand Header -->
     <div class="flex items-center gap-4 px-6 py-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
-        <img src="<?php echo $base_url ?? '../'; ?>assets/img/logo.png" alt="Logo" class="h-14 w-auto drop-shadow-md">
-        <span class="text-3xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight truncate">
+        <img src="<?php echo $base_url ?? '../'; ?>assets/img/logo.png" alt="Logo" class="h-12 w-auto drop-shadow-md shrink-0">
+        <span class="text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight truncate">
             <?php echo htmlspecialchars($brand_name); ?>
         </span>
     </div>
@@ -294,19 +294,38 @@ try {
     .fill-1 { font-variation-settings: 'FILL' 1; }
 
     /*
-     * SISTEM LAYOUT SIDEBAR DESKTOP
-     * Sidebar lebar 288px (w-72 = 18rem), fixed di kiri.
-     * Semua halaman admin harus memiliki:
-     *   body:  overflow-x: hidden
-     *   main:  margin-left: 18rem  (lg:ml-72)
-     * Ini lebih reliable daripada spacer-div karena tidak bergantung pada
-     * flex container dan bekerja dengan sticky header di dalam main.
+     * SISTEM LAYOUT SIDEBAR & TOPBAR DESKTOP & MOBILE (FIKSASI UKURAN)
+     * Menjamin ukuran lebar sidebar desktop dan tinggi mobile topbar kaku (rigid)
+     * serta meluruskan area main/konten di semua halaman admin.
      */
+    
+    /* Fiksasi Lebar Sidebar Desktop */
+    #admin-sidebar {
+        width: 288px !important;
+        min-width: 288px !important;
+        max-width: 288px !important;
+    }
+
+    /* Fiksasi Tinggi Mobile Topbar */
+    #mobile-topbar {
+        height: 56px !important;
+        min-height: 56px !important;
+        max-height: 56px !important;
+    }
+
     @media (min-width: 1024px) {
-        /* Terapkan margin-left secara global untuk semua elemen main admin */
-        body.admin-layout > main,
-        body.admin-layout > .admin-content {
-            margin-left: 18rem; /* setara w-72 */
+        /* Terapkan margin-left secara global dan hilangkan top padding untuk semua elemen main admin di desktop */
+        main, .admin-content, body.admin-layout > main, body.admin-layout > .admin-content {
+            margin-left: 288px !important;
+            padding-top: 0 !important;
+        }
+    }
+
+    @media (max-width: 1023px) {
+        /* Terapkan padding-top secara global untuk mengantisipasi mobile topbar dan hilangkan margin-left */
+        main, .admin-content, body.admin-layout > main, body.admin-layout > .admin-content {
+            margin-left: 0 !important;
+            padding-top: 56px !important;
         }
     }
 </style>

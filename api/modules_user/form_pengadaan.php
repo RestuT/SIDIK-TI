@@ -96,36 +96,36 @@ if (!$db && $conn) {
         include __DIR__ . '/../includes/head_meta.php'; 
     ?>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0 transition-colors duration-300">
+<body class="bg-surface dark:bg-slate-950 font-body text-on-surface dark:text-slate-100 antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0 transition-colors duration-300">
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
     <main class="max-w-[1240px] mx-auto px-6 py-12">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div class="lg:col-span-5 space-y-8">
                 <div>
-                    <h2 class="font-headline text-4xl font-extrabold text-on-surface tracking-tight leading-none uppercase italic underline decoration-primary/30 underline-offset-8">Procurement <span class="text-primary italic">Request</span></h2>
-                    <p class="text-on-surface-variant font-medium mt-6 leading-relaxed italic">Ajukan kebutuhan aset dan infrastruktur TI unit Anda melalui E-Catalog terintegrasi untuk proses budgeting yang lebih transparan dan efisien.</p>
+                    <h2 class="font-headline text-4xl font-extrabold text-on-surface dark:text-white tracking-tight leading-none uppercase italic underline decoration-primary/30 dark:decoration-indigo-500/30 underline-offset-8">Procurement <span class="text-primary dark:text-indigo-400 italic">Request</span></h2>
+                    <p class="text-on-surface-variant dark:text-slate-400 font-medium mt-6 leading-relaxed italic">Ajukan kebutuhan aset dan infrastruktur TI unit Anda melalui E-Catalog terintegrasi untuk proses budgeting yang lebih transparan dan efisien.</p>
                 </div>
-                <div class="bg-white p-8 rounded-[2.5rem] border border-outline-variant/5 shadow-2xl shadow-slate-200/50 space-y-6 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-8 opacity-5 text-primary"><span class="material-symbols-outlined text-[120px]">shopping_cart</span></div>
-                    <h3 class="font-headline font-bold text-on-surface flex items-center gap-2"><span class="material-symbols-outlined text-primary">analytics</span>Panduan Pengadaan</h3>
+                <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-outline-variant/5 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none space-y-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 dark:opacity-10 text-primary dark:text-indigo-400"><span class="material-symbols-outlined text-[120px]">shopping_cart</span></div>
+                    <h3 class="font-headline font-bold text-on-surface dark:text-white flex items-center gap-2"><span class="material-symbols-outlined text-primary dark:text-indigo-400">analytics</span>Panduan Pengadaan</h3>
                     <div class="space-y-4">
-                        <div class="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors"><span class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs shrink-0">1</span><div><p class="text-sm font-bold text-on-surface">Pilih Katalog / Template</p></div></div>
-                        <div class="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors"><span class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs shrink-0">2</span><div><p class="text-sm font-bold text-on-surface">Validasi Budgeting</p></div></div>
+                        <div class="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-full bg-primary/10 dark:bg-indigo-500/20 flex items-center justify-center text-primary dark:text-indigo-400 font-black text-xs shrink-0">1</span><div><p class="text-sm font-bold text-on-surface dark:text-slate-200">Pilih Katalog / Template</p></div></div>
+                        <div class="flex gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"><span class="w-8 h-8 rounded-full bg-primary/10 dark:bg-indigo-500/20 flex items-center justify-center text-primary dark:text-indigo-400 font-black text-xs shrink-0">2</span><div><p class="text-sm font-bold text-on-surface dark:text-slate-200">Validasi Budgeting</p></div></div>
                     </div>
                 </div>
-                <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white flex items-center justify-between shadow-xl shadow-slate-200 border border-slate-800">
+                <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white flex items-center justify-between shadow-xl shadow-slate-200 dark:shadow-none border border-slate-800">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20"><span class="material-symbols-outlined fill-1">account_balance_wallet</span></div>
+                        <div class="w-12 h-12 bg-primary dark:bg-indigo-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary/20"><span class="material-symbols-outlined fill-1">account_balance_wallet</span></div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Fiscal Limit Available</p>
-                            <p class="text-lg font-black font-headline text-primary tracking-tight">Rp <?php echo number_format($sisa_dept, 0, ',', '.'); ?></p>
+                            <p class="text-lg font-black font-headline text-primary dark:text-indigo-400 tracking-tight">Rp <?php echo number_format($sisa_dept, 0, ',', '.'); ?></p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-7">
-                <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_pengadaan.php'); ?>" method="POST" enctype="multipart/form-data" class="bg-white p-10 rounded-[3rem] border border-outline-variant/5 shadow-2xl shadow-slate-200/50 space-y-8 relative overflow-hidden">
+                <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_pengadaan.php'); ?>" method="POST" enctype="multipart/form-data" class="bg-white dark:bg-slate-900 p-10 rounded-[3rem] border border-outline-variant/5 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none space-y-8 relative overflow-hidden">
                     <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <input type="hidden" name="qty" id="qty_hidden" value="1">
                     <input type="hidden" name="base_price" id="base_price_hidden" value="0">
@@ -133,41 +133,41 @@ if (!$db && $conn) {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Identitas Pemohon</label>
-                            <input class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-slate-500 italic cursor-not-allowed text-sm" value="<?php echo htmlspecialchars($user_data['full_name'] ?? ''); ?>" disabled type="text"/>
+                            <input class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-slate-500 dark:text-slate-400 italic cursor-not-allowed text-sm" value="<?php echo htmlspecialchars($user_data['full_name'] ?? ''); ?>" disabled type="text"/>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Divisi / Dept Unit</label>
-                            <input class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-slate-500 italic cursor-not-allowed text-sm" value="<?php echo htmlspecialchars($user_data['department'] ?? ''); ?>" disabled type="text"/>
+                            <input class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-slate-500 dark:text-slate-400 italic cursor-not-allowed text-sm" value="<?php echo htmlspecialchars($user_data['department'] ?? ''); ?>" disabled type="text"/>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 font-bold">Pilih Katalog / Template</label>
-                            <select id="template_id" name="template_id" onchange="applyTemplate()" class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm">
+                            <select id="template_id" name="template_id" onchange="applyTemplate()" class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-on-surface dark:text-white outline-none focus:ring-4 focus:ring-primary/10 dark:focus:ring-indigo-500/20 transition-all text-sm">
                                 <option value="">-- Layanan Manual / Kostum --</option>
                                 <?php foreach($procurement_templates as $t) { echo "<option value='".$t['id']."' data-desc='".htmlspecialchars($t['specification'] ?? '')."' data-price='".($t['base_price'] ?? 0)."'>[".strtoupper($t['category'] ?? '')."] ".($t['product_name'] ?? '')."</option>"; } ?>
                             </select>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Nama Perangkat / Item</label>
-                            <input name="title" id="title" required value="<?php echo htmlspecialchars($pre_item_name); ?>" class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm" type="text"/>
+                            <input name="title" id="title" required value="<?php echo htmlspecialchars($pre_item_name); ?>" class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-on-surface dark:text-white outline-none focus:ring-4 focus:ring-primary/10 dark:focus:ring-indigo-500/20 transition-all text-sm" type="text"/>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="space-y-2"><label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Volume/Jumlah</label><input type="number" id="qty" value="1" min="1" oninput="syncAndCalculate()" class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm"/></div>
-                        <div class="space-y-2"><label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Harga Satuan (HPS)</label><input type="number" id="base_price" required oninput="syncAndCalculate()" class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm" placeholder="Rp 0"/></div>
-                        <div class="space-y-2"><label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Urgensi</label><select name="urgency" class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-primary appearance-none outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm"><option value="Normal">NORMAL</option><option value="Penting">URGENT</option></select></div>
+                        <div class="space-y-2"><label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Volume/Jumlah</label><input type="number" id="qty" value="1" min="1" oninput="syncAndCalculate()" class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-on-surface dark:text-white outline-none focus:ring-4 focus:ring-primary/10 dark:focus:ring-indigo-500/20 transition-all text-sm"/></div>
+                        <div class="space-y-2"><label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Harga Satuan (HPS)</label><input type="number" id="base_price" required oninput="syncAndCalculate()" class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-on-surface dark:text-white outline-none focus:ring-4 focus:ring-primary/10 dark:focus:ring-indigo-500/20 transition-all text-sm" placeholder="Rp 0"/></div>
+                        <div class="space-y-2"><label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Urgensi</label><select name="urgency" class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-primary dark:text-indigo-400 appearance-none outline-none focus:ring-4 focus:ring-primary/10 dark:focus:ring-indigo-500/20 transition-all text-sm"><option value="Normal">NORMAL</option><option value="Penting">URGENT</option></select></div>
                     </div>
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Spesifikasi Detail & Justifikasi</label>
-                        <textarea name="description" id="description" required rows="4" class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-on-surface-variant leading-relaxed outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm min-h-[140px]"></textarea>
+                        <textarea name="description" id="description" required rows="4" class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-on-surface-variant dark:text-white leading-relaxed outline-none focus:ring-4 focus:ring-primary/10 dark:focus:ring-indigo-500/20 transition-all text-sm min-h-[140px]"></textarea>
                     </div>
                     <div class="space-y-4">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 text-primary">Lampiran Bukti / KAK (Wajib)</label>
-                        <input type="file" name="attachment" id="file-upload" accept=".jpg,.jpeg,.png,.pdf" required class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 text-primary dark:text-indigo-400">Lampiran Bukti / KAK (Wajib)</label>
+                        <input type="file" name="attachment" id="file-upload" accept=".jpg,.jpeg,.png,.pdf" required class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 dark:file:bg-indigo-500/20 file:text-primary dark:file:text-indigo-400 hover:file:bg-primary/20 dark:hover:file:bg-indigo-500/30">
                     </div>
-                    <div class="bg-slate-900 rounded-[2.5rem] text-white overflow-hidden shadow-2xl shadow-slate-300/30" id="estimasi-panel">
-                        <div class="bg-primary px-8 pt-8 pb-4"><h2 id="display_estimasi" class="text-3xl font-black font-headline tracking-tighter italic">Rp 0</h2></div>
+                    <div class="bg-slate-900 rounded-[2.5rem] text-white overflow-hidden shadow-2xl shadow-slate-300/30 dark:shadow-none" id="estimasi-panel">
+                        <div class="bg-primary dark:bg-indigo-600 px-8 pt-8 pb-4"><h2 id="display_estimasi" class="text-3xl font-black font-headline tracking-tighter italic">Rp 0</h2></div>
                         <div class="px-8 py-6 space-y-3" id="breakdown-panel">
                             <div class="flex justify-between items-center text-sm"><span class="text-slate-400">Subtotal (<span id="lbl_qty">1</span>×<span id="lbl_hps">Rp 0</span>)</span><span class="font-bold text-white" id="disp_subtotal">Rp 0</span></div>
                             <div class="flex justify-between items-center text-sm"><span class="text-orange-300" id="lbl_markup">+ Biaya Overhead (<?php echo $margin_pengadaan; ?>%)</span><span class="font-bold text-orange-300" id="disp_markup">Rp 0</span></div>

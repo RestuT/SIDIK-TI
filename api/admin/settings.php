@@ -79,7 +79,7 @@ if (!$db && $conn) {
 <body class="bg-surface-container-low font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
-        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-white/80 backdrop-blur-xl z-20">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-30">
             <div>
                 <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight italic uppercase leading-none">System <span class="text-primary italic md:text-3xl">Settings</span></h1>
                 <p class="text-[10px] text-on-surface-variant font-black uppercase tracking-[0.2em] mt-1">Configuration &amp; Preferences</p>

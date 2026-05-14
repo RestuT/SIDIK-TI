@@ -79,7 +79,7 @@ try {
         <div class="max-w-7xl mx-auto p-6 lg:p-12 space-y-12">
             
             <!-- Header -->
-            <header class="flex flex-col md:flex-row md:items-end justify-between gap-10">
+            <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-30">
                 <div class="space-y-4">
                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-highlight-indigo text-primary rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/10">
                         <span class="material-symbols-outlined text-[14px]">terminal</span>

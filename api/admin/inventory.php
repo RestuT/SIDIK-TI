@@ -118,7 +118,7 @@ if (!$db && $conn) {
 
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
         <!-- Header Bar -->
-        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-10">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-30">
             <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight">Inventory Management</h1>
             <div class="flex items-center gap-4">
                 <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="GET" class="relative group flex-1 sm:flex-none">

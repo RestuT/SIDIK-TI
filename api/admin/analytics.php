@@ -113,74 +113,20 @@ if (!$db && $conn) {
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIDIK-TI | Systems Analytics</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#3525cd",
-                        "primary-container": "#4f46e5",
-                        "on-surface": "#191c1e",
-                        "on-surface-variant": "#464555",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-low": "#f2f4f6",
-                        "surface-container-high": "#e6e8ea",
-                        "outline-variant": "#c7c4d8",
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Inter"],
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
+    <?php 
+        $pageTitle = 'SIDIK-TI | Systems Analytics';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .fill-1 { font-variation-settings: 'FILL' 1; }
-    </style>
-    <script>
-
-        // Inject base tag to preserve relative link resolution
-        if (!document.querySelector('base')) {
-            var base = document.createElement('base');
-            base.href = window.location.href.split('?')[0];
-            document.head.appendChild(base);
-        }
-        // Mask URL to Pretty Path
-        if (window.history.replaceState) {
-            var path = window.location.pathname;
-            var search = window.location.search;
-            if (path.includes('/api/')) {
-                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
-            }
-        }
-    </script>
 </head>
 <body class="bg-surface-container-low font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
     
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
-        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-white/80 backdrop-blur-xl z-20">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-30">
             <div>
                 <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight italic uppercase leading-none">System <span class="text-primary italic md:text-3xl">Analytics</span></h1>
                 <p class="text-[10px] text-on-surface-variant font-black uppercase tracking-[0.2em] mt-1">Data Insights &amp; Performance Metrics</p>

@@ -44,11 +44,11 @@ try {
 ?>
 
 <!-- Universal Headless Navbar for User Modules -->
-<header class="flex justify-between items-center px-6 lg:px-10 py-5 w-full sticky top-0 bg-surface/70 backdrop-blur-xl z-50 border-b border-outline/5 transition-all">
+<header class="flex justify-between items-center px-6 lg:px-10 py-5 w-full sticky top-0 bg-surface/70 dark:bg-slate-900/80 backdrop-blur-xl z-50 border-b border-outline/5 dark:border-white/5 transition-all">
     <div class="flex items-center gap-6">
         <a href="dashboard_user.php" class="flex items-center gap-3 group">
             <img src="<?php echo $base_url ?? '../'; ?>assets/img/logo.png" alt="Logo" class="h-12 md:h-14 w-auto group-hover:scale-105 transition-transform drop-shadow-md">
-            <span class="text-xl md:text-2xl font-extrabold tracking-tight text-primary group-hover:scale-105 transition-transform"><?php echo htmlspecialchars($brand_name); ?></span>
+            <span class="text-xl md:text-2xl font-extrabold tracking-tight text-primary dark:text-indigo-400 group-hover:scale-105 transition-transform"><?php echo htmlspecialchars($brand_name); ?></span>
         </a>
     </div>
 
@@ -58,10 +58,10 @@ try {
             <?php 
                 $current_page = basename($_SERVER['PHP_SELF']); 
             ?>
-            <a class="<?php echo $current_page == 'dashboard_user.php' ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="dashboard_user.php">Beranda</a>
-            <a class="<?php echo $current_page == 'knowledge_base.php' ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="knowledge_base.php">Panduan</a>
-            <a class="<?php echo $current_page == 'dashboard_audit.php' ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="dashboard_audit.php">Requests</a>
-            <a class="<?php echo $current_page == 'assets_user.php' ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-primary font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="assets_user.php">Assets</a>
+            <a class="<?php echo $current_page == 'dashboard_user.php' ? 'text-primary dark:text-indigo-400 font-bold' : 'text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-white font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="dashboard_user.php">Beranda</a>
+            <a class="<?php echo $current_page == 'knowledge_base.php' ? 'text-primary dark:text-indigo-400 font-bold' : 'text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-white font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="knowledge_base.php">Panduan</a>
+            <a class="<?php echo $current_page == 'dashboard_audit.php' ? 'text-primary dark:text-indigo-400 font-bold' : 'text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-white font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="dashboard_audit.php">Requests</a>
+            <a class="<?php echo $current_page == 'assets_user.php' ? 'text-primary dark:text-indigo-400 font-bold' : 'text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-white font-medium'; ?> transition-all text-xs uppercase tracking-[0.15em]" href="assets_user.php">Assets</a>
             
             <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'user'): ?>
                 <?php 
@@ -81,24 +81,24 @@ try {
     <!-- User Profile -->
     <div class="flex items-center gap-4">
         <div class="hidden md:flex flex-col items-end mr-2">
-            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant leading-tight">Pegawai</span>
-            <span class="text-xs font-headline font-bold text-on-surface leading-tight max-w-[150px] truncate" title="<?php echo htmlspecialchars($_SESSION['full_name'] ?? ($display_name ?? 'User')); ?>">
+            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant dark:text-slate-400 leading-tight">Pegawai</span>
+            <span class="text-xs font-headline font-bold text-on-surface dark:text-white leading-tight max-w-[150px] truncate" title="<?php echo htmlspecialchars($_SESSION['full_name'] ?? ($display_name ?? 'User')); ?>">
                 <?php echo htmlspecialchars($_SESSION['full_name'] ?? ($display_name ?? 'User')); ?>
             </span>
         </div>
         
         <!-- Toggle Theme -->
-        <button onclick="toggleGlobalTheme()" class="w-10 h-10 rounded-xl bg-surface-low border border-outline/10 flex items-center justify-center text-on-surface-variant transition-all hover:bg-surface-high mr-1" title="Ganti Tema">
+        <button onclick="toggleGlobalTheme()" class="w-10 h-10 rounded-xl bg-surface-low dark:bg-slate-800 border border-outline/10 dark:border-white/10 flex items-center justify-center text-on-surface-variant dark:text-slate-400 transition-all hover:bg-surface-high dark:hover:bg-slate-700 dark:hover:text-white mr-1" title="Ganti Tema">
             <span class="material-symbols-outlined theme-icon-g text-lg">light_mode</span>
         </button>
 
         <div class="relative" id="profileDropdownContainer">
-            <button onclick="toggleProfileDropdown()" class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary transition-all hover:bg-primary/20 hover:scale-105">
+            <button onclick="toggleProfileDropdown()" class="w-10 h-10 rounded-xl bg-primary/10 dark:bg-indigo-500/20 border border-primary/20 dark:border-indigo-500/30 flex items-center justify-center text-primary dark:text-indigo-400 transition-all hover:bg-primary/20 dark:hover:bg-indigo-500/30 hover:scale-105">
                 <span class="material-symbols-outlined text-lg">account_circle</span>
             </button>
             <!-- Dropdown -->
-            <div id="profileDropdownMenu" class="absolute right-0 mt-3 w-48 bg-surface rounded-2xl shadow-xl border border-outline/10 p-2 opacity-0 translate-y-2 pointer-events-none transition-all duration-300 z-50">
-                <a href="profile_user.php" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-low text-on-surface transition-all font-bold text-[10px] uppercase tracking-[0.15em] border-b border-outline/5 mb-1">
+            <div id="profileDropdownMenu" class="absolute right-0 mt-3 w-48 bg-surface dark:bg-slate-900 rounded-2xl shadow-xl border border-outline/10 dark:border-white/10 p-2 opacity-0 translate-y-2 pointer-events-none transition-all duration-300 z-50">
+                <a href="profile_user.php" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-low dark:hover:bg-slate-800 text-on-surface dark:text-slate-200 transition-all font-bold text-[10px] uppercase tracking-[0.15em] border-b border-outline/5 dark:border-white/5 mb-1">
                     <span class="material-symbols-outlined text-base">edit_note</span>
                     Edit Profil
                 </a>
@@ -109,12 +109,12 @@ try {
                         elseif ($_SESSION['role'] === 'technician') $target = '../modules_technician/dashboard_technician.php';
                         elseif ($_SESSION['role'] === 'head') $target = '../modules_head/dashboard_head.php';
                     ?>
-                    <a href="<?php echo $target; ?>" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary/10 text-primary transition-all font-bold text-[10px] uppercase tracking-[0.15em] border-b border-outline/5 mb-1">
+                    <a href="<?php echo $target; ?>" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary/10 dark:hover:bg-indigo-500/20 text-primary dark:text-indigo-400 transition-all font-bold text-[10px] uppercase tracking-[0.15em] border-b border-outline/5 dark:border-white/5 mb-1">
                         <span class="material-symbols-outlined text-base">admin_panel_settings</span>
                         Management
                     </a>
                 <?php endif; ?>
-                <a href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-rose-500/10 text-rose-500 transition-all font-bold text-[10px] uppercase tracking-[0.15em]">
+                <a href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-500 dark:text-rose-400 transition-all font-bold text-[10px] uppercase tracking-[0.15em]">
                     <span class="material-symbols-outlined text-base">logout</span>
                     Keluar
                 </a>

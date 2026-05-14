@@ -64,11 +64,11 @@ $header_to       = $is_maintenance ? 'to-emerald-500'   : 'to-amber-500';
 
 $status = $data['status'] ?? '';
 $status_config = match(true) {
-    $status === 'Selesai'   => ['bg-emerald-50 text-emerald-700 border-emerald-200', 'task_alt'],
-    $status === 'Diproses'  => ['bg-blue-50 text-blue-700 border-blue-200', 'pending'],
-    $status === 'Menunggu'  => ['bg-amber-50 text-amber-700 border-amber-200', 'hourglass_empty'],
-    $status === 'Ditolak'   => ['bg-red-50 text-red-700 border-red-200', 'cancel'],
-    default                 => ['bg-slate-100 text-slate-600 border-slate-200', 'help'],
+    $status === 'Selesai'   => ['bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20', 'task_alt'],
+    $status === 'Diproses'  => ['bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20', 'pending'],
+    $status === 'Menunggu'  => ['bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20', 'hourglass_empty'],
+    $status === 'Ditolak'   => ['bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/20', 'cancel'],
+    default                 => ['bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700', 'help'],
 };
 ?>
 <!DOCTYPE html>
@@ -131,18 +131,18 @@ $status_config = match(true) {
         }
     </script>
 </head>
-<body class="bg-slate-100 font-body text-slate-900 antialiased min-h-screen">
+<body class="bg-slate-100 dark:bg-slate-950 font-body text-slate-900 dark:text-slate-100 antialiased min-h-screen transition-colors duration-300">
 
 <?php if ($error): ?>
 <!-- ======================== ERROR STATE ======================== -->
 <div class="min-h-screen flex items-center justify-center px-6 py-12">
-    <div class="max-w-sm w-full text-center">
-        <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+    <div class="max-w-sm w-full text-center bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-xl border border-red-100 dark:border-red-900/30">
+        <div class="w-24 h-24 bg-red-100 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-200 dark:border-red-500/20">
             <span class="material-symbols-outlined text-5xl text-red-400">qr_code_2_add</span>
         </div>
-        <h1 class="font-headline text-2xl font-black text-slate-800 mb-3 uppercase italic">Tiket Tidak Ditemukan</h1>
-        <p class="text-sm text-slate-500 leading-relaxed"><?php echo htmlspecialchars($error); ?></p>
-        <div class="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-left text-xs text-amber-700">
+        <h1 class="font-headline text-2xl font-black text-slate-800 dark:text-white mb-3 uppercase italic">Tiket Tidak Ditemukan</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed"><?php echo htmlspecialchars($error); ?></p>
+        <div class="mt-8 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl text-left text-xs text-amber-700 dark:text-amber-400">
             <p class="font-bold mb-1">💡 Pastikan:</p>
             <ul class="list-disc ml-4 space-y-1">
                 <li>QR code dipindai secara penuh dan jelas</li>
@@ -197,13 +197,13 @@ $status_config = match(true) {
 <div class="max-w-lg mx-auto px-4 -mt-14 pb-12 space-y-3">
 
     <!-- 1. STATUS CARD -->
-    <div class="card bg-white rounded-3xl shadow-lg shadow-slate-200 p-5 flex items-center gap-4">
+    <div class="card bg-white dark:bg-slate-900 rounded-3xl shadow-lg shadow-slate-200 dark:shadow-none p-5 flex items-center gap-4 border border-transparent dark:border-slate-800">
         <div class="w-14 h-14 rounded-2xl <?php echo $accent_icon_bg; ?> flex items-center justify-center shrink-0 shadow-sm">
             <span class="material-symbols-outlined text-2xl fill-1"><?php echo $status_config[1]; ?></span>
         </div>
         <div class="flex-1 min-w-0">
             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Status Tiket</p>
-            <p class="font-headline font-black text-xl uppercase italic tracking-tight leading-tight truncate">
+            <p class="font-headline font-black text-xl text-slate-800 dark:text-white uppercase italic tracking-tight leading-tight truncate">
                 <?php echo htmlspecialchars($status ?: '—'); ?>
             </p>
         </div>
@@ -214,30 +214,30 @@ $status_config = match(true) {
     </div>
 
     <!-- 2. PEMOHON -->
-    <div class="card bg-white rounded-3xl shadow-sm overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
-            <span class="material-symbols-outlined text-slate-600 text-lg fill-1">badge</span>
-            <h2 class="font-headline font-black text-xs text-slate-700 uppercase tracking-widest">Informasi Pemohon</h2>
+    <div class="card bg-white dark:bg-slate-900 rounded-3xl shadow-sm overflow-hidden border border-transparent dark:border-slate-800">
+        <div class="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-lg fill-1">badge</span>
+            <h2 class="font-headline font-black text-xs text-slate-700 dark:text-slate-300 uppercase tracking-widest">Informasi Pemohon</h2>
         </div>
         <div class="p-5 space-y-3">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center font-headline font-black text-slate-600 shrink-0">
+                <div class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-headline font-black text-slate-600 dark:text-slate-300 shrink-0">
                     <?php echo strtoupper(substr($user_data['full_name'] ?? $data['full_name'] ?? 'U', 0, 1)); ?>
                 </div>
                 <div>
-                    <p class="font-bold text-slate-800 leading-tight">
+                    <p class="font-bold text-slate-800 dark:text-white leading-tight">
                         <?php echo htmlspecialchars($user_data['full_name'] ?? $data['full_name'] ?? '—'); ?>
                     </p>
-                    <p class="text-xs text-slate-500 mt-0.5">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         <?php echo htmlspecialchars($user_data['jabatan'] ?? $data['jabatan'] ?? '—'); ?>
                     </p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 pt-1 border-t border-slate-50">
+            <div class="flex items-center gap-2 pt-1 border-t border-slate-50 dark:border-slate-800/50">
                 <span class="material-symbols-outlined text-slate-400 text-lg">apartment</span>
                 <div>
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Departemen / Unit Kerja</p>
-                    <p class="font-bold text-sm text-slate-800">
+                    <p class="font-bold text-sm text-slate-800 dark:text-white">
                         <?php echo htmlspecialchars($user_data['department'] ?? $data['department'] ?? '—'); ?>
                     </p>
                 </div>
@@ -246,10 +246,10 @@ $status_config = match(true) {
     </div>
 
     <!-- 3. DETAIL TIKET -->
-    <div class="card bg-white rounded-3xl shadow-sm overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
-            <span class="material-symbols-outlined text-slate-600 text-lg fill-1"><?php echo $accent_icon; ?></span>
-            <h2 class="font-headline font-black text-xs text-slate-700 uppercase tracking-widest">
+    <div class="card bg-white dark:bg-slate-900 rounded-3xl shadow-sm overflow-hidden border border-transparent dark:border-slate-800">
+        <div class="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-lg fill-1"><?php echo $accent_icon; ?></span>
+            <h2 class="font-headline font-black text-xs text-slate-700 dark:text-slate-300 uppercase tracking-widest">
                 Detail <?php echo $is_maintenance ? 'Pemeliharaan' : 'Pengadaan'; ?>
             </h2>
         </div>
@@ -259,7 +259,7 @@ $status_config = match(true) {
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
                     <?php echo $is_maintenance ? 'Objek Pemeliharaan' : 'Nama Item / Perangkat'; ?>
                 </p>
-                <p class="font-headline font-black text-lg text-slate-800 leading-tight">
+                <p class="font-headline font-black text-lg text-slate-800 dark:text-white leading-tight">
                     <?php echo htmlspecialchars($data['title'] ?? '—'); ?>
                 </p>
             </div>
@@ -280,19 +280,19 @@ $status_config = match(true) {
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
                     <?php echo $is_maintenance ? 'Deskripsi Kerusakan' : 'Keterangan'; ?>
                 </p>
-                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm text-slate-600 leading-relaxed italic">
+                <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">
                     "<?php echo nl2br(htmlspecialchars($data['description'] ?? '—')); ?>"
                 </div>
             </div>
 
             <?php if ($is_pengadaan && !empty($data['estimasi'])): ?>
             <!-- Total Biaya -->
-            <div class="bg-orange-50 border border-orange-100 rounded-2xl p-4 flex items-center justify-between">
+            <div class="bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/20 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                    <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest">Total Anggaran</p>
-                    <p class="text-[9px] text-orange-400 italic mt-0.5">Termasuk PPN + Administrasi</p>
+                    <p class="text-[9px] font-black text-orange-500 dark:text-orange-400 uppercase tracking-widest">Total Anggaran</p>
+                    <p class="text-[9px] text-orange-400 dark:text-orange-500 italic mt-0.5">Termasuk PPN + Administrasi</p>
                 </div>
-                <p class="font-headline font-black text-2xl text-orange-600 tracking-tight">
+                <p class="font-headline font-black text-2xl text-orange-600 dark:text-orange-400 tracking-tight">
                     Rp <?php echo number_format((float)$data['estimasi'], 0, ',', '.'); ?>
                 </p>
             </div>
@@ -301,15 +301,15 @@ $status_config = match(true) {
     </div>
 
     <!-- 4. TIMESTAMP -->
-    <div class="card bg-white rounded-3xl shadow-sm overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
-            <span class="material-symbols-outlined text-slate-600 text-lg fill-1">schedule</span>
-            <h2 class="font-headline font-black text-xs text-slate-700 uppercase tracking-widest">Timestamp & Meta</h2>
+    <div class="card bg-white dark:bg-slate-900 rounded-3xl shadow-sm overflow-hidden border border-transparent dark:border-slate-800">
+        <div class="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-lg fill-1">schedule</span>
+            <h2 class="font-headline font-black text-xs text-slate-700 dark:text-slate-300 uppercase tracking-widest">Timestamp & Meta</h2>
         </div>
         <div class="p-5 grid grid-cols-2 gap-4">
             <div>
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Tanggal Pengajuan</p>
-                <p class="font-bold text-sm text-slate-800">
+                <p class="font-bold text-sm text-slate-800 dark:text-white">
                     <?php echo !empty($data['created_at']) ? date('d M Y', strtotime($data['created_at'])) : '—'; ?>
                 </p>
                 <p class="text-xs text-slate-400">
@@ -324,7 +324,7 @@ $status_config = match(true) {
             </div>
             <div class="col-span-2">
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Document ID</p>
-                <p class="font-mono text-[11px] text-slate-500 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 break-all">
+                <p class="font-mono text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-3 py-2 break-all">
                     <?php echo htmlspecialchars($data['id'] ?? '—'); ?>
                 </p>
             </div>
@@ -333,10 +333,10 @@ $status_config = match(true) {
 
     <?php if (!empty($data['attachment_path'])): ?>
     <!-- 5. FOTO KERUSAKAN -->
-    <div class="card bg-white rounded-3xl shadow-sm overflow-hidden">
-        <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
-            <span class="material-symbols-outlined text-slate-600 text-lg fill-1">photo_camera</span>
-            <h2 class="font-headline font-black text-xs text-slate-700 uppercase tracking-widest">Dokumentasi Visual</h2>
+    <div class="card bg-white dark:bg-slate-900 rounded-3xl shadow-sm overflow-hidden border border-transparent dark:border-slate-800">
+        <div class="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-slate-600 dark:text-slate-400 text-lg fill-1">photo_camera</span>
+            <h2 class="font-headline font-black text-xs text-slate-700 dark:text-slate-300 uppercase tracking-widest">Dokumentasi Visual</h2>
         </div>
         <div class="p-3">
             <img src="<?php echo htmlspecialchars($data['attachment_path']); ?>"
@@ -348,7 +348,7 @@ $status_config = match(true) {
 
     <!-- 6. FOOTER BRANDING -->
     <div class="card text-center py-6">
-        <div class="inline-flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-full shadow-sm mb-3">
+        <div class="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-full shadow-sm mb-3">
             <span class="material-symbols-outlined text-emerald-500 text-sm fill-1">verified_user</span>
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">SIDIK-TI Official Document</p>
         </div>

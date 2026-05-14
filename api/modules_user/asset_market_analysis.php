@@ -53,12 +53,12 @@ if (!$db && isset($conn) && $conn) {
         include __DIR__ . '/../includes/head_meta.php'; 
     ?>
 </head>
-<body class="bg-surface text-on-surface selection:bg-primary/20 pb-24 md:pb-0 transition-colors duration-300">
+<body class="bg-surface dark:bg-slate-950 text-on-surface dark:text-slate-100 selection:bg-primary/20 pb-24 md:pb-0 transition-colors duration-300">
 
     <!-- TopAppBar -->
-    <header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50">
+    <header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-50 shadow-sm border-b border-indigo-50 dark:border-slate-800">
         <div class="flex items-center gap-4">
-            <a href="<?php echo $back_url; ?>" class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 transition-all rounded-full">arrow_back</a>
+            <a href="<?php echo $back_url; ?>" class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all rounded-full">arrow_back</a>
             <div class="flex items-center gap-2">
                 <img src="../assets/img/logo.png" alt="Logo" class="h-8 md:h-10 w-auto">
                 <span class="text-xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-400 bg-clip-text text-transparent">SIDIK-TI</span>
@@ -68,11 +68,11 @@ if (!$db && isset($conn) && $conn) {
             <span class="text-slate-400 font-bold text-xs uppercase tracking-widest italic">Asset Market Insight</span>
         </div>
         <div class="flex items-center gap-3">
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
-                <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest" id="sync-badge">Live</span>
+                <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest" id="sync-badge">Live</span>
             </div>
-            <span class="text-indigo-600 font-black text-[10px] uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">Pricing Module</span>
+            <span class="text-indigo-600 dark:text-indigo-400 font-black text-[10px] uppercase tracking-widest bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1 rounded-full">Pricing Module</span>
         </div>
     </header>
 
@@ -80,14 +80,14 @@ if (!$db && isset($conn) && $conn) {
 
         <!-- Hero -->
         <div class="max-w-4xl space-y-6">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-xs uppercase tracking-[0.2em]">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 font-semibold text-xs uppercase tracking-[0.2em]">
                 <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                 Market Intelligence
             </div>
-            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface leading-tight">
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface dark:text-white leading-tight">
                 Analisis Depresiasi &amp; <span class="bg-gradient-to-r from-primary to-indigo-400 bg-clip-text text-transparent italic tracking-tighter">Valuasi Aset TI</span>
             </h1>
-            <p class="text-on-surface-variant text-lg md:text-xl font-medium max-w-2xl leading-relaxed">
+            <p class="text-on-surface-variant dark:text-slate-400 text-lg md:text-xl font-medium max-w-2xl leading-relaxed">
                 Memahami bagaimana nilai infrastruktur digital Anda berubah seiring waktu untuk perencanaan anggaran yang lebih strategis.
             </p>
         </div>
@@ -103,15 +103,15 @@ if (!$db && isset($conn) && $conn) {
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold opacity-60">Rp</span>
                             <input type="number" id="inputPrice" value="10000000" oninput="calculateDepreciation()"
-                                class="w-full pl-12 pr-6 py-4 bg-white/10 border-2 border-white/20 rounded-2xl outline-none focus:border-white focus:bg-white/20 transition-all font-black text-2xl">
+                                class="w-full pl-12 pr-6 py-4 bg-white/10 border-2 border-white/20 rounded-2xl outline-none focus:border-white focus:bg-white/20 transition-all font-black text-2xl dark:text-white">
                         </div>
                         <select id="inputType" onchange="calculateDepreciation()"
-                            class="w-full px-6 py-4 bg-white/10 border-2 border-white/20 rounded-2xl outline-none focus:border-white appearance-none font-bold">
-                            <option value="laptop" class="text-on-surface">Laptop / PC (Umur 4 Tahun)</option>
-                            <option value="printer" class="text-on-surface">Printer (Umur 4 Tahun)</option>
-                            <option value="router" class="text-on-surface">Network/Router (Umur 5 Tahun)</option>
-                            <option value="server" class="text-on-surface">Server (Umur 5 Tahun)</option>
-                            <option value="software" class="text-on-surface">Software/Lisensi (Umur 3 Tahun)</option>
+                            class="w-full px-6 py-4 bg-white/10 border-2 border-white/20 rounded-2xl outline-none focus:border-white appearance-none font-bold dark:text-white dark:bg-slate-800">
+                            <option value="laptop" class="text-on-surface dark:text-white">Laptop / PC (Umur 4 Tahun)</option>
+                            <option value="printer" class="text-on-surface dark:text-white">Printer (Umur 4 Tahun)</option>
+                            <option value="router" class="text-on-surface dark:text-white">Network/Router (Umur 5 Tahun)</option>
+                            <option value="server" class="text-on-surface dark:text-white">Server (Umur 5 Tahun)</option>
+                            <option value="software" class="text-on-surface dark:text-white">Software/Lisensi (Umur 3 Tahun)</option>
                         </select>
 
                         <!-- Stress Factor Slider -->
@@ -190,51 +190,51 @@ if (!$db && isset($conn) && $conn) {
 
         <!-- Detailed Segments -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="group p-8 rounded-[2.5rem] bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl transition-all duration-500">
-                <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-primary flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
+            <div class="group p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-outline-variant/10 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-primary dark:text-indigo-400 flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
                     <span class="material-symbols-outlined text-3xl">laptop_mac</span>
                 </div>
-                <h3 class="text-2xl font-bold mb-4">Laptop / PC</h3>
-                <div class="text-rose-600 font-black text-sm mb-6 flex items-center gap-2">
+                <h3 class="text-2xl font-bold mb-4 dark:text-white">Laptop / PC</h3>
+                <div class="text-rose-600 dark:text-rose-400 font-black text-sm mb-6 flex items-center gap-2">
                     <span class="material-symbols-outlined">chart_data</span>
                     Penurunan 15% – 30%
                 </div>
-                <p class="text-on-surface-variant text-sm leading-relaxed mb-6 italic">Perangkat yang paling cepat terdepresiasi karena siklus pembaruan CPU/GPU tahunan yang sangat ketat.</p>
+                <p class="text-on-surface-variant dark:text-slate-400 text-sm leading-relaxed mb-6 italic">Perangkat yang paling cepat terdepresiasi karena siklus pembaruan CPU/GPU tahunan yang sangat ketat.</p>
                 <div class="space-y-4">
-                    <div class="p-4 bg-slate-50 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Kondisi Baru</p><p class="text-xs font-medium">Turun ~15-20% saat model baru rilis.</p></div>
-                    <div class="p-4 bg-slate-50 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Nilai Bekas</p><p class="text-xs font-medium">Harganya bisa anjlok hingga 40% tergantung kondisi baterai.</p></div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Kondisi Baru</p><p class="text-xs font-medium dark:text-slate-300">Turun ~15-20% saat model baru rilis.</p></div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Nilai Bekas</p><p class="text-xs font-medium dark:text-slate-300">Harganya bisa anjlok hingga 40% tergantung kondisi baterai.</p></div>
                 </div>
             </div>
 
-            <div class="group p-8 rounded-[2.5rem] bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl transition-all duration-500">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
+            <div class="group p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-outline-variant/10 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
                     <span class="material-symbols-outlined text-3xl">print</span>
                 </div>
-                <h3 class="text-2xl font-bold mb-4">Printer</h3>
-                <div class="text-rose-600 font-black text-sm mb-6 flex items-center gap-2">
+                <h3 class="text-2xl font-bold mb-4 dark:text-white">Printer</h3>
+                <div class="text-rose-600 dark:text-rose-400 font-black text-sm mb-6 flex items-center gap-2">
                     <span class="material-symbols-outlined">chart_data</span>
                     Penurunan 10% – 20%
                 </div>
-                <p class="text-on-surface-variant text-sm leading-relaxed mb-6 italic">Siklus hidup produk yang lebih lambat. Produsen fokus mengambil untung dari penjualan tinta/consumables.</p>
+                <p class="text-on-surface-variant dark:text-slate-400 text-sm leading-relaxed mb-6 italic">Siklus hidup produk yang lebih lambat. Produsen fokus mengambil untung dari penjualan tinta/consumables.</p>
                 <div class="space-y-4">
-                    <div class="p-4 bg-slate-50 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Harga Unit</p><p class="text-xs font-medium">Sangat stabil di pasar unit baru. Hanya turun ~10% setahun.</p></div>
-                    <div class="p-4 bg-slate-50 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Risiko Bekas</p><p class="text-xs font-medium">Kekhawatiran pada kondisi print head membuat harga unit bekas turun tajam.</p></div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Harga Unit</p><p class="text-xs font-medium dark:text-slate-300">Sangat stabil di pasar unit baru. Hanya turun ~10% setahun.</p></div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Risiko Bekas</p><p class="text-xs font-medium dark:text-slate-300">Kekhawatiran pada kondisi print head membuat harga unit bekas turun tajam.</p></div>
                 </div>
             </div>
 
-            <div class="group p-8 rounded-[2.5rem] bg-white border border-outline-variant/10 shadow-sm hover:shadow-2xl transition-all duration-500">
-                <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
+            <div class="group p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-outline-variant/10 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500">
+                <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-8 group-hover:rotate-12 transition-transform">
                     <span class="material-symbols-outlined text-3xl">wifi_tethering</span>
                 </div>
-                <h3 class="text-2xl font-bold mb-4">Network/Router</h3>
-                <div class="text-rose-600 font-black text-sm mb-6 flex items-center gap-2">
+                <h3 class="text-2xl font-bold mb-4 dark:text-white">Network/Router</h3>
+                <div class="text-rose-600 dark:text-rose-400 font-black text-sm mb-6 flex items-center gap-2">
                     <span class="material-symbols-outlined">chart_data</span>
                     Penurunan 5% – 15%
                 </div>
-                <p class="text-on-surface-variant text-sm leading-relaxed mb-6 italic">Perangkat "pasang dan lupakan". Teknologinya bertahan lebih lama selama standar WiFi 6/7 masih relevan.</p>
+                <p class="text-on-surface-variant dark:text-slate-400 text-sm leading-relaxed mb-6 italic">Perangkat "pasang dan lupakan". Teknologinya bertahan lebih lama selama standar WiFi 6/7 masih relevan.</p>
                 <div class="space-y-4">
-                    <div class="p-4 bg-slate-50 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Faktor Stabilitas</p><p class="text-xs font-medium">Harga tidak banyak berubah kecuali ada standar WiFi baru yang rilis massal.</p></div>
-                    <div class="p-4 bg-slate-50 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Teknologi Lama</p><p class="text-xs font-medium">Stok lama biasanya didiskon besar saat transisi standar teknologi.</p></div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Faktor Stabilitas</p><p class="text-xs font-medium dark:text-slate-300">Harga tidak banyak berubah kecuali ada standar WiFi baru yang rilis massal.</p></div>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl"><p class="text-[10px] font-black text-outline uppercase mb-1">Teknologi Lama</p><p class="text-xs font-medium dark:text-slate-300">Stok lama biasanya didiskon besar saat transisi standar teknologi.</p></div>
                 </div>
             </div>
         </div>
@@ -244,20 +244,20 @@ if (!$db && isset($conn) && $conn) {
             <div class="space-y-8">
                 <div class="flex items-center gap-4">
                     <div class="w-1 bg-primary h-8 rounded-full"></div>
-                    <h3 class="text-2xl font-bold italic tracking-tight">Faktor Utama yang Mempengaruhi Harga</h3>
+                    <h3 class="text-2xl font-bold italic tracking-tight dark:text-white">Faktor Utama yang Mempengaruhi Harga</h3>
                 </div>
                 <div class="space-y-6">
                     <div class="flex gap-6">
-                        <div class="shrink-0 w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-primary"><span class="material-symbols-outlined">calendar_month</span></div>
-                        <div><p class="font-bold text-on-surface">Siklus Rilis Produk</p><p class="text-sm text-on-surface-variant leading-relaxed">Harga turun drastis 1-2 bulan sebelum model penerusnya diluncurkan.</p></div>
+                        <div class="shrink-0 w-12 h-12 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center text-primary dark:text-indigo-400"><span class="material-symbols-outlined">calendar_month</span></div>
+                        <div><p class="font-bold text-on-surface dark:text-white">Siklus Rilis Produk</p><p class="text-sm text-on-surface-variant dark:text-slate-400 leading-relaxed">Harga turun drastis 1-2 bulan sebelum model penerusnya diluncurkan.</p></div>
                     </div>
                     <div class="flex gap-6">
-                        <div class="shrink-0 w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-primary"><span class="material-symbols-outlined">currency_exchange</span></div>
-                        <div><p class="font-bold text-on-surface">Kurs Mata Uang</p><p class="text-sm text-on-surface-variant leading-relaxed">Penguatan/pelemahan Rupiah terhadap USD sangat berpengaruh karena sebagian besar aset TI adalah barang impor.</p></div>
+                        <div class="shrink-0 w-12 h-12 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center text-primary dark:text-indigo-400"><span class="material-symbols-outlined">currency_exchange</span></div>
+                        <div><p class="font-bold text-on-surface dark:text-white">Kurs Mata Uang</p><p class="text-sm text-on-surface-variant dark:text-slate-400 leading-relaxed">Penguatan/pelemahan Rupiah terhadap USD sangat berpengaruh karena sebagian besar aset TI adalah barang impor.</p></div>
                     </div>
                     <div class="flex gap-6">
-                        <div class="shrink-0 w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-primary"><span class="material-symbols-outlined">receipt_long</span></div>
-                        <div><p class="font-bold text-on-surface">Tarif Pajak (PPN)</p><p class="text-sm text-on-surface-variant leading-relaxed">Perubahan tarif PPN langsung mempengaruhi harga beli efektif aset. Konfigurasi aktif: <strong id="info-pajak"><?php echo $pajak; ?>%</strong>.</p></div>
+                        <div class="shrink-0 w-12 h-12 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center text-primary dark:text-indigo-400"><span class="material-symbols-outlined">receipt_long</span></div>
+                        <div><p class="font-bold text-on-surface dark:text-white">Tarif Pajak (PPN)</p><p class="text-sm text-on-surface-variant dark:text-slate-400 leading-relaxed">Perubahan tarif PPN langsung mempengaruhi harga beli efektif aset. Konfigurasi aktif: <strong id="info-pajak"><?php echo $pajak; ?>%</strong>.</p></div>
                     </div>
                 </div>
             </div>
@@ -281,7 +281,7 @@ if (!$db && isset($conn) && $conn) {
         </div>
     </main>
 
-    <footer class="py-12 text-center text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 border-t border-indigo-50">
+    <footer class="py-12 text-center text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 border-t border-indigo-50 dark:border-slate-800">
         © 2026 Sidik-TI Market Intelligence • Economic Valuation Dept.
     </footer>
 

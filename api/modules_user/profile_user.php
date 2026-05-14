@@ -84,26 +84,26 @@ $department = $user_data['department'] ?? '-';
         include __DIR__ . '/../includes/head_meta.php'; 
     ?>
 </head>
-<body class="bg-background text-on-surface min-h-screen selection:bg-primary/20 pb-24 md:pb-0 transition-colors duration-300">
+<body class="bg-background dark:bg-slate-950 text-on-surface dark:text-slate-100 min-h-screen selection:bg-primary/20 pb-24 md:pb-0 transition-colors duration-300">
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
     <main class="max-w-3xl mx-auto px-6 md:px-10 py-12 space-y-8">
         <div class="text-center space-y-2 mb-10">
-            <h1 class="text-4xl font-black font-headline tracking-tight text-slate-900 italic">Informasi <span class="text-primary italic">Profil</span></h1>
-            <p class="text-slate-500 font-medium">Kelola data personal dan keamanan sandi Anda.</p>
+            <h1 class="text-4xl font-black font-headline tracking-tight text-slate-900 dark:text-white italic">Informasi <span class="text-primary dark:text-indigo-400 italic">Profil</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 font-medium">Kelola data personal dan keamanan sandi Anda.</p>
         </div>
 
         <?php if($status === 'success'): ?>
-            <div class="bg-emerald-100 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold text-sm shadow-sm"><span class="material-symbols-outlined fill-1 text-xl">check_circle</span><?php echo $message; ?></div>
+            <div class="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold text-sm shadow-sm"><span class="material-symbols-outlined fill-1 text-xl">check_circle</span><?php echo $message; ?></div>
         <?php elseif($status === 'error'): ?>
-            <div class="bg-red-100 border border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold text-sm shadow-sm"><span class="material-symbols-outlined fill-1 text-xl">error</span><?php echo $message; ?></div>
+            <div class="bg-red-100 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold text-sm shadow-sm"><span class="material-symbols-outlined fill-1 text-xl">error</span><?php echo $message; ?></div>
         <?php endif; ?>
 
-        <div class="bg-white rounded-[2.5rem] shadow-xl shadow-indigo-100/50 border border-slate-100 overflow-hidden relative">
-            <div class="bg-gradient-to-br from-indigo-50 to-white px-8 py-10 border-b border-indigo-50 flex flex-col md:flex-row items-center gap-6">
-                <div class="w-24 h-24 bg-primary text-white font-headline font-black text-4xl rounded-[2rem] flex items-center justify-center shadow-lg shadow-primary/30 uppercase"><?php echo substr($display_name, 0, 1); ?></div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl shadow-indigo-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden relative">
+            <div class="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-500/10 dark:to-slate-900 px-8 py-10 border-b border-indigo-50 dark:border-slate-800 flex flex-col md:flex-row items-center gap-6">
+                <div class="w-24 h-24 bg-primary dark:bg-indigo-500 text-white font-headline font-black text-4xl rounded-[2rem] flex items-center justify-center shadow-lg shadow-primary/30 dark:shadow-indigo-500/20 uppercase"><?php echo substr($display_name, 0, 1); ?></div>
                 <div class="text-center md:text-left space-y-1 z-10">
-                    <h2 class="text-2xl font-black font-headline text-slate-800"><?php echo htmlspecialchars($display_name); ?></h2>
-                    <p class="text-primary font-bold text-sm uppercase tracking-wider"><?php echo htmlspecialchars($department); ?></p>
+                    <h2 class="text-2xl font-black font-headline text-slate-800 dark:text-white"><?php echo htmlspecialchars($display_name); ?></h2>
+                    <p class="text-primary dark:text-indigo-400 font-bold text-sm uppercase tracking-wider"><?php echo htmlspecialchars($department); ?></p>
                 </div>
             </div>
             <form action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="POST" class="p-8 space-y-8 relative z-10">
@@ -111,23 +111,23 @@ $department = $user_data['department'] ?? '-';
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Username (Login ID)</label>
-                        <input type="text" value="<?php echo htmlspecialchars($username); ?>" disabled class="block w-full px-6 py-4 bg-slate-50 border-0 rounded-2xl font-bold text-slate-500 outline-none cursor-not-allowed">
+                        <input type="text" value="<?php echo htmlspecialchars($username); ?>" disabled class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-slate-500 dark:text-slate-400 outline-none cursor-not-allowed">
                     </div>
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Nama Lengkap</label>
-                        <input type="text" name="full_name" value="<?php echo htmlspecialchars($display_name); ?>" required class="block w-full px-6 py-4 bg-surface-container-low border-0 rounded-2xl font-bold text-slate-800 outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                        <input type="text" name="full_name" value="<?php echo htmlspecialchars($display_name); ?>" required class="block w-full px-6 py-4 bg-surface-container-low dark:bg-slate-800 border-0 rounded-2xl font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-indigo-500/30 transition-all">
                     </div>
                 </div>
-                <div class="pt-6 border-t border-slate-100">
-                    <h3 class="text-lg font-black font-headline text-slate-800 flex items-center gap-2 mb-6"><span class="material-symbols-outlined text-primary">lock</span>Keamanan</h3>
+                <div class="pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <h3 class="text-lg font-black font-headline text-slate-800 dark:text-white flex items-center gap-2 mb-6"><span class="material-symbols-outlined text-primary dark:text-indigo-400">lock</span>Keamanan</h3>
                     <div class="space-y-2 max-w-md">
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Kata Sandi Baru</label>
-                        <input type="password" name="new_password" placeholder="Kosongkan jika tidak ingin mengubah" class="block w-full px-6 py-4 bg-surface-container-low border-0 outline-none focus:ring-2 focus:ring-primary/20 rounded-2xl font-medium text-slate-800 transition-all font-mono">
+                        <input type="password" name="new_password" placeholder="Kosongkan jika tidak ingin mengubah" class="block w-full px-6 py-4 bg-surface-container-low dark:bg-slate-800 border-0 outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-indigo-500/30 rounded-2xl font-medium text-slate-800 dark:text-white transition-all font-mono placeholder:opacity-50">
                     </div>
                 </div>
                 <div class="pt-6 flex flex-col sm:flex-row gap-4 items-center justify-end">
-                    <button type="submit" name="update_profile" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-br from-indigo-600 to-indigo-500 text-white font-black rounded-2xl shadow-lg shadow-indigo-200 hover:shadow-indigo-300 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center justify-center gap-2 group/btn"><span class="material-symbols-outlined text-lg">save</span>Simpan Perubahan</button>
-                    <a href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')" class="w-full sm:w-auto px-8 py-4 bg-red-50 text-red-600 font-black rounded-2xl hover:bg-red-100 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center justify-center gap-2"><span class="material-symbols-outlined text-lg">logout</span>Keluar Akun</a>
+                    <button type="submit" name="update_profile" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-br from-indigo-600 to-indigo-500 text-white font-black rounded-2xl shadow-lg shadow-indigo-200 dark:shadow-indigo-500/20 hover:shadow-indigo-300 dark:hover:shadow-indigo-500/40 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center justify-center gap-2 group/btn"><span class="material-symbols-outlined text-lg">save</span>Simpan Perubahan</button>
+                    <a href="../auth/logout.php" onclick="return confirm('Apakah Anda yakin ingin keluar?')" class="w-full sm:w-auto px-8 py-4 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 font-black rounded-2xl hover:bg-red-100 dark:hover:bg-red-500/20 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center justify-center gap-2"><span class="material-symbols-outlined text-lg">logout</span>Keluar Akun</a>
                 </div>
             </form>
         </div>

@@ -64,12 +64,12 @@ if (empty($error) && !empty($data)) {
     elseif ($statusAset === 'Maintenance') $condCode = 5;
 
     $c_style = match($condCode) {
-        1 => ['bg-emerald-50 text-emerald-700 border-emerald-200', 'check_circle', 'Kondisi Baik', 'from-emerald-700 to-emerald-500'],
-        2 => ['bg-orange-50 text-orange-700 border-orange-200', 'warning', 'Rusak Ringan / Menua', 'from-orange-600 to-amber-500'],
-        3 => ['bg-red-50 text-red-700 border-red-200', 'error', 'Rusak Berat / Limit Usia', 'from-red-600 to-red-400'],
-        4 => ['bg-slate-100 text-slate-500 border-slate-300', 'delete', 'Sudah Di-Disposal', 'from-slate-700 to-slate-500'],
-        5 => ['bg-indigo-50 text-indigo-700 border-indigo-200', 'build', 'Sedang Maintenance', 'from-indigo-700 to-blue-500'],
-        default => ['bg-slate-100 text-slate-500 border-slate-300', 'help', 'Status Tidak Diketahui', 'from-slate-600 to-slate-400']
+        1 => ['bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20', 'check_circle', 'Kondisi Baik', 'from-emerald-700 to-emerald-500'],
+        2 => ['bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-500/20', 'warning', 'Rusak Ringan / Menua', 'from-orange-600 to-amber-500'],
+        3 => ['bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/20', 'error', 'Rusak Berat / Limit Usia', 'from-red-600 to-red-400'],
+        4 => ['bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700', 'delete', 'Sudah Di-Disposal', 'from-slate-700 to-slate-500'],
+        5 => ['bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20', 'build', 'Sedang Maintenance', 'from-indigo-700 to-blue-500'],
+        default => ['bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700', 'help', 'Status Tidak Diketahui', 'from-slate-600 to-slate-400']
     };
 
     // Depresiasi
@@ -126,17 +126,17 @@ if (empty($error) && !empty($data)) {
         }
     </script>
 </head>
-<body class="bg-slate-100 font-body text-slate-800 antialiased min-h-screen">
-
-<?php if ($error): ?>
-    <div class="min-h-screen flex items-center justify-center p-6">
-        <div class="bg-white max-w-sm w-full p-8 rounded-[2rem] shadow-xl text-center border border-red-100">
-            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-5">
+<body class="bg-slate-100 dark:bg-slate-950 font-body text-slate-800 dark:text-slate-100 antialiased min-h-screen transition-colors duration-300">
+                                                                                                 
+<?php if ($error): ?>                                                                            
+    <div class="min-h-screen flex items-center justify-center p-6">                              
+        <div class="bg-white dark:bg-slate-900 max-w-sm w-full p-8 rounded-[2rem] shadow-xl text-center border border-red-100 dark:border-red-900/30">
+            <div class="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
                 <span class="material-symbols-outlined text-5xl text-red-400">warning</span>
             </div>
-            <h2 class="font-headline font-black text-xl mb-2">Gagal Memindai</h2>
-            <p class="text-xs text-slate-500 leading-relaxed"><?php echo htmlspecialchars($error); ?></p>
-            <div class="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-left text-xs text-amber-700 space-y-1">
+            <h2 class="font-headline font-black text-xl mb-2 dark:text-white">Gagal Memindai</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed"><?php echo htmlspecialchars($error); ?></p>
+            <div class="mt-6 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl text-left text-xs text-amber-700 dark:text-amber-400 space-y-1">
                 <p class="font-bold">💡 Pastikan:</p>
                 <ul class="list-disc ml-4 space-y-1">
                     <li>QR code dipindai secara penuh dan jelas</li>
@@ -172,10 +172,10 @@ if (empty($error) && !empty($data)) {
     <main class="max-w-lg mx-auto px-4 -mt-12 pb-12 space-y-4">
 
         <!-- STATUS CARD -->
-        <div class="card-anim bg-white p-5 rounded-[1.5rem] shadow-lg border border-slate-100 flex items-center justify-between">
+        <div class="card-anim bg-white dark:bg-slate-900 p-5 rounded-[1.5rem] shadow-lg border border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div>
                 <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Status Kondisi (Sensus)</p>
-                <p class="font-headline font-black text-lg text-slate-800"><?php echo $c_style[2]; ?></p>
+                <p class="font-headline font-black text-lg text-slate-800 dark:text-white"><?php echo $c_style[2]; ?></p>
             </div>
             <div class="<?php echo $c_style[0]; ?> w-12 h-12 rounded-xl flex items-center justify-center border shadow-sm shrink-0">
                 <span class="material-symbols-outlined text-2xl"><?php echo $c_style[1]; ?></span>
@@ -183,24 +183,24 @@ if (empty($error) && !empty($data)) {
         </div>
 
         <!-- PEMILIK CARD -->
-        <div class="card-anim bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-100">
-            <div class="flex items-center gap-2 border-b border-slate-50 pb-3 mb-4">
+        <div class="card-anim bg-white dark:bg-slate-900 p-5 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-2 border-b border-slate-50 dark:border-slate-800 pb-3 mb-4">
                 <span class="material-symbols-outlined text-slate-400 text-lg">account_circle</span>
-                <h3 class="font-headline font-black text-xs text-slate-700 uppercase tracking-widest">Informasi Kepemilikan</h3>
+                <h3 class="font-headline font-black text-xs text-slate-700 dark:text-slate-300 uppercase tracking-widest">Informasi Kepemilikan</h3>
             </div>
             <div class="space-y-3">
                 <div>
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Pemegang Aset</p>
-                    <p class="font-bold text-slate-800"><?php echo htmlspecialchars($namaAset); ?></p>
+                    <p class="font-bold text-slate-800 dark:text-white"><?php echo htmlspecialchars($namaAset); ?></p>
                 </div>
                 <div>
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Departemen</p>
-                    <p class="font-bold text-slate-800"><?php echo htmlspecialchars($data['department'] ?? '-'); ?></p>
+                    <p class="font-bold text-slate-800 dark:text-white"><?php echo htmlspecialchars($data['department'] ?? '-'); ?></p>
                 </div>
                 <?php if (!empty($data['kode_barang'])): ?>
                 <div>
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Kode Barang</p>
-                    <p class="font-mono font-bold text-slate-600 text-sm"><?php echo htmlspecialchars($data['kode_barang']); ?></p>
+                    <p class="font-mono font-bold text-slate-600 dark:text-slate-400 text-sm"><?php echo htmlspecialchars($data['kode_barang']); ?></p>
                 </div>
                 <?php endif; ?>
             </div>
@@ -208,30 +208,30 @@ if (empty($error) && !empty($data)) {
 
         <!-- DEPRESIASI CARD (hardware only) -->
         <?php if (stripos($data['category'] ?? '', 'software') === false && $hargaBeli > 0): ?>
-        <div class="card-anim bg-white p-5 rounded-[1.5rem] shadow-sm border border-slate-100">
-            <div class="flex items-center gap-2 border-b border-slate-50 pb-3 mb-4">
+        <div class="card-anim bg-white dark:bg-slate-900 p-5 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-2 border-b border-slate-50 dark:border-slate-800 pb-3 mb-4">
                 <span class="material-symbols-outlined text-slate-400 text-lg">monitoring</span>
-                <h3 class="font-headline font-black text-xs text-slate-700 uppercase tracking-widest">Depresiasi Nilai (PMK 72)</h3>
+                <h3 class="font-headline font-black text-xs text-slate-700 dark:text-slate-300 uppercase tracking-widest">Depresiasi Nilai (PMK 72)</h3>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Nilai Perolehan</p>
-                    <p class="font-bold text-sm text-slate-800">Rp <?php echo number_format($hargaBeli, 0, ',', '.'); ?></p>
+                    <p class="font-bold text-sm text-slate-800 dark:text-white">Rp <?php echo number_format($hargaBeli, 0, ',', '.'); ?></p>
                 </div>
                 <div>
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Nilai Buku Saat Ini</p>
                     <?php if ($sisaBulan <= 0): ?>
-                        <p class="font-black text-sm text-rose-500">Residu (Habis)</p>
+                        <p class="font-black text-sm text-rose-500 dark:text-rose-400">Residu (Habis)</p>
                     <?php else: ?>
-                        <p class="font-black text-sm text-indigo-600">Rp <?php echo number_format($nilaiBuku, 0, ',', '.'); ?></p>
+                        <p class="font-black text-sm text-indigo-600 dark:text-indigo-400">Rp <?php echo number_format($nilaiBuku, 0, ',', '.'); ?></p>
                     <?php endif; ?>
                 </div>
-                <div class="col-span-2 pt-3 border-t border-slate-50">
+                <div class="col-span-2 pt-3 border-t border-slate-50 dark:border-slate-800">
                     <div class="flex justify-between text-[9px] font-black uppercase tracking-wider mb-2">
-                        <span class="text-slate-500">Terpakai: <?php echo round($pct_used); ?>%</span>
-                        <span class="text-slate-400">Sisa: <?php echo $sisaBulan; ?> / 48 bln</span>
+                        <span class="text-slate-500 dark:text-slate-400">Terpakai: <?php echo round($pct_used); ?>%</span>
+                        <span class="text-slate-400 dark:text-slate-500">Sisa: <?php echo $sisaBulan; ?> / 48 bln</span>
                     </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                         <div class="h-full rounded-full <?php echo $pct_used >= 100 ? 'bg-red-400' : ($pct_used >= 75 ? 'bg-orange-400' : 'bg-emerald-400'); ?>" style="width:<?php echo round($pct_used); ?>%"></div>
                     </div>
                 </div>
@@ -240,12 +240,12 @@ if (empty($error) && !empty($data)) {
         <?php endif; ?>
 
         <!-- FOOTER META -->
-        <div class="card-anim bg-slate-100 border border-dashed border-slate-300 p-4 rounded-xl flex items-center justify-between gap-3">
+        <div class="card-anim bg-slate-100 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 p-4 rounded-xl flex items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-slate-400 text-sm">badge</span>
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Asset Document ID</p>
             </div>
-            <p class="text-[9px] font-mono text-slate-500 break-all select-all"><?php echo htmlspecialchars($data['id']); ?></p>
+            <p class="text-[9px] font-mono text-slate-500 dark:text-slate-400 break-all select-all"><?php echo htmlspecialchars($data['id']); ?></p>
         </div>
 
         <div class="text-center py-4">

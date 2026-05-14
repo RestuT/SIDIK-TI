@@ -59,23 +59,23 @@ if (!$db && $conn) {
         include __DIR__ . '/../includes/head_meta.php'; 
     ?>
 </head>
-<body class="bg-background text-on-surface min-h-screen selection:bg-primary/20 pb-24 md:pb-0 transition-colors duration-300">
+<body class="bg-background dark:bg-slate-950 text-on-surface dark:text-slate-100 min-h-screen selection:bg-primary/20 pb-24 md:pb-0 transition-colors duration-300">
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 
     <main class="max-w-7xl mx-auto px-6 md:px-10 py-10 space-y-10">
         <!-- Welcome Header -->
         <section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div class="space-y-1">
-                <p class="text-on-surface-variant font-medium tracking-wide body-sm">OVERVIEW</p>
-                <h1 class="text-4xl font-extrabold text-on-surface tracking-tight">Halo, <?php echo htmlspecialchars($display_name); ?></h1>
-                <p class="text-on-surface-variant max-w-lg">Selamat datang kembali di pusat bantuan IT. Pantau status pengajuan dan inventaris Anda di sini.</p>
+                <p class="text-on-surface-variant dark:text-slate-400 font-medium tracking-wide body-sm">OVERVIEW</p>
+                <h1 class="text-4xl font-extrabold text-on-surface dark:text-white tracking-tight">Halo, <?php echo htmlspecialchars($display_name); ?></h1>
+                <p class="text-on-surface-variant dark:text-slate-400 max-w-lg">Selamat datang kembali di pusat bantuan IT. Pantau status pengajuan dan inventaris Anda di sini.</p>
             </div>
             <div class="flex gap-3">
                 <a href="form_maintenance.php" class="group flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-primary-container text-white px-6 py-4 rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:shadow-xl hover:translate-y-[-2px] active:scale-95 transition-all duration-300">
                     <span class="material-symbols-outlined">build</span>
                     Maintenance
                 </a>
-                <a href="form_pengadaan.php" class="group flex items-center justify-center gap-2 bg-white text-primary border-2 border-primary/20 px-6 py-4 rounded-2xl font-bold hover:bg-indigo-50 transition-all duration-300">
+                <a href="form_pengadaan.php" class="group flex items-center justify-center gap-2 bg-white dark:bg-slate-900 text-primary dark:text-indigo-400 border-2 border-primary/20 dark:border-indigo-500/30 px-6 py-4 rounded-2xl font-bold hover:bg-indigo-50 dark:hover:bg-slate-800 transition-all duration-300">
                     <span class="material-symbols-outlined">shopping_cart</span>
                     Pengadaan
                 </a>
@@ -84,57 +84,57 @@ if (!$db && $conn) {
 
         <!-- Bento Stats Grid -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-transparent hover:border-primary/10 transition-all duration-500 group">
+            <div class="bg-surface-container-lowest dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-transparent dark:border-slate-800 hover:border-primary/10 dark:hover:border-primary/30 transition-all duration-500 group">
                 <div class="flex justify-between items-start mb-6">
-                    <div class="p-4 bg-orange-50 text-orange-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                    <div class="p-4 bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 rounded-2xl group-hover:scale-110 transition-transform duration-300">
                         <span class="material-symbols-outlined text-3xl">pending_actions</span>
                     </div>
                     <span class="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-widest">Menunggu</span>
                 </div>
                 <div class="space-y-1">
-                    <h3 class="text-4xl font-black text-on-surface"><?php echo $stat_pending; ?></h3>
-                    <p class="text-on-surface-variant font-medium">Tiket Menunggu</p>
+                    <h3 class="text-4xl font-black text-on-surface dark:text-white"><?php echo $stat_pending; ?></h3>
+                    <p class="text-on-surface-variant dark:text-slate-400 font-medium">Tiket Menunggu</p>
                 </div>
             </div>
-            <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-transparent hover:border-primary/10 transition-all duration-500 group">
+            <div class="bg-surface-container-lowest dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-transparent dark:border-slate-800 hover:border-primary/10 dark:hover:border-primary/30 transition-all duration-500 group">
                 <div class="flex justify-between items-start mb-6">
-                    <div class="p-4 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                    <div class="p-4 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl group-hover:scale-110 transition-transform duration-300">
                         <span class="material-symbols-outlined text-3xl">sync</span>
                     </div>
                     <span class="text-xs font-bold text-indigo-500 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-widest">Proses</span>
                 </div>
                 <div class="space-y-1">
-                    <h3 class="text-4xl font-black text-on-surface"><?php echo str_pad($stat_process, 2, '0', STR_PAD_LEFT); ?></h3>
-                    <p class="text-on-surface-variant font-medium">Sedang Diproses</p>
+                    <h3 class="text-4xl font-black text-on-surface dark:text-white"><?php echo str_pad($stat_process, 2, '0', STR_PAD_LEFT); ?></h3>
+                    <p class="text-on-surface-variant dark:text-slate-400 font-medium">Sedang Diproses</p>
                 </div>
             </div>
-            <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm border border-transparent hover:border-primary/10 transition-all duration-500 group">
+            <div class="bg-surface-container-lowest dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-transparent dark:border-slate-800 hover:border-primary/10 dark:hover:border-primary/30 transition-all duration-500 group">
                 <div class="flex justify-between items-start mb-6">
-                    <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl group-hover:scale-110 transition-transform duration-300">
                         <span class="material-symbols-outlined text-3xl">check_circle</span>
                     </div>
                     <span class="text-xs font-bold text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest">Selesai</span>
                 </div>
                 <div class="space-y-1">
-                    <h3 class="text-4xl font-black text-on-surface"><?php echo $stat_done; ?></h3>
-                    <p class="text-on-surface-variant font-medium">Tiket Selesai</p>
+                    <h3 class="text-4xl font-black text-on-surface dark:text-white"><?php echo $stat_done; ?></h3>
+                    <p class="text-on-surface-variant dark:text-slate-400 font-medium">Tiket Selesai</p>
                 </div>
             </div>
         </section>
 
         <!-- Main Content: Recent Activity -->
-        <section class="bg-surface-container-lowest rounded-xl md:rounded-3xl p-6 md:p-10 shadow-sm overflow-hidden">
+        <section class="bg-surface-container-lowest dark:bg-slate-900 rounded-xl md:rounded-3xl p-6 md:p-10 shadow-sm border dark:border-slate-800 overflow-hidden">
             <div class="flex items-center justify-between mb-8">
                 <div>
-                    <h2 class="text-2xl font-bold text-on-surface tracking-tight">Riwayat Pengajuan Terakhir</h2>
-                    <p class="text-on-surface-variant text-sm mt-1">Daftar 5 aktivitas terakhir yang Anda ajukan.</p>
+                    <h2 class="text-2xl font-bold text-on-surface dark:text-white tracking-tight">Riwayat Pengajuan Terakhir</h2>
+                    <p class="text-on-surface-variant dark:text-slate-400 text-sm mt-1">Daftar 5 aktivitas terakhir yang Anda ajukan.</p>
                 </div>
                 <a href="dashboard_audit.php" class="text-primary font-bold text-sm hover:underline decoration-2 underline-offset-4">Lihat Semua</a>
             </div>
             <div class="overflow-x-auto -mx-6 md:mx-0">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-on-surface-variant text-xs uppercase tracking-[0.15em] border-b border-slate-100">
+                        <tr class="text-on-surface-variant dark:text-slate-400 text-xs uppercase tracking-[0.15em] border-b border-slate-100 dark:border-slate-800">
                             <th class="px-6 py-5 font-bold">Nomor Tiket</th>
                             <th class="px-6 py-5 font-bold">Jenis Pengajuan</th>
                             <th class="px-6 py-5 font-bold">Tanggal</th>
@@ -142,34 +142,34 @@ if (!$db && $conn) {
                             <th class="px-6 py-5 font-bold text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                         <?php 
                         $count = 0;
                         foreach($all_submissions as $row): 
                             $count++;
                         ?>
-                            <tr class="group hover:bg-slate-50/50 transition-colors">
+                            <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                                 <td class="px-6 py-6">
                                     <span class="font-bold text-indigo-700">#<?php echo htmlspecialchars($row['ticket_number']); ?></span>
                                 </td>
                                 <td class="px-6 py-6">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg <?php echo ($row['type'] ?? '') == 'Maintenance' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'; ?> flex items-center justify-center">
+                                        <div class="w-8 h-8 rounded-lg <?php echo ($row['type'] ?? '') == 'Maintenance' ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'; ?> flex items-center justify-center">
                                             <span class="material-symbols-outlined text-lg"><?php echo ($row['type'] ?? '') == 'Maintenance' ? 'build' : 'shopping_cart'; ?></span>
                                         </div>
-                                        <span class="font-medium text-on-surface"><?php echo htmlspecialchars($row['title'] ?? ''); ?></span>
+                                        <span class="font-medium text-on-surface dark:text-slate-200"><?php echo htmlspecialchars($row['title'] ?? ''); ?></span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-6 text-on-surface-variant"><?php echo date('d M Y', strtotime($row['created_at'])); ?></td>
+                                <td class="px-6 py-6 text-on-surface-variant dark:text-slate-400"><?php echo date('d M Y', strtotime($row['created_at'])); ?></td>
                                 <td class="px-6 py-6">
                                     <?php 
                                         $rowStatus = $row['status'] ?? '';
-                                        $statusClass = "bg-slate-50 text-slate-700 border-slate-100/50";
+                                        $statusClass = "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-100/50 dark:border-slate-700";
                                         $dotClass = "bg-slate-500";
-                                        if($rowStatus == 'Menunggu') { $statusClass = "bg-orange-50 text-orange-700 border-orange-100/50"; $dotClass = "bg-orange-500 animate-pulse"; }
-                                        elseif($rowStatus == 'Proses') { $statusClass = "bg-blue-50 text-blue-700 border-blue-100/50"; $dotClass = "bg-blue-500"; }
-                                        elseif($rowStatus == 'Selesai') { $statusClass = "bg-emerald-50 text-emerald-700 border-emerald-100/50"; $dotClass = "bg-emerald-500"; }
-                                        elseif($rowStatus == 'Dibatalkan' || $rowStatus == 'Ditolak') { $statusClass = "bg-rose-50 text-rose-700 border-rose-100/50"; $dotClass = "bg-rose-500"; }
+                                        if($rowStatus == 'Menunggu') { $statusClass = "bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-100/50 dark:border-orange-500/20"; $dotClass = "bg-orange-500 animate-pulse"; }
+                                        elseif($rowStatus == 'Proses') { $statusClass = "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-100/50 dark:border-blue-500/20"; $dotClass = "bg-blue-500"; }
+                                        elseif($rowStatus == 'Selesai') { $statusClass = "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-100/50 dark:border-emerald-500/20"; $dotClass = "bg-emerald-500"; }
+                                        elseif($rowStatus == 'Dibatalkan' || $rowStatus == 'Ditolak') { $statusClass = "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-100/50 dark:border-rose-500/20"; $dotClass = "bg-rose-500"; }
                                     ?>
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full <?php echo $statusClass; ?> text-xs font-bold border">
                                         <span class="w-1.5 h-1.5 rounded-full <?php echo $dotClass; ?>"></span>
@@ -185,7 +185,7 @@ if (!$db && $conn) {
                         <?php endforeach; ?>
                         <?php if($count == 0): ?>
                             <tr>
-                                <td colspan="5" class="px-6 py-20 text-center text-on-surface-variant">Belum ada riwayat pengajuan.</td>
+                                <td colspan="5" class="px-6 py-20 text-center text-on-surface-variant dark:text-slate-500">Belum ada riwayat pengajuan.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -205,12 +205,12 @@ if (!$db && $conn) {
                     <a href="knowledge_base.php" class="inline-block w-fit px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 font-bold transition-all duration-300">Buka Panduan</a>
                 </div>
             </div>
-            <div class="bg-surface-container-high rounded-3xl p-10 space-y-6">
+            <div class="bg-surface-container-high dark:bg-slate-900 rounded-3xl p-10 space-y-6 border dark:border-slate-800">
                 <div class="flex items-center gap-4">
-                    <div class="p-3 bg-white rounded-2xl text-primary shadow-sm">
+                    <div class="p-3 bg-white dark:bg-slate-800 rounded-2xl text-primary dark:text-indigo-400 shadow-sm border dark:border-slate-700">
                         <span class="material-symbols-outlined">campaign</span>
                     </div>
-                    <h3 class="text-xl font-bold text-on-surface">Pengumuman IT</h3>
+                    <h3 class="text-xl font-bold text-on-surface dark:text-white">Pengumuman IT</h3>
                 </div>
                 <ul class="space-y-4">
                     <?php if(!empty($announcements)): ?>
@@ -218,9 +218,9 @@ if (!$db && $conn) {
                             <li class="flex gap-4 items-start w-full">
                                 <div class="w-2 h-2 rounded-full <?php echo isset($ann['urgency']) && $ann['urgency'] === 'Tinggi' ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-primary'; ?> mt-2 flex-shrink-0"></div>
                                 <div class="space-y-1 w-full relative">
-                                    <p class="font-bold text-on-surface text-sm break-words"><?php echo htmlspecialchars($ann['title']); ?></p>
-                                    <p class="text-on-surface-variant text-[11px] leading-snug break-words pr-2"><?php echo htmlspecialchars($ann['content'] ?? ''); ?></p>
-                                    <p class="text-slate-400 text-[9px] font-bold uppercase tracking-wider mt-1"><?php echo isset($ann['created_at']) ? date('d M Y | H:i', strtotime($ann['created_at'])) : ''; ?></p>
+                                    <p class="font-bold text-on-surface dark:text-slate-200 text-sm break-words"><?php echo htmlspecialchars($ann['title']); ?></p>
+                                    <p class="text-on-surface-variant dark:text-slate-400 text-[11px] leading-snug break-words pr-2"><?php echo htmlspecialchars($ann['content'] ?? ''); ?></p>
+                                    <p class="text-slate-400 dark:text-slate-500 text-[9px] font-bold uppercase tracking-wider mt-1"><?php echo isset($ann['created_at']) ? date('d M Y | H:i', strtotime($ann['created_at'])) : ''; ?></p>
                                 </div>
                             </li>
                         <?php endforeach; ?>

@@ -51,29 +51,29 @@ $total_records = count($submission_list);
         include __DIR__ . '/../includes/head_meta.php'; 
     ?>
 </head>
-<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0 transition-colors duration-300">
+<body class="bg-surface dark:bg-slate-950 font-body text-on-surface dark:text-slate-100 antialiased overflow-x-hidden min-h-screen pb-24 md:pb-0 transition-colors duration-300">
     <?php include __DIR__ . '/../includes/navbar_user.php'; ?>
 
     <main class="max-w-[1240px] mx-auto px-6 py-12">
         <header class="mb-12">
             <div>
-                <h1 class="font-headline text-3xl font-black text-on-surface tracking-tight leading-none uppercase italic underline decoration-primary/30 underline-offset-8">Audit <span class="text-primary italic">& History</span></h1>
-                <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-[0.2em] mt-3">Lacak Status & Rekam Jejak Pengajuan Digital Anda</p>
+                <h1 class="font-headline text-3xl font-black text-on-surface dark:text-white tracking-tight leading-none uppercase italic underline decoration-primary/30 dark:decoration-indigo-500/30 underline-offset-8">Audit <span class="text-primary dark:text-indigo-400 italic">& History</span></h1>
+                <p class="text-[10px] text-on-surface-variant dark:text-slate-400 font-bold uppercase tracking-[0.2em] mt-3">Lacak Status & Rekam Jejak Pengajuan Digital Anda</p>
             </div>
             <div class="flex items-center gap-4 mt-6">
-                <div class="bg-primary/5 px-6 py-3 rounded-2xl border border-primary/10 flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-xl">history</span>
-                    <span class="text-xs font-black text-primary uppercase tracking-widest leading-none"><?php echo $total_records; ?> Total Records</span>
+                <div class="bg-primary/5 dark:bg-indigo-500/10 px-6 py-3 rounded-2xl border border-primary/10 dark:border-indigo-500/20 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary dark:text-indigo-400 text-xl">history</span>
+                    <span class="text-xs font-black text-primary dark:text-indigo-400 uppercase tracking-widest leading-none"><?php echo $total_records; ?> Total Records</span>
                 </div>
             </div>
         </header>
 
         <div class="p-4 md:p-10 max-w-[1400px] mx-auto w-full">
-            <div class="bg-white rounded-[2.5rem] border border-outline-variant shadow-xl shadow-slate-200/50 overflow-hidden relative group">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-outline-variant dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden relative group">
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-primary-container"></div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50/50">
+                        <thead class="bg-slate-50/50 dark:bg-slate-800/50">
                             <tr>
                                 <th class="px-8 py-5 text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Referensi</th>
                                 <th class="px-8 py-5 text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Kategori & Subjek</th>
@@ -82,13 +82,13 @@ $total_records = count($submission_list);
                                 <th class="px-8 py-5 text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50">
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
                             <?php if($total_records > 0): ?>
                                 <?php foreach($submission_list as $row): ?>
-                                <tr class="group/row hover:bg-slate-50/50 transition-all">
+                                <tr class="group/row hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-all">
                                     <td class="px-8 py-6">
                                         <div class="flex flex-col">
-                                            <span class="font-black text-primary italic text-sm tracking-tight">#<?php echo htmlspecialchars($row['ticket_number'] ?? ''); ?></span>
+                                            <span class="font-black text-primary dark:text-indigo-400 italic text-sm tracking-tight">#<?php echo htmlspecialchars($row['ticket_number'] ?? ''); ?></span>
                                             <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1"><?php echo isset($row['created_at']) ? date('d M Y', strtotime($row['created_at'])) : '-'; ?></span>
                                         </div>
                                     </td>
@@ -102,7 +102,7 @@ $total_records = count($submission_list);
                                                     <?php echo htmlspecialchars($row['type'] ?? ''); ?>
                                                 </span>
                                             </div>
-                                            <p class="text-xs text-on-surface font-bold tracking-tight group-hover/row:text-primary transition-colors"><?php echo htmlspecialchars($row['title'] ?? ''); ?></p>
+                                            <p class="text-xs text-on-surface dark:text-slate-200 font-bold tracking-tight group-hover/row:text-primary dark:group-hover/row:text-indigo-400 transition-colors"><?php echo htmlspecialchars($row['title'] ?? ''); ?></p>
                                         </div>
                                     </td>
                                     <td class="px-8 py-6">
@@ -110,10 +110,10 @@ $total_records = count($submission_list);
                                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border w-fit
                                                 <?php 
                                                     $s = $row['status'] ?? '';
-                                                    if($s == 'Selesai') echo 'bg-emerald-50 text-maintenance border-emerald-100';
-                                                    elseif($s == 'Proses') echo 'bg-indigo-50 text-indigo-700 border-indigo-100';
-                                                    elseif($s == 'Ditolak') echo 'bg-error/5 text-error border-error-100';
-                                                    else echo 'bg-amber-50 text-amber-700 border-amber-100';
+                                                    if($s == 'Selesai') echo 'bg-emerald-50 dark:bg-emerald-500/10 text-maintenance dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20';
+                                                    elseif($s == 'Proses') echo 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border-indigo-100 dark:border-indigo-500/20';
+                                                    elseif($s == 'Ditolak') echo 'bg-error/5 dark:bg-error/10 text-error dark:text-error-400 border-error-100 dark:border-error-500/20';
+                                                    else echo 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-100 dark:border-amber-500/20';
                                                 ?>">
                                                 <?php echo htmlspecialchars($s); ?>
                                             </span>
@@ -127,8 +127,8 @@ $total_records = count($submission_list);
                                     </td>
                                     <td class="px-8 py-6 text-center">
                                         <?php if($row['pic_name']): ?>
-                                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 group-hover/row:border-primary/20 transition-all">
-                                                <span class="text-[10px] font-bold text-on-surface"><?php echo htmlspecialchars($row['pic_name']); ?></span>
+                                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 group-hover/row:border-primary/20 transition-all">
+                                                <span class="text-[10px] font-bold text-on-surface dark:text-slate-300"><?php echo htmlspecialchars($row['pic_name']); ?></span>
                                             </div>
                                         <?php else: ?>
                                             <span class="text-[9px] font-black text-slate-300 uppercase italic">Awaiting PIC</span>
@@ -137,7 +137,7 @@ $total_records = count($submission_list);
                                     <td class="px-8 py-6 text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             <a href="<?php echo ($row['type'] ?? '') == 'Maintenance' ? 'cetak_tiket_maintenance.php' : 'cetak_tiket_pengadaan.php'; ?>?id=<?php echo $row['id']; ?>" target="_blank"
-                                               class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/5 transition-all" title="Print">
+                                               class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-primary dark:hover:text-indigo-400 hover:bg-primary/5 transition-all" title="Print">
                                                 <span class="material-symbols-outlined text-base">print</span>
                                             </a>
                                             <?php if(($row['status'] ?? '') == 'Ditolak' && ($row['is_appealed'] ?? 0) == 0): ?>
@@ -169,7 +169,7 @@ $total_records = count($submission_list);
 
     <!-- Modal Appeal -->
     <div id="modalAppeal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] items-center justify-center p-6">
-        <div class="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl animate-in zoom-in duration-300 relative overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] shadow-2xl animate-in zoom-in duration-300 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-error to-amber-500"></div>
             <form action="<?php echo htmlspecialchars(dirname($_SERVER['PHP_SELF']) . '/../config/proses_sanggahan.php'); ?>" method="POST" class="p-10 space-y-8">
                 <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
@@ -179,25 +179,25 @@ $total_records = count($submission_list);
                         <span class="material-symbols-outlined text-3xl">emergency_home</span>
                     </div>
                     <div>
-                        <h2 class="font-headline text-2xl font-black text-on-surface uppercase tracking-tight">Formulir <span class="text-error">Sanggahan</span></h2>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Digital Dispute Resolution Flow</p>
+                        <h2 class="font-headline text-2xl font-black text-on-surface dark:text-white uppercase tracking-tight">Formulir <span class="text-error">Sanggahan</span></h2>
+                        <p class="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest">Digital Dispute Resolution Flow</p>
                     </div>
                 </div>
-                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex flex-col gap-3">
+                <div class="bg-slate-50 dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 flex flex-col gap-3">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm text-error">info</span>
                         <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Alasan Penolakan Admin:</p>
                     </div>
-                    <p id="reject_reason" class="text-sm font-bold text-on-surface italic leading-relaxed"></p>
+                    <p id="reject_reason" class="text-sm font-bold text-on-surface dark:text-slate-200 italic leading-relaxed"></p>
                 </div>
                 <div class="space-y-3">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Alasan Sanggahan Anda</label>
                     <textarea name="appeal_reason" required rows="4" 
-                        class="w-full p-6 bg-slate-50 border-0 rounded-3xl outline-none focus:ring-4 focus:ring-primary/10 transition-all text-sm font-bold text-on-surface-variant placeholder:opacity-30"
+                        class="w-full p-6 bg-slate-50 dark:bg-slate-800 border-0 rounded-3xl outline-none focus:ring-4 focus:ring-primary/10 dark:focus:ring-indigo-500/20 transition-all text-sm font-bold text-on-surface-variant dark:text-white placeholder:opacity-30 dark:placeholder:opacity-50"
                         placeholder="Berikan argumentasi atau penjelasan tambahan mengapa pengajuan ini tetap diperlukan..."></textarea>
                 </div>
                 <div class="flex gap-4">
-                    <button type="button" onclick="closeModal()" class="flex-1 h-16 bg-slate-50 text-slate-400 font-black rounded-2xl hover:bg-slate-100 transition-all text-[10px] uppercase tracking-widest">Batalkan</button>
+                    <button type="button" onclick="closeModal()" class="flex-1 h-16 bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 font-black rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all text-[10px] uppercase tracking-widest">Batalkan</button>
                     <button type="submit" class="flex-[2] h-16 bg-error text-white font-black rounded-2xl shadow-xl shadow-error/20 hover:shadow-error/40 hover:-translate-y-1 transition-all text-[10px] uppercase tracking-widest flex items-center justify-center gap-3">
                         <span class="material-symbols-outlined text-base">send</span>
                         Kirim Sanggahan

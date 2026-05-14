@@ -68,105 +68,11 @@ $active_count = count($user_list);
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIDIK-TI | User Directory Management</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com" rel="preconnect"/>
-    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary-fixed-dim": "#c3c0ff",
-                        "on-error": "#ffffff",
-                        "on-error-container": "#93000a",
-                        "on-secondary-container": "#fefcff",
-                        "on-tertiary-container": "#67f4b7",
-                        "inverse-surface": "#2d3133",
-                        "surface-variant": "#e0e3e5",
-                        "primary-fixed": "#e2dfff",
-                        "tertiary": "#005338",
-                        "secondary": "#0051d5",
-                        "on-surface": "#191c1e",
-                        "background": "#f7f9fb",
-                        "on-primary-container": "#dad7ff",
-                        "tertiary-fixed-dim": "#4edea3",
-                        "surface-tint": "#4d44e3",
-                        "on-tertiary": "#ffffff",
-                        "secondary-fixed-dim": "#b4c5ff",
-                        "secondary-fixed": "#dbe1ff",
-                        "surface-container-low": "#f2f4f6",
-                        "on-surface-variant": "#464555",
-                        "on-secondary": "#ffffff",
-                        "surface": "#f7f9fb",
-                        "error-container": "#ffdad6",
-                        "error": "#ba1a1a",
-                        "surface-container-high": "#e6e8ea",
-                        "on-tertiary-fixed-variant": "#005236",
-                        "surface-container-highest": "#e0e3e5",
-                        "on-primary-fixed-variant": "#3323cc",
-                        "on-primary": "#ffffff",
-                        "primary-container": "#4f46e5",
-                        "outline-variant": "#c7c4d8",
-                        "on-primary-fixed": "#0f0069",
-                        "inverse-on-surface": "#eff1f3",
-                        "tertiary-fixed": "#6ffbbe",
-                        "on-secondary-fixed-variant": "#003ea8",
-                        "primary": "#3525cd",
-                        "surface-bright": "#f7f9fb",
-                        "secondary-container": "#316bf3",
-                        "on-background": "#191c1e",
-                        "surface-container-lowest": "#ffffff",
-                        "tertiary-container": "#006e4b",
-                        "surface-dim": "#d8dadc",
-                        "on-secondary-fixed": "#00174b",
-                        "surface-container": "#eceef0",
-                        "inverse-primary": "#c3c0ff",
-                        "outline": "#777587",
-                        "on-tertiary-fixed": "#002113"
-                    },
-                    fontFamily: {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .fill-1 { font-variation-settings: 'FILL' 1; }
-    </style>
-
-    <script>
-        // Inject base tag to preserve relative link resolution
-        if (!document.querySelector('base')) {
-            var base = document.createElement('base');
-            base.href = window.location.href.split('?')[0];
-            document.head.appendChild(base);
-        }
-        // Mask URL to Pretty Path
-        if (window.history.replaceState) {
-            var path = window.location.pathname;
-            var search = window.location.search;
-            if (path.includes('/api/')) {
-                window.history.replaceState(null, null, path.replace('/api/', '/') + search);
-            }
-        }
-    </script>
+    <?php 
+        $pageTitle = 'SIDIK-TI | User Directory Management';
+        $base_url = '../';
+        include __DIR__ . '/../includes/head_meta.php'; 
+    ?>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden min-h-screen">
 
@@ -174,7 +80,7 @@ $active_count = count($user_list);
 
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen flex flex-col">
         <!-- Header Bar -->
-        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-20">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-30">
             <div>
                 <h1 class="font-headline text-xl md:text-2xl font-extrabold text-on-surface tracking-tight leading-none italic uppercase">User <span class="text-primary italic">Directory</span></h1>
                 <p class="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Manajemen Akses &amp; Personalia Karyawan</p>
@@ -261,6 +167,7 @@ $active_count = count($user_list);
                                                 <span class="text-[10px] font-black text-on-surface-variant font-mono"><?php echo htmlspecialchars($row['username'] ?? ''); ?></span>
                                             </div>
                                             <span class="px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter border
+                                                <?php 
                                                     if(($row['role'] ?? '') == 'technician') echo 'bg-amber-50 text-amber-600 border-amber-200';
                                                     elseif(($row['role'] ?? '') == 'staff') echo 'bg-blue-50 text-blue-600 border-blue-200';
                                                     elseif(($row['role'] ?? '') == 'head') echo 'bg-emerald-50 text-emerald-600 border-emerald-200';

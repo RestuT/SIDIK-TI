@@ -159,7 +159,7 @@ $base_url = '../';
     <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen">
-        <header class="px-8 py-8 border-b border-outline/5 bg-white/50 backdrop-blur-xl sticky top-0 z-20 flex justify-between items-center">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-8 py-4 md:py-5 border-b border-outline-variant/10 sticky top-0 bg-surface/80 backdrop-blur-xl z-30">
             <div>
                 <h1 class="text-3xl font-black tracking-tight italic uppercase">Manajemen <span class="text-primary italic">Sensus</span></h1>
                 <p class="text-xs text-on-surface-variant font-medium mt-1">Kelola periode inspeksi dan monitoring progres pelaporan hirarkis.</p>
