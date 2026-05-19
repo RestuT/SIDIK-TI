@@ -1,3 +1,59 @@
+<?php
+session_start();
+$correct_code = '061806'; // Default 6 digit code for testing
+$error_msg = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['auth_code'])) {
+    if ($_POST['auth_code'] === $correct_code) {
+        $_SESSION['authenticated_testing'] = true;
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        $error_msg = 'Kode authenticator salah. Silakan coba lagi.';
+    }
+}
+
+if (!isset($_SESSION['authenticated_testing']) || $_SESSION['authenticated_testing'] !== true) {
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Authenticator Wall | SIDIK-TI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-4 font-['Inter']">
+    <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center border border-slate-100">
+        <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2 font-['Plus_Jakarta_Sans']">Akses Terbatas</h2>
+        <p class="text-slate-500 mb-8 text-sm leading-relaxed">
+            Ingin mengakses aplikasi ini untuk melakukan testing? coba masukkan 6 code authenticator terlebih dahulu.
+        </p>
+        
+        <form method="POST" class="space-y-4">
+            <div>
+                <input type="text" name="auth_code" maxlength="6" class="w-full text-center text-2xl tracking-widest font-bold py-3 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none transition-all" placeholder="••••••" required autofocus>
+                <?php if ($error_msg): ?>
+                    <p class="text-red-500 text-xs mt-2 font-medium"><?php echo $error_msg; ?></p>
+                <?php endif; ?>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-indigo-600/30">
+                Verifikasi Kode
+            </button>
+        </form>
+    </div>
+</body>
+</html>
+<?php
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html class="light" lang="id">
 <head>

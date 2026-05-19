@@ -94,10 +94,13 @@ if (empty($data)) die("Data tiket tidak ditemukan.");
                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-xl">description</span><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Deskripsi Malfungsi / Catatan</p></div>
                 <div class="bg-surface p-6 rounded-[2rem] border border-slate-100 italic text-sm text-slate-700 leading-relaxed font-medium">"<?php echo nl2br(htmlspecialchars($data['description'] ?? '')); ?>"</div>
             </div>
-            <?php if (!empty($data['attachment_path'])): ?>
+            <?php if (!empty($data['attachment_path'])): 
+                $img_src = $data['attachment_path'];
+                if (strpos($img_src, '../uploads/') === 0) $img_src = '../' . $img_src;
+            ?>
             <div class="space-y-3">
                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-xl">photo_library</span><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dokumentasi Visual</p></div>
-                <div class="rounded-3xl overflow-hidden border border-slate-200 shadow-sm"><img src="<?php echo htmlspecialchars($data['attachment_path']); ?>" alt="Foto Kerusakan" class="w-full h-auto object-cover max-h-80 grayscale-[0.2] hover:grayscale-0 transition-all"></div>
+                <div class="rounded-3xl overflow-hidden border border-slate-200 shadow-sm"><img src="<?php echo htmlspecialchars($img_src); ?>" alt="Foto Kerusakan" class="w-full h-auto object-cover max-h-80 grayscale-[0.2] hover:grayscale-0 transition-all"></div>
             </div>
             <?php endif; ?>
         </div>

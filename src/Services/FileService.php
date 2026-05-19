@@ -69,6 +69,6 @@ class FileService extends BaseService {
         }
 
         // 4. Default Local Path (relative to config/handlers)
-        return "../uploads/" . $new_name;
+        return "../../uploads/" . $new_name;
     }
 }

@@ -100,6 +100,15 @@ if (empty($data)) die("Data tiket tidak ditemukan.");
                 <div class="space-y-4 border-b border-outline-variant/10 pb-6"><pre class="text-[11px] text-slate-600 font-bold leading-loose whitespace-pre-wrap italic font-body">"<?php echo htmlspecialchars($data['description'] ?? ''); ?>"</pre></div>
                 <div class="flex justify-between items-end pt-4"><div class="space-y-1"><span class="text-[9px] font-black text-outline uppercase tracking-widest">Total Anggaran Diajukan</span></div><div class="text-right"><span class="font-headline font-black text-primary text-3xl tracking-tighter">Rp <?php echo number_format((float)($data['estimasi'] ?? 0), 0, ',', '.'); ?></span></div></div>
             </div>
+            <?php if (!empty($data['attachment_path'])): 
+                $img_src = $data['attachment_path'];
+                if (strpos($img_src, '../uploads/') === 0) $img_src = '../' . $img_src;
+            ?>
+            <div class="space-y-3">
+                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-orange-600 text-xl">photo_library</span><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dokumentasi Visual</p></div>
+                <div class="rounded-3xl overflow-hidden border border-slate-200 shadow-sm"><img src="<?php echo htmlspecialchars($img_src); ?>" alt="Dokumentasi Visual" class="w-full h-auto object-cover max-h-80 grayscale-[0.2] hover:grayscale-0 transition-all"></div>
+            </div>
+            <?php endif; ?>
         </div>
 
         <div class="border-t-2 border-dashed border-slate-100 pt-10">

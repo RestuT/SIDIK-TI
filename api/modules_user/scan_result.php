@@ -331,7 +331,10 @@ $status_config = match(true) {
         </div>
     </div>
 
-    <?php if (!empty($data['attachment_path'])): ?>
+    <?php if (!empty($data['attachment_path'])): 
+        $img_src = $data['attachment_path'];
+        if (strpos($img_src, '../uploads/') === 0) $img_src = '../' . $img_src;
+    ?>
     <!-- 5. FOTO KERUSAKAN -->
     <div class="card bg-white dark:bg-slate-900 rounded-3xl shadow-sm overflow-hidden border border-transparent dark:border-slate-800">
         <div class="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
@@ -339,7 +342,7 @@ $status_config = match(true) {
             <h2 class="font-headline font-black text-xs text-slate-700 dark:text-slate-300 uppercase tracking-widest">Dokumentasi Visual</h2>
         </div>
         <div class="p-3">
-            <img src="<?php echo htmlspecialchars($data['attachment_path']); ?>"
+            <img src="<?php echo htmlspecialchars($img_src); ?>"
                  alt="Foto Kerusakan"
                  class="w-full rounded-2xl object-cover max-h-64">
         </div>

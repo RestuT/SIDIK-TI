@@ -162,9 +162,9 @@ if (!$db && $conn) {
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Spesifikasi Detail & Justifikasi</label>
                         <textarea name="description" id="description" required rows="4" class="block w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-0 rounded-2xl font-bold text-on-surface-variant dark:text-white leading-relaxed outline-none focus:ring-4 focus:ring-primary/10 dark:focus:ring-indigo-500/20 transition-all text-sm min-h-[140px]"></textarea>
                     </div>
-                    <div class="space-y-4">
+                    <div class="space-y-4 p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl bg-slate-50/50 dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 text-primary dark:text-indigo-400">Lampiran Bukti / KAK (Wajib)</label>
-                        <input type="file" name="attachment" id="file-upload" accept=".jpg,.jpeg,.png,.pdf" required class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 dark:file:bg-indigo-500/20 file:text-primary dark:file:text-indigo-400 hover:file:bg-primary/20 dark:hover:file:bg-indigo-500/30">
+                        <input type="file" name="attachment" id="file-upload" accept=".jpg,.jpeg,.png,.pdf" required class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 dark:file:bg-indigo-500/20 file:text-primary dark:file:text-indigo-400 hover:file:bg-primary/20 dark:hover:file:bg-indigo-500/30 cursor-pointer">
                     </div>
                     <div class="bg-slate-900 rounded-[2.5rem] text-white overflow-hidden shadow-2xl shadow-slate-300/30 dark:shadow-none" id="estimasi-panel">
                         <div class="bg-primary dark:bg-indigo-600 px-8 pt-8 pb-4"><h2 id="display_estimasi" class="text-3xl font-black font-headline tracking-tighter italic">Rp 0</h2></div>

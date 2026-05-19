@@ -239,6 +239,19 @@ if (empty($error) && !empty($data)) {
         </div>
         <?php endif; ?>
 
+        <?php if (!empty($data['photo']) || !empty($data['attachment_path'])): 
+            $img_src = !empty($data['photo']) ? $data['photo'] : $data['attachment_path'];
+            if (strpos($img_src, '../uploads/') === 0) $img_src = '../' . $img_src;
+        ?>
+        <div class="card-anim bg-white dark:bg-slate-900 p-5 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-2 border-b border-slate-50 dark:border-slate-800 pb-3 mb-4">
+                <span class="material-symbols-outlined text-slate-400 text-lg">image</span>
+                <h3 class="font-headline font-black text-xs text-slate-700 dark:text-slate-300 uppercase tracking-widest">Dokumentasi Visual</h3>
+            </div>
+            <img src="<?php echo htmlspecialchars($img_src); ?>" alt="Visual Asset" class="w-full rounded-xl object-cover max-h-64">
+        </div>
+        <?php endif; ?>
+
         <!-- FOOTER META -->
         <div class="card-anim bg-slate-100 dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 p-4 rounded-xl flex items-center justify-between gap-3">
             <div class="flex items-center gap-2">
