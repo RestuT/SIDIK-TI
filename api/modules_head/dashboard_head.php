@@ -74,17 +74,17 @@ if (!$db && $conn) {
     <?php include __DIR__ . '/../includes/navbar_head.php'; ?>
 
     <main class="lg:ml-72 pt-14 lg:pt-0 min-h-screen">
-        <!-- Header Bar -->
-        <header class="flex flex-col md:flex-row md:items-center justify-between gap-3 px-8 py-6 border-b border-slate-200 sticky top-0 bg-white/80 backdrop-blur-xl z-30">
+        <!-- Header Bar with Premium Dark Background -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-8 py-7 border-b border-slate-800 sticky top-0 bg-slate-900 text-white z-30 shadow-lg shadow-slate-950/10">
             <div>
-                <h1 class="font-headline text-2xl font-black text-slate-900 tracking-tight italic uppercase">
-                    Department <span class="text-emerald-600 italic">Head Dashboard</span>
+                <h1 class="font-headline text-2xl font-extrabold text-white tracking-tight italic uppercase">
+                    Department <span class="text-emerald-400 italic">Head Dashboard</span>
                 </h1>
-                <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest leading-none mt-1">Monitoring & Pengawasan Internal - <?php echo htmlspecialchars($dept); ?></p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-2">Monitoring & Pengawasan Internal - <?php echo htmlspecialchars($dept); ?></p>
             </div>
-            <div class="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100">
-                <span class="material-symbols-outlined text-emerald-600 text-sm fill-1">verified</span>
-                <span class="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Authorized Head Access</span>
+            <div class="flex items-center gap-2 bg-emerald-500/10 px-4 py-2.5 rounded-2xl border border-emerald-500/20">
+                <span class="material-symbols-outlined text-emerald-400 text-sm fill-1">verified</span>
+                <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Authorized Head Access</span>
             </div>
         </header>
 

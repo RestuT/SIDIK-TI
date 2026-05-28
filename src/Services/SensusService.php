@@ -119,4 +119,39 @@ class SensusService extends BaseService {
             throw new \Exception("Database required");
         }
     }
+
+    /**
+     * Close a census batch
+     */
+    public function closeBatch($batchId) {
+        if ($this->db && !is_numeric($batchId)) {
+            $this->db->collection('sensus_batches')->document($batchId)->update([
+                ['path' => 'status', 'value' => 'Closed']
+            ]);
+        } else if ($this->conn) {
+            $bid = intval($batchId);
+            mysqli_query($this->conn, "UPDATE sensus_batches SET status = 'Closed' WHERE id = $bid");
+        } else {
+            throw new \Exception("Database required");
+        }
+    }
+
+    /**
+     * Delete a census batch and its tasks
+     */
+    public function deleteBatch($batchId) {
+        if ($this->db && !is_numeric($batchId)) {
+            $this->db->collection('sensus_batches')->document($batchId)->delete();
+            $tasks = $this->db->collection('sensus_tasks')->where('batch_id', '=', $batchId)->documents();
+            foreach ($tasks as $t) {
+                $t->reference()->delete();
+            }
+        } else if ($this->conn) {
+            $bid = intval($batchId);
+            mysqli_query($this->conn, "DELETE FROM sensus_tasks WHERE batch_id = $bid");
+            mysqli_query($this->conn, "DELETE FROM sensus_batches WHERE id = $bid");
+        } else {
+            throw new \Exception("Database required");
+        }
+    }
 }

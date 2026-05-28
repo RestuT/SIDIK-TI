@@ -171,14 +171,63 @@ $base_url = '../';
                     <span class="material-symbols-outlined text-lg">add_task</span> Mulai Batch Baru
                 </button>
             <?php else: ?>
-                <div class="px-5 py-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-emerald-700">Batch Aktif: <?php echo htmlspecialchars($active_batch['batch_name']); ?></span>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="px-5 py-3 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-emerald-700">Batch Aktif: <?php echo htmlspecialchars($active_batch['batch_name']); ?></span>
+                    </div>
+                    <form action="../config/proses_sensus.php" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menyelesaikan/menutup batch sensus ini?')">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                        <input type="hidden" name="action" value="close_batch">
+                        <input type="hidden" name="batch_id" value="<?php echo htmlspecialchars($active_batch['id']); ?>">
+                        <button type="submit" class="px-5 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">check</span> Selesaikan Batch
+                        </button>
+                    </form>
+                    <form action="../config/proses_sensus.php" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus batch sensus aktif ini beserta semua tugas di dalamnya?')">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
+                        <input type="hidden" name="action" value="delete_batch">
+                        <input type="hidden" name="batch_id" value="<?php echo htmlspecialchars($active_batch['id']); ?>">
+                        <button type="submit" class="px-5 py-3 bg-rose-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-rose-600 transition flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">delete</span> Hapus Batch
+                        </button>
+                    </form>
                 </div>
             <?php endif; ?>
         </header>
 
         <div class="p-8 space-y-10">
+            <?php if (isset($_GET['status'])): ?>
+                <?php 
+                    $status_msg = '';
+                    $status_class = '';
+                    switch ($_GET['status']) {
+                        case 'batch_started':
+                            $status_msg = 'Batch sensus baru berhasil dibuka!';
+                            $status_class = 'bg-emerald-50 border-emerald-200 text-emerald-800';
+                            break;
+                        case 'batch_closed':
+                            $status_msg = 'Batch sensus berhasil diselesaikan dan diarsipkan.';
+                            $status_class = 'bg-indigo-50 border-indigo-200 text-indigo-800';
+                            break;
+                        case 'batch_deleted':
+                            $status_msg = 'Batch sensus beserta tugas di dalamnya berhasil dihapus.';
+                            $status_class = 'bg-rose-50 border-rose-200 text-rose-800';
+                            break;
+                        case 'task_finalized':
+                            $status_msg = 'Laporan sensus berhasil divalidasi dan data inventaris telah diperbarui.';
+                            $status_class = 'bg-emerald-50 border-emerald-200 text-emerald-800';
+                            break;
+                    }
+                ?>
+                <?php if ($status_msg): ?>
+                    <div class="p-4 rounded-2xl border <?php echo $status_class; ?> text-sm font-bold flex items-center gap-3">
+                        <span class="material-symbols-outlined">info</span>
+                        <?php echo htmlspecialchars($status_msg); ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
+
             <?php if ($active_batch): ?>
                 <!-- Stats Overview -->
                 <section class="grid grid-cols-1 md:grid-cols-3 gap-6">

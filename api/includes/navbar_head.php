@@ -5,21 +5,39 @@
 
 <!-- Theme Loader & Global Override Script -->
 <script>
+    // Immediately apply theme from localStorage to prevent screen flashing
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+    }
+
     function updateThemeIconG(theme) {
         const icons = document.querySelectorAll('.theme-icon-g');
         icons.forEach(i => i.textContent = theme === 'dark' ? 'dark_mode' : 'light_mode');
     }
+
     function toggleGlobalTheme() {
         if (document.documentElement.classList.contains('dark')) {
             document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
             localStorage.theme = 'light';
             updateThemeIconG('light');
         } else {
             document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
             localStorage.theme = 'dark';
             updateThemeIconG('dark');
         }
     }
+
+    // Set correct icon on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        updateThemeIconG(currentTheme);
+    });
 </script>
 
 <style>
@@ -159,5 +177,10 @@ $dept_name = $_SESSION['department'] ?? 'Department';
 <style>
     @media (min-width: 1024px) {
         body.head-layout > main { margin-left: 18rem; }
+    }
+    @media (max-width: 1023px) {
+        main header.sticky, main header {
+            top: 56px !important;
+        }
     }
 </style>

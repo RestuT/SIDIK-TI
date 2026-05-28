@@ -32,6 +32,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    // --- ACTION: CLOSE BATCH (Admin Only) ---
+    if ($action === 'close_batch') {
+        if ($_SESSION['role'] !== 'admin') die("Unauthorized");
+        if (empty($batch_id)) die("Missing Batch ID");
+        $sensusService->closeBatch($batch_id);
+        header("Location: ../admin/sensus_barang.php?status=batch_closed");
+        exit();
+    }
+
+    // --- ACTION: DELETE BATCH (Admin Only) ---
+    if ($action === 'delete_batch') {
+        if ($_SESSION['role'] !== 'admin') die("Unauthorized");
+        if (empty($batch_id)) die("Missing Batch ID");
+        $sensusService->deleteBatch($batch_id);
+        header("Location: ../admin/sensus_barang.php?status=batch_deleted");
+        exit();
+    }
+
     // --- ACTION: SUBMIT REPORT (User/Staff/Kabid/Admin) ---
     if ($action === 'submit_report') {
         if (empty($task_id)) die("Invalid Task ID");

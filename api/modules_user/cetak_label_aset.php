@@ -11,12 +11,8 @@ if (!isset($_SESSION['user_id'])) {
 // Generate Full Domain for QR URL
 $current_domain = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
 $script_name = $_SERVER['SCRIPT_NAME']; // e.g. /SIDIK-TI/api/modules_user/cetak_label_aset.php
-$base_path = rtrim(dirname(dirname($script_name)), '/\\'); // e.g. /SIDIK-TI/api
-// Check if base_path ends with /api, if so go up one level more
-if (substr($base_path, -4) === '/api') {
-    $base_path = substr($base_path, 0, -4);
-}
-$qr_scan_url = $current_domain . $base_path . "/scan/asset?id="; 
+$base_path = rtrim(dirname($script_name), '/\\'); // e.g. /SIDIK-TI/api/modules_user
+$qr_scan_url = $current_domain . $base_path . "/scan_asset.php?id="; 
 
 $asset_id = $_GET['id'] ?? '';
 if (empty($asset_id)) {

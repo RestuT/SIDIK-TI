@@ -203,4 +203,30 @@ try {
             margin-left: 18rem;
         }
     }
+
+    /*
+     * KONTROL STACKING HEADER & OVERLAP SAAT SCROLL (SANGAT KRUSIAL)
+     * Menjamin header sticky di halaman teknisi selalu berada di atas konten saat di-scroll (tidak teroverlap/menumpuk oleh card).
+     * Serta menggunakan backdrop-blur modern premium dengan fallback solid yang elegan.
+     */
+    main header, main header.sticky {
+        z-index: 40 !important;
+        position: sticky !important;
+        top: 0 !important;
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+    }
+    
+    /* Penyesuaian di Mode Gelap */
+    html.dark main header, html.dark main header.sticky {
+        background-color: rgba(15, 23, 42, 0.9) !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    @media (max-width: 1023px) {
+        main header, main header.sticky {
+            top: 56px !important; /* Di bawah mobile topbar agar tidak menutupi topbar */
+        }
+    }
 </style>

@@ -51,6 +51,10 @@ if (empty($data)) die("Data tiket tidak ditemukan.");
     ?>
 </head>
 <body class="bg-surface p-6 md:p-12 font-body text-slate-900 antialiased transition-colors duration-300">
+    <script>
+        // Force light mode on print preview sheet pages for extreme ink efficiency and perfect legibility
+        document.documentElement.classList.remove('dark');
+    </script>
     <div class="max-w-3xl mx-auto bg-white p-12 rounded-[3rem] shadow-2xl border border-outline-variant/10 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-12 opacity-[0.03] rotate-12 pointer-events-none"><span class="material-symbols-outlined text-[200px]">handyman</span></div>
         <div class="flex flex-col items-center border-b-2 border-dashed border-slate-100 pb-10 mb-10 relative z-10">
@@ -95,8 +99,8 @@ if (empty($data)) die("Data tiket tidak ditemukan.");
                 <div class="bg-surface p-6 rounded-[2rem] border border-slate-100 italic text-sm text-slate-700 leading-relaxed font-medium">"<?php echo nl2br(htmlspecialchars($data['description'] ?? '')); ?>"</div>
             </div>
             <?php if (!empty($data['attachment_path'])): 
-                $img_src = $data['attachment_path'];
-                if (strpos($img_src, '../uploads/') === 0) $img_src = '../' . $img_src;
+                // Use view_attachment.php secure proxy to ensure image loading bypasses server root path differences
+                $img_src = '../config/view_attachment.php?id=' . urlencode($data['ticket_number'] ?? '');
             ?>
             <div class="space-y-3">
                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-xl">photo_library</span><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dokumentasi Visual</p></div>

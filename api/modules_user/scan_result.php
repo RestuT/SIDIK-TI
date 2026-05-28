@@ -57,6 +57,7 @@ $is_pengadaan   = ($data['type'] ?? '') === 'Pengadaan';
 $accent_icon_bg  = $is_maintenance ? 'bg-emerald-100 text-emerald-600'   : 'bg-orange-100 text-orange-600';
 $accent_badge    = $is_maintenance ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-orange-50 text-orange-700 border-orange-200';
 $accent_section  = $is_maintenance ? 'text-emerald-600' : 'text-orange-600';
+$accent_box      = $is_maintenance ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20 text-orange-700 dark:text-orange-300';
 $accent_icon     = $is_maintenance ? 'build' : 'receipt_long';
 $accent_label    = $is_maintenance ? 'Maintenance Statement' : 'Procurement Evidence';
 $header_from     = $is_maintenance ? 'from-emerald-700' : 'from-orange-600';
@@ -280,7 +281,7 @@ $status_config = match(true) {
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">
                     <?php echo $is_maintenance ? 'Deskripsi Kerusakan' : 'Keterangan'; ?>
                 </p>
-                <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-2xl p-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">
+                <div class="<?php echo $accent_box; ?> border rounded-2xl p-4 text-sm leading-relaxed font-medium italic shadow-inner">
                     "<?php echo nl2br(htmlspecialchars($data['description'] ?? '—')); ?>"
                 </div>
             </div>

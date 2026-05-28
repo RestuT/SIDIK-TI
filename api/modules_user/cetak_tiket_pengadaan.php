@@ -51,6 +51,10 @@ if (empty($data)) die("Data tiket tidak ditemukan.");
     ?>
 </head>
 <body class="bg-surface p-6 md:p-12 font-body text-slate-900 antialiased transition-colors duration-300">
+    <script>
+        // Force light mode on print preview sheet pages for extreme ink efficiency and perfect legibility
+        document.documentElement.classList.remove('dark');
+    </script>
     <div class="max-w-3xl mx-auto bg-white p-12 rounded-[3rem] shadow-2xl border border-outline-variant/10 relative overflow-hidden">
         <div class="absolute top-0 right-0 p-12 opacity-[0.03] rotate-12 pointer-events-none"><span class="material-symbols-outlined text-[200px]">shopping_bag</span></div>
         <div class="flex flex-col items-center border-b-2 border-dashed border-slate-100 pb-10 mb-10 relative z-10">
@@ -101,8 +105,8 @@ if (empty($data)) die("Data tiket tidak ditemukan.");
                 <div class="flex justify-between items-end pt-4"><div class="space-y-1"><span class="text-[9px] font-black text-outline uppercase tracking-widest">Total Anggaran Diajukan</span></div><div class="text-right"><span class="font-headline font-black text-primary text-3xl tracking-tighter">Rp <?php echo number_format((float)($data['estimasi'] ?? 0), 0, ',', '.'); ?></span></div></div>
             </div>
             <?php if (!empty($data['attachment_path'])): 
-                $img_src = $data['attachment_path'];
-                if (strpos($img_src, '../uploads/') === 0) $img_src = '../' . $img_src;
+                // Use view_attachment.php secure proxy to ensure image loading bypasses server root path differences
+                $img_src = '../config/view_attachment.php?id=' . urlencode($data['ticket_number'] ?? '');
             ?>
             <div class="space-y-3">
                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-orange-600 text-xl">photo_library</span><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dokumentasi Visual</p></div>
